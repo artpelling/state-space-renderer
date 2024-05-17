@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
-bin_PROGRAMS = test_system test_solver benchmark_system benchmark_solver
+bin_PROGRAMS = test_system test_solver system_benchmark solver_benchmark
 
 LDADD = -lcnpy -lblas -lpthread
 AM_LDFLAGS = -std=c++11
@@ -13,8 +13,8 @@ AM_CPPFLAGS = -I/Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/System/L
 AM_LDFLAGS += -framework Accelerate -rpath /usr/local/lib/
 endif
 
-benchmark_system_SOURCES = benchmark/benchmark_runtime_system.cpp src/state_space_system.cpp
-benchmark_solver_SOURCES = benchmark/benchmark_runtime_solver.cpp src/state_space_system.cpp src/solver.cpp src/utils.cpp
+system_benchmark_SOURCES = src/system_benchmark.cpp src/state_space_system.cpp
+solver_benchmark_SOURCES = src/solver_benchmark.cpp src/state_space_system.cpp src/solver.cpp src/utils.cpp
 
 
 VENVDIR = $(builddir)/venv
@@ -38,9 +38,9 @@ clean-local:
 	-rm -rf systems/benchmark
 
 
-benchmarks: benchmark_system benchmark_solver benchmark_files
-	./benchmark_solver
-	./benchmark_system
+benchmarks: system_benchmark solver_benchmark benchmark_files
+	./solver_benchmark
+	./system_benchmark
 
 tests: test_system test_solver system_file
 	./test_solver systems/n10p2m5d16double.npz
