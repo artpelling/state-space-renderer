@@ -1,4 +1,4 @@
-#include <cnpy.h>
+#include "../cnpy/cnpy.h"
 #include "../src/state_space_system.h"
 #include "../src/solver.h"
 #include "../src/utils.h"

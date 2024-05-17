@@ -30,15 +30,12 @@ AS_CASE([$host_cpu],
 AM_CONDITIONAL([ON_ARM64], [test x$on_arm = xyes])
 AM_CONDITIONAL([ON_X86_64], [test x$on_x86 = xyes])
 
-# Check for C compiler
+# Check for C++ compiler
 AC_LANG([C++])
+AC_PROG_CC
 AC_PROG_CXX
 
 AC_CHECK_HEADERS(cblas.h)
-AC_CHECK_HEADERS(cnpy.h)
-AC_CHECK_HEADERS(benchmark.h, [LIBS="-lbenchmark"], [LIBS=""])
-AC_MSG_NOTICE([$LIBS])
-AC_SUBST([LIBS])
 # We can add more checks in this section
 
 # Tells automake to create a Makefile

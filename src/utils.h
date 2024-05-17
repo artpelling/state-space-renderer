@@ -2,7 +2,7 @@
 #define UTILS_H_
 
 #include <cblas.h>
-#include <cnpy.h>
+#include "../cnpy/cnpy.h"
 
 #define UNDERLINE "\033[4m"
 #define CLOSEUNDERLINE "\033[0m"

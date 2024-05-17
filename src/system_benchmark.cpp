@@ -1,8 +1,8 @@
-#include <benchmark.h>
+#include <benchmark/benchmark.h>
 #include <cnpy.h>
 #include <string>
 
-#include "../src/state_space_system.h"
+#include "state_space_system.h"
 
 template <typename T>
 class NoProcess : public StateSpaceSystem<T>

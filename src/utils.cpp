@@ -1,5 +1,5 @@
 #include <cblas.h>
-#include <cnpy.h>
+#include "../cnpy/cnpy.h"
 #include "solver.h"
 #include "utils.h"
 

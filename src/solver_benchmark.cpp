@@ -1,12 +1,12 @@
-#include <benchmark.h>
-#include <cnpy.h>
+#include <benchmark/benchmark.h>
 #include <string>
 #include <limits>
 #include <cassert>
 
-#include "../src/state_space_system.h"
-#include "../src/solver.h"
-#include "../src/utils.h"
+#include "../cnpy/cnpy.h"
+#include "state_space_system.h"
+#include "solver.h"
+#include "utils.h"
 
 // Single precision native solver
 static void BM_SinglePNativeSolver(benchmark::State &state)
