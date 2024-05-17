@@ -14,20 +14,33 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - name: Cache Benchmark library
         uses: actions/cache@v4
         with:
           path: benchmarks
           key: ${{ runner.os }}-googlebenchmark-v1.5.0
+
+      - name: Build
+        run: |
+          autoreconf -vif
+          mkdir build && cd build
+          ../configure
+          make
+
+      - name: Tests
+        run: cd build && make tests
+
       - name: Run benchmark
-        run: make benchmarks
+        run: cd build && make bench-json
 
       - name: Store benchmark result
         uses: benchmark-action/github-action-benchmark@v1
         with:
           name: C++ Benchmark
           tool: 'googlecpp'
-          output-file-path: examples/cpp/benchmark_result.json
+          output-file-path: benchmark_result.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
           auto-push: true
           # Show alert with commit comment on detecting possible performance regression
