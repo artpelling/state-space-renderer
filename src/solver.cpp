@@ -2,12 +2,6 @@
 #include "solver.h"
 #include "utils.h"
 
-/* template <typename T>
-Solver<T>::Solver(StateSpaceSystem<T> system)
-{
-    system_ = system;
-} */
-
 /* CPP-based solver */
 template <typename T>
 NativeSolver<T>::NativeSolver(StateSpaceSystem<T> &system) : Solver<T>(system)

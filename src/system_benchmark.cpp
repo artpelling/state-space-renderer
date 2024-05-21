@@ -42,7 +42,7 @@ static void BM_CnpyStateSinglePrecision(benchmark::State &state)
     }
 }
 
-BENCHMARK(BM_CnpyStateSinglePrecision)->Args({10, 2, 5, 16})->Args({100, 2, 5, 16})->Args({1000, 2, 5, 16});//->Args({5000, 2, 5, 16});
+BENCHMARK(BM_CnpyStateSinglePrecision)->Args({10, 2, 5, 128})->Args({100, 2, 5, 128})->Args({1000, 2, 5, 128});//->Args({5000, 2, 5, 128});
 
 // Double precision initialization
 static void BM_CnpyStateDoublePrecision(benchmark::State &state)
@@ -65,6 +65,6 @@ static void BM_CnpyStateDoublePrecision(benchmark::State &state)
     }
 }
 
-BENCHMARK(BM_CnpyStateDoublePrecision)->Args({10, 2, 5, 16})->Args({100, 2, 5, 16})->Args({1000, 2, 5, 16});//->Args({5000, 2, 5, 16});
+BENCHMARK(BM_CnpyStateDoublePrecision)->Args({10, 2, 5, 128})->Args({100, 2, 5, 128})->Args({1000, 2, 5, 128});//->Args({5000, 2, 5, 128});
 
 BENCHMARK_MAIN();
