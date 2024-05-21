@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1716308496616,
+  "lastUpdate": 1716311514541,
   "repoUrl": "https://github.com/artpelling/state-space-renderer",
   "entries": {
     "C++ Benchmark": [
@@ -192,6 +192,102 @@ window.BENCHMARK_DATA = {
             "value": 1.1050385215565035,
             "unit": "kHz",
             "extra": "iterations: 6\ncpu: 115.83120699999996 ms\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "a.pelling@tu-berlin.de",
+            "name": "Art Pelling",
+            "username": "artpelling"
+          },
+          "committer": {
+            "email": "a.pelling@tu-berlin.de",
+            "name": "Art Pelling",
+            "username": "artpelling"
+          },
+          "distinct": true,
+          "id": "00918405fc62742e2a90f344632556e55e570f94",
+          "message": "parse benchmark json",
+          "timestamp": "2024-05-21T19:10:08+02:00",
+          "tree_id": "48148a757d330d7cdd12c55b8c1b04c505b2a013",
+          "url": "https://github.com/artpelling/state-space-renderer/commit/00918405fc62742e2a90f344632556e55e570f94"
+        },
+        "date": 1716311513704,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "BM_SinglePNativeSolver/10/2/5/128",
+            "value": 1975.7352436371232,
+            "unit": "kHz/iter",
+            "extra": "iterations: 10773\ncpu: 1975.8339532841728 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_SinglePNativeSolver/100/2/5/128",
+            "value": 26.14051619116373,
+            "unit": "kHz/iter",
+            "extra": "iterations: 143\ncpu: 26.141501496836604 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_SinglePNativeSolver/1000/2/5/128",
+            "value": 0.26821401511224147,
+            "unit": "kHz/iter",
+            "extra": "iterations: 2\ncpu: 0.26823051089706146 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_DoublePNativeSolver/10/2/5/128",
+            "value": 1968.311720469014,
+            "unit": "kHz/iter",
+            "extra": "iterations: 10790\ncpu: 1968.341222691092 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_DoublePNativeSolver/100/2/5/128",
+            "value": 26.139372124655257,
+            "unit": "kHz/iter",
+            "extra": "iterations: 143\ncpu: 26.141007192041762 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_DoublePNativeSolver/1000/2/5/128",
+            "value": 0.2679493701668395,
+            "unit": "kHz/iter",
+            "extra": "iterations: 2\ncpu: 0.2679652828115329 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_FGEMVSolver/10/2/5/128",
+            "value": 5935.795666594731,
+            "unit": "kHz/iter",
+            "extra": "iterations: 32430\ncpu: 5935.796379579464 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_FGEMVSolver/100/2/5/128",
+            "value": 146.9747910322996,
+            "unit": "kHz/iter",
+            "extra": "iterations: 801\ncpu: 146.97484581162766 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_FGEMVSolver/1000/2/5/128",
+            "value": 1.1058475630920344,
+            "unit": "kHz/iter",
+            "extra": "iterations: 6\ncpu: 1.1059140048844147 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_DGEMVSolver/10/2/5/128",
+            "value": 6028.608630558527,
+            "unit": "kHz/iter",
+            "extra": "iterations: 33079\ncpu: 6028.768685486678 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_DGEMVSolver/100/2/5/128",
+            "value": 148.21819253123422,
+            "unit": "kHz/iter",
+            "extra": "iterations: 811\ncpu: 148.22245165803525 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_DGEMVSolver/1000/2/5/128",
+            "value": 1.104749545431223,
+            "unit": "kHz/iter",
+            "extra": "iterations: 6\ncpu: 1.1047492037627993 kHz\nthreads: 1"
           }
         ]
       }
