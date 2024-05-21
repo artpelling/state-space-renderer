@@ -140,9 +140,9 @@ static void BM_DGEMVSolver(benchmark::State &state)
     }
 }
 
-BENCHMARK(BM_SinglePNativeSolver)->Args({10, 2, 5, 16})->Args({100, 2, 5, 16})->Args({1000, 2, 5, 16});//->Args({5000, 2, 5, 16});
-BENCHMARK(BM_DoublePNativeSolver)->Args({10, 2, 5, 16})->Args({100, 2, 5, 16})->Args({1000, 2, 5, 16});//->Args({5000, 2, 5, 16});
-BENCHMARK(BM_FGEMVSolver)->Args({10, 2, 5, 16})->Args({100, 2, 5, 16})->Args({1000, 2, 5, 16});//->Args({5000, 2, 5, 16});
-BENCHMARK(BM_DGEMVSolver)->Args({10, 2, 5, 16})->Args({100, 2, 5, 16})->Args({1000, 2, 5, 16});//->Args({5000, 2, 5, 16});
+BENCHMARK(BM_SinglePNativeSolver)->Args({10, 2, 5, 16})->Args({100, 2, 5, 16})->Args({1000, 2, 5, 16}); //->Args({5000, 2, 5, 16});
+BENCHMARK(BM_DoublePNativeSolver)->Args({10, 2, 5, 16})->Args({100, 2, 5, 16})->Args({1000, 2, 5, 16}); //->Args({5000, 2, 5, 16});
+BENCHMARK(BM_FGEMVSolver)->Args({10, 2, 5, 16})->Args({100, 2, 5, 16})->Args({1000, 2, 5, 16});         //->Args({5000, 2, 5, 16});
+BENCHMARK(BM_DGEMVSolver)->Args({10, 2, 5, 16})->Args({100, 2, 5, 16})->Args({1000, 2, 5, 16});         //->Args({5000, 2, 5, 16});
 
 BENCHMARK_MAIN();
