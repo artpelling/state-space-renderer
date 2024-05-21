@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <array>
+
 #include "utils.h"
 
 /* Utility structs */
