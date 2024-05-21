@@ -44,11 +44,10 @@ StateSpaceSystem<T>::StateSpaceSystem(T *A, T *B, T *C, T *D, int n, int m, int 
 template <typename T>
 StateSpaceSystem<T>::~StateSpaceSystem()
 {
-    // TODO: uncommenting leads to error ("double free detected in tcache 2")
-    // free(this->A_);
-    // free(this->B_);
-    // free(this->C_);
-    // free(this->D_);
+    free(this->A_);
+    free(this->B_);
+    free(this->C_);
+    free(this->D_);
 }
 
 template <typename T>

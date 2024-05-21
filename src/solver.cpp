@@ -2,15 +2,15 @@
 #include "solver.h"
 #include "utils.h"
 
-template <typename T>
+/* template <typename T>
 Solver<T>::Solver(StateSpaceSystem<T> system)
 {
     system_ = system;
-}
+} */
 
 /* CPP-based solver */
 template <typename T>
-NativeSolver<T>::NativeSolver(StateSpaceSystem<T> system) : Solver<T>(system)
+NativeSolver<T>::NativeSolver(StateSpaceSystem<T> &system) : Solver<T>(system)
 {
     int n = this->system_.shape().n;
     int m = this->system_.shape().m;
@@ -89,7 +89,7 @@ void NativeSolver<T>::process(T *input, T *output, int dataframes)
 
 /* CBLAS_XGEMV-based solver */
 template <typename T>
-XGEMVSolver<T>::XGEMVSolver(StateSpaceSystem<T> system) : Solver<T>(system)
+XGEMVSolver<T>::XGEMVSolver(StateSpaceSystem<T> &system) : Solver<T>(system)
 {
     int n = this->system_.shape().n;
     int m = this->system_.shape().m;
