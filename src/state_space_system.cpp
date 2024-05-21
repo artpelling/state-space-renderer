@@ -134,36 +134,24 @@ T *StateSpaceSystem<T>::D()
 template <typename T>
 T StateSpaceSystem<T>::A(int i, int j)
 {
-    assert(("index should be within state size", i < n_));
-    assert(("index should be within state size", j < n_));
-
     return A_[j + n_ * i];
 }
 
 template <typename T>
 T StateSpaceSystem<T>::B(int i, int j)
 {
-    assert(("index should be within state size", i < n_));
-    assert(("index should be within input size", j < m_));
-
     return B_[j + m_ * i];
 }
 
 template <typename T>
 T StateSpaceSystem<T>::C(int i, int j)
 {
-    assert(("index should be within output size", i < p_));
-    assert(("index should be within state size", j < n_));
-
     return C_[j + n_ * i];
 }
 
 template <typename T>
 T StateSpaceSystem<T>::D(int i, int j)
 {
-    assert(("index should be within output size", i < p_));
-    assert(("index should be within input size", j < m_));
-
     return D_[j + m_ * i];
 }
 
