@@ -42,7 +42,7 @@ void NativeSolver<T>::process(T *input, T *output, int dataframes)
     {
         for (int j = 0; j < m; j++)
         {
-            u[j] = input[j + m * i];
+            u[j] = input[j * dataframes + i];
         }
 
         for (int j = 0; j < p; j++)
@@ -123,7 +123,7 @@ void XGEMVSolver<T>::process(T *input, T *output, int dataframes)
     {
         for (int j = 0; j < m; j++)
         {
-            u[j] = input[j + m * i];
+            u[j] = input[j * dataframes + i];
         }
 
         XGEMV(CblasRowMajor, CblasNoTrans, p, m, one, this->system_.D(), m, u, 1, zero, y, 1);  // y = Du
