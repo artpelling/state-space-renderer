@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1716306855272,
+  "lastUpdate": 1716307326070,
   "repoUrl": "https://github.com/artpelling/state-space-renderer",
   "entries": {
     "C++ Benchmark": [
@@ -96,6 +96,102 @@ window.BENCHMARK_DATA = {
             "value": 115974390.333335,
             "unit": "ns/iter",
             "extra": "iterations: 6\ncpu: 115972739.99999984 ns\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "a.pelling@tu-berlin.de",
+            "name": "Art Pelling",
+            "username": "artpelling"
+          },
+          "committer": {
+            "email": "a.pelling@tu-berlin.de",
+            "name": "Art Pelling",
+            "username": "artpelling"
+          },
+          "distinct": true,
+          "id": "7ee73f0f27fd3ba876062e713b704e50e0f17f00",
+          "message": "change readme",
+          "timestamp": "2024-05-21T18:00:27+02:00",
+          "tree_id": "cfb9c4d737fca31870782e3198fb6468d08c6e1a",
+          "url": "https://github.com/artpelling/state-space-renderer/commit/7ee73f0f27fd3ba876062e713b704e50e0f17f00"
+        },
+        "date": 1716307324599,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "BM_SinglePNativeSolver/10/2/5/128",
+            "value": 62370.73932746942,
+            "unit": "ns/iter",
+            "extra": "iterations: 11033\ncpu: 62368.946342789815 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_SinglePNativeSolver/100/2/5/128",
+            "value": 4806925.9726026,
+            "unit": "ns/iter",
+            "extra": "iterations: 146\ncpu: 4806812.589041096 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_SinglePNativeSolver/1000/2/5/128",
+            "value": 476368879.000006,
+            "unit": "ns/iter",
+            "extra": "iterations: 2\ncpu: 476344102.99999994 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_DoublePNativeSolver/10/2/5/128",
+            "value": 61636.04690117564,
+            "unit": "ns/iter",
+            "extra": "iterations: 11343\ncpu: 61633.69708190071 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_DoublePNativeSolver/100/2/5/128",
+            "value": 4807637.04109599,
+            "unit": "ns/iter",
+            "extra": "iterations: 146\ncpu: 4807559.541095892 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_DoublePNativeSolver/1000/2/5/128",
+            "value": 477571548.5000092,
+            "unit": "ns/iter",
+            "extra": "iterations: 2\ncpu: 477536036.00000006 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_FGEMVSolver/10/2/5/128",
+            "value": 21583.36421163215,
+            "unit": "ns/iter",
+            "extra": "iterations: 32396\ncpu: 21582.257408322028 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_FGEMVSolver/100/2/5/128",
+            "value": 872121.1783042543,
+            "unit": "ns/iter",
+            "extra": "iterations: 802\ncpu: 872077.599750623 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_FGEMVSolver/1000/2/5/128",
+            "value": 115735690.4999934,
+            "unit": "ns/iter",
+            "extra": "iterations: 6\ncpu: 115733176.83333309 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_DGEMVSolver/10/2/5/128",
+            "value": 21191.07880968877,
+            "unit": "ns/iter",
+            "extra": "iterations: 33067\ncpu: 21190.622282033488 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_DGEMVSolver/100/2/5/128",
+            "value": 868914.205191636,
+            "unit": "ns/iter",
+            "extra": "iterations: 809\ncpu: 868897.4548825725 ns\nthreads: 1"
+          },
+          {
+            "name": "BM_DGEMVSolver/1000/2/5/128",
+            "value": 115817019.49999493,
+            "unit": "ns/iter",
+            "extra": "iterations: 6\ncpu: 115809682.99999987 ns\nthreads: 1"
           }
         ]
       }
