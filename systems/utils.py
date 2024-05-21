@@ -63,8 +63,9 @@ def save_system(
         C = C @ T
     if test_input:
         u = np.random.randn(m, test_input_length)
-        u = np.zeros((m, test_input_length))
-        u[0, 0] = 1
+        # u = np.zeros((m, test_input_length))
+        # u[0, 0] = 1
+        # u[0, 1] = 1
         x = np.zeros(n)
 
         y = np.zeros((p, test_input_length))

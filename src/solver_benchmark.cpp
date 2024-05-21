@@ -1,8 +1,8 @@
-#include <benchmark/benchmark.h>
 #include <string>
 #include <limits>
 #include <cassert>
 
+#include <benchmark/benchmark.h>
 #include "../cnpy/cnpy.h"
 #include "state_space_system.h"
 #include "solver.h"
@@ -37,7 +37,6 @@ static void BM_SinglePNativeSolver(benchmark::State &state)
     for (auto _ : state)
     {
         snat_solver.process(input.data<float>(), output, dataframes);
-        // assert(l2err(output, stout) < std::numeric_limits<float>::epsilon() / float(2));
     }
 }
 
@@ -70,7 +69,6 @@ static void BM_DoublePNativeSolver(benchmark::State &state)
     for (auto _ : state)
     {
         dnat_solver.process(input.data<double>(), output, dataframes);
-        // assert(l2err(output, stout) < std::numeric_limits<double>::epsilon() / double(2));
     }
 }
 
@@ -103,7 +101,6 @@ static void BM_FGEMVSolver(benchmark::State &state)
     for (auto _ : state)
     {
         sgemv_solver.process(input.data<float>(), output, dataframes);
-        // assert(l2err(output, stout) < std::numeric_limits<float>::epsilon() / float(2));
     }
 }
 
@@ -136,13 +133,12 @@ static void BM_DGEMVSolver(benchmark::State &state)
     for (auto _ : state)
     {
         dgemv_solver.process(input.data<double>(), output, dataframes);
-        // assert(l2err(output, stout) < std::numeric_limits<double>::epsilon() / double(2));
     }
 }
 
-BENCHMARK(BM_SinglePNativeSolver)->Args({10, 2, 5, 16})->Args({100, 2, 5, 16})->Args({1000, 2, 5, 16});//->Args({5000, 2, 5, 16});
-BENCHMARK(BM_DoublePNativeSolver)->Args({10, 2, 5, 16})->Args({100, 2, 5, 16})->Args({1000, 2, 5, 16});//->Args({5000, 2, 5, 16});
-BENCHMARK(BM_FGEMVSolver)->Args({10, 2, 5, 16})->Args({100, 2, 5, 16})->Args({1000, 2, 5, 16});//->Args({5000, 2, 5, 16});
-BENCHMARK(BM_DGEMVSolver)->Args({10, 2, 5, 16})->Args({100, 2, 5, 16})->Args({1000, 2, 5, 16});//->Args({5000, 2, 5, 16});
+BENCHMARK(BM_SinglePNativeSolver)->Args({10, 2, 5, 128})->Args({100, 2, 5, 128})->Args({1000, 2, 5, 128}); //->Args({5000, 2, 5, 128});
+BENCHMARK(BM_DoublePNativeSolver)->Args({10, 2, 5, 128})->Args({100, 2, 5, 128})->Args({1000, 2, 5, 128}); //->Args({5000, 2, 5, 128});
+BENCHMARK(BM_FGEMVSolver)->Args({10, 2, 5, 128})->Args({100, 2, 5, 128})->Args({1000, 2, 5, 128});         //->Args({5000, 2, 5, 128});
+BENCHMARK(BM_DGEMVSolver)->Args({10, 2, 5, 128})->Args({100, 2, 5, 128})->Args({1000, 2, 5, 128});         //->Args({5000, 2, 5, 128});
 
 BENCHMARK_MAIN();

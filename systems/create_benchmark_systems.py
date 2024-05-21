@@ -9,7 +9,7 @@ ns = (10, 100, 1000)
 ps = (2,)
 ms = (5,)
 precisions = ('single', 'double')
-input_lengths = (16,)
+input_lengths = (128,)
 
 
 if __name__ == '__main__':

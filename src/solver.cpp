@@ -2,15 +2,9 @@
 #include "solver.h"
 #include "utils.h"
 
-template <typename T>
-Solver<T>::Solver(StateSpaceSystem<T> system)
-{
-    system_ = system;
-}
-
 /* CPP-based solver */
 template <typename T>
-NativeSolver<T>::NativeSolver(StateSpaceSystem<T> system) : Solver<T>(system)
+NativeSolver<T>::NativeSolver(StateSpaceSystem<T> &system) : Solver<T>(system)
 {
     int n = this->system_.shape().n;
     int m = this->system_.shape().m;
@@ -42,7 +36,7 @@ void NativeSolver<T>::process(T *input, T *output, int dataframes)
     {
         for (int j = 0; j < m; j++)
         {
-            u[j] = input[j + m * i];
+            u[j] = input[j * dataframes + i];
         }
 
         for (int j = 0; j < p; j++)
@@ -89,7 +83,7 @@ void NativeSolver<T>::process(T *input, T *output, int dataframes)
 
 /* CBLAS_XGEMV-based solver */
 template <typename T>
-XGEMVSolver<T>::XGEMVSolver(StateSpaceSystem<T> system) : Solver<T>(system)
+XGEMVSolver<T>::XGEMVSolver(StateSpaceSystem<T> &system) : Solver<T>(system)
 {
     int n = this->system_.shape().n;
     int m = this->system_.shape().m;
@@ -123,7 +117,7 @@ void XGEMVSolver<T>::process(T *input, T *output, int dataframes)
     {
         for (int j = 0; j < m; j++)
         {
-            u[j] = input[j + m * i];
+            u[j] = input[j * dataframes + i];
         }
 
         XGEMV(CblasRowMajor, CblasNoTrans, p, m, one, this->system_.D(), m, u, 1, zero, y, 1);  // y = Du

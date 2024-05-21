@@ -4,18 +4,18 @@
 #include "state_space_system.h"
 #include "utils.h"
 
-
 /// @brief Base solver.
 template <typename T>
 class Solver
 {
-    protected:
-        int n_, m_, p_;
-        StateSpaceSystem<T> system_;
-    public:
+protected:
+    int n_, m_, p_;
+    StateSpaceSystem<T> &system_;
+
+public:
     /// @brief Initialization with system
     /// @param system State space system.
-    Solver(StateSpaceSystem<T> system);
+    Solver(StateSpaceSystem<T> &system) : system_(system){};
     /// @brief Solve state space system
     /// @param input Input
     /// @param output Output
@@ -31,7 +31,7 @@ private:
     T *u, *x, *x1, *y;
 
 public:
-    NativeSolver(StateSpaceSystem<T> system);
+    NativeSolver(StateSpaceSystem<T> &system);
     ~NativeSolver();
     void process(T *input, T *output, int dataframes);
 };
@@ -41,10 +41,10 @@ template <typename T>
 class XGEMVSolver : public Solver<T>
 {
 private:
-        T *u, *x, *x1, *y;
+    T *u, *x, *x1, *y;
 
 public:
-    XGEMVSolver(StateSpaceSystem<T> system);
+    XGEMVSolver(StateSpaceSystem<T> &system);
     ~XGEMVSolver();
     void process(T *input, T *output, int dataframes);
 };
