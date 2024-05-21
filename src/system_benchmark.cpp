@@ -1,7 +1,7 @@
 #include <benchmark/benchmark.h>
-#include <cnpy.h>
 #include <string>
 
+#include "../cnpy/cnpy.h"
 #include "state_space_system.h"
 
 template <typename T>
