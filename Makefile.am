@@ -82,7 +82,7 @@ bench: solver_benchmark
 	./solver_benchmark
 
 bench-json: solver_benchmark
-	./solver_benchmark --benchmark_format=json | tee benchmark_result.json
+	./solver_benchmark --benchmark_time_unit=ms --benchmark_format=json | tee benchmark_result.json
 
 tests: test_system test_solver system_file
 	./test_solver systems/n10p2m5d16double.npz
