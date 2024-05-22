@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1716311514541,
+  "lastUpdate": 1716371629724,
   "repoUrl": "https://github.com/artpelling/state-space-renderer",
   "entries": {
     "C++ Benchmark": [
@@ -288,6 +288,102 @@ window.BENCHMARK_DATA = {
             "value": 1.104749545431223,
             "unit": "kHz/iter",
             "extra": "iterations: 6\ncpu: 1.1047492037627993 kHz\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "a.pelling@tu-berlin.de",
+            "name": "Art Pelling",
+            "username": "artpelling"
+          },
+          "committer": {
+            "email": "a.pelling@tu-berlin.de",
+            "name": "Art Pelling",
+            "username": "artpelling"
+          },
+          "distinct": true,
+          "id": "1bc838bd21a3b343f35ef31934e86e1cea9dbaf5",
+          "message": "add logo",
+          "timestamp": "2024-05-22T11:52:13+02:00",
+          "tree_id": "4eb681103064b6dc8df6abd898e6efaf29ea2110",
+          "url": "https://github.com/artpelling/state-space-renderer/commit/1bc838bd21a3b343f35ef31934e86e1cea9dbaf5"
+        },
+        "date": 1716371629247,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "BM_SinglePNativeSolver/10/2/5/128",
+            "value": 1977.7028074495036,
+            "unit": "kHz/iter",
+            "extra": "iterations: 10756\ncpu: 1977.6940574083571 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_SinglePNativeSolver/100/2/5/128",
+            "value": 26.14315882366305,
+            "unit": "kHz/iter",
+            "extra": "iterations: 143\ncpu: 26.14461615899054 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_SinglePNativeSolver/1000/2/5/128",
+            "value": 0.26827971353502905,
+            "unit": "kHz/iter",
+            "extra": "iterations: 2\ncpu: 0.2682901805381008 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_DoublePNativeSolver/10/2/5/128",
+            "value": 1989.7488376451042,
+            "unit": "kHz/iter",
+            "extra": "iterations: 10808\ncpu: 1989.8169024660658 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_DoublePNativeSolver/100/2/5/128",
+            "value": 26.1488283221336,
+            "unit": "kHz/iter",
+            "extra": "iterations: 143\ncpu: 26.149652641994884 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_DoublePNativeSolver/1000/2/5/128",
+            "value": 0.2678389618116495,
+            "unit": "kHz/iter",
+            "extra": "iterations: 2\ncpu: 0.2678464563701952 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_FGEMVSolver/10/2/5/128",
+            "value": 5939.263897620164,
+            "unit": "kHz/iter",
+            "extra": "iterations: 32421\ncpu: 5939.326774225613 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_FGEMVSolver/100/2/5/128",
+            "value": 146.99876249741956,
+            "unit": "kHz/iter",
+            "extra": "iterations: 802\ncpu: 147.003749307313 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_FGEMVSolver/1000/2/5/128",
+            "value": 1.1050369538313436,
+            "unit": "kHz/iter",
+            "extra": "iterations: 6\ncpu: 1.1051119615836602 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_DGEMVSolver/10/2/5/128",
+            "value": 6021.379092149265,
+            "unit": "kHz/iter",
+            "extra": "iterations: 33008\ncpu: 6022.06574122547 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_DGEMVSolver/100/2/5/128",
+            "value": 147.8672687099438,
+            "unit": "kHz/iter",
+            "extra": "iterations: 808\ncpu: 147.87397172532252 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_DGEMVSolver/1000/2/5/128",
+            "value": 1.101922586463253,
+            "unit": "kHz/iter",
+            "extra": "iterations: 6\ncpu: 1.1020094536856724 kHz\nthreads: 1"
           }
         ]
       }
