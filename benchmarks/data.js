@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1716371710243,
+  "lastUpdate": 1716371862526,
   "repoUrl": "https://github.com/artpelling/state-space-renderer",
   "entries": {
     "C++ Benchmark": [
@@ -480,6 +480,102 @@ window.BENCHMARK_DATA = {
             "value": 1.1049658575621477,
             "unit": "kHz/iter",
             "extra": "iterations: 6\ncpu: 1.1050588992076655 kHz\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "a.pelling@tu-berlin.de",
+            "name": "Art Pelling",
+            "username": "artpelling"
+          },
+          "committer": {
+            "email": "a.pelling@tu-berlin.de",
+            "name": "Art Pelling",
+            "username": "artpelling"
+          },
+          "distinct": true,
+          "id": "f54dbcfae95cb0b009caefc2405ad6516b51e32f",
+          "message": "fixup! fixup! add logo",
+          "timestamp": "2024-05-22T11:56:08+02:00",
+          "tree_id": "681042c9cec61f60598b4e4c67c864d9914d744b",
+          "url": "https://github.com/artpelling/state-space-renderer/commit/f54dbcfae95cb0b009caefc2405ad6516b51e32f"
+        },
+        "date": 1716371862179,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "BM_SinglePNativeSolver/10/2/5/128",
+            "value": 1961.2468790879345,
+            "unit": "kHz/iter",
+            "extra": "iterations: 10803\ncpu: 1961.2896486477578 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_SinglePNativeSolver/100/2/5/128",
+            "value": 26.105655036973616,
+            "unit": "kHz/iter",
+            "extra": "iterations: 143\ncpu: 26.10565719646348 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_SinglePNativeSolver/1000/2/5/128",
+            "value": 0.26820662051761734,
+            "unit": "kHz/iter",
+            "extra": "iterations: 2\ncpu: 0.26821930861664117 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_DoublePNativeSolver/10/2/5/128",
+            "value": 1979.2758049329932,
+            "unit": "kHz/iter",
+            "extra": "iterations: 10824\ncpu: 1979.3897064037576 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_DoublePNativeSolver/100/2/5/128",
+            "value": 26.141270582490613,
+            "unit": "kHz/iter",
+            "extra": "iterations: 143\ncpu: 26.142352125654522 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_DoublePNativeSolver/1000/2/5/128",
+            "value": 0.2679610831033459,
+            "unit": "kHz/iter",
+            "extra": "iterations: 2\ncpu: 0.2679691614808441 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_FGEMVSolver/10/2/5/128",
+            "value": 5938.125988904206,
+            "unit": "kHz/iter",
+            "extra": "iterations: 32186\ncpu: 5938.14255057032 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_FGEMVSolver/100/2/5/128",
+            "value": 145.89543270076015,
+            "unit": "kHz/iter",
+            "extra": "iterations: 804\ncpu: 145.90297479963596 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_FGEMVSolver/1000/2/5/128",
+            "value": 1.1063306933190884,
+            "unit": "kHz/iter",
+            "extra": "iterations: 6\ncpu: 1.1063832068904205 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_DGEMVSolver/10/2/5/128",
+            "value": 6038.371273551102,
+            "unit": "kHz/iter",
+            "extra": "iterations: 33075\ncpu: 6038.816202826275 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_DGEMVSolver/100/2/5/128",
+            "value": 147.71441056881423,
+            "unit": "kHz/iter",
+            "extra": "iterations: 809\ncpu: 147.7206537786435 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_DGEMVSolver/1000/2/5/128",
+            "value": 1.104288634753211,
+            "unit": "kHz/iter",
+            "extra": "iterations: 6\ncpu: 1.1043224073409423 kHz\nthreads: 1"
           }
         ]
       }
