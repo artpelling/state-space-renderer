@@ -1,4 +1,4 @@
-![image](ssm.pdf?raw=true)
+![State Space Model](ssm.png)
 # Benchmarks
 
 Current benchmarks can be found [here](https://artpelling.github.io/state-space-renderer/benchmarks/)
