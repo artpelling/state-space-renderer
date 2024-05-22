@@ -1,3 +1,4 @@
+![image](ssm.pdf)
 # Benchmarks
 
 Current benchmarks can be found [here](https://artpelling.github.io/state-space-renderer/benchmarks/)
