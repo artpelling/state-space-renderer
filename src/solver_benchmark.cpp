@@ -1,6 +1,7 @@
 #include <string>
 #include <limits>
 #include <cassert>
+#include <type_traits>
 
 #include <benchmark/benchmark.h>
 #include "../cnpy/cnpy.h"
@@ -8,14 +9,28 @@
 #include "solver.h"
 #include "utils.h"
 
-// Single precision native solver
-static void BM_SinglePNativeSolver(benchmark::State &state)
+template <class Solver>
+void BM_Solver(benchmark::State &state)
 {
     int n = state.range(0);
     int p = state.range(1);
     int m = state.range(2);
     int dataframes = state.range(3);
-    std::string inputfile = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(dataframes) + "single.npz";
+
+    using T = typename Solver::value_type;
+
+    // Type evaluation
+    std::string type_string;
+    if (std ::integral_constant<bool, std::is_same<float, typename std::remove_cv<T>::type>::value>::value)
+    {
+        type_string = "single";
+    }
+    else if (std ::integral_constant<bool, std::is_same<double, typename std::remove_cv<T>::type>::value>::value)
+    {
+        type_string = "double";
+    }
+
+    std::string inputfile = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(dataframes) + type_string + ".npz";
     std::string path = "systems/benchmark/" + inputfile;
 
     cnpy::NpyArray A_npy = cnpy::npz_load(path, "A");
@@ -25,120 +40,21 @@ static void BM_SinglePNativeSolver(benchmark::State &state)
     cnpy::NpyArray input = cnpy::npz_load(path, "input");
     cnpy::NpyArray true_output = cnpy::npz_load(path, "output");
 
-    float err;
-    float *output, *stout;
+    T *output;
+    output = (T *)calloc(p * dataframes, sizeof(T));
 
-    output = (float *)calloc(p * dataframes, sizeof(float)); // allocate
-    stout = true_output.data<float>();
-
-    StateSpaceSystem<float> system(A_npy.data<float>(), B_npy.data<float>(), C_npy.data<float>(), D_npy.data<float>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
-    NativeSolver<float> snat_solver(system);
+    StateSpaceSystem<T> system(A_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
+    Solver solver(system);
 
     for (auto _ : state)
     {
-        snat_solver.process(input.data<float>(), output, dataframes);
+        solver.process(input.data<T>(), output, dataframes);
     }
 }
 
-// Double precision native solver
-static void BM_DoublePNativeSolver(benchmark::State &state)
-{
-    int n = state.range(0);
-    int p = state.range(1);
-    int m = state.range(2);
-    int dataframes = state.range(3);
-    std::string inputfile = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(dataframes) + "double.npz";
-    std::string path = "systems/benchmark/" + inputfile;
-
-    cnpy::NpyArray A_npy = cnpy::npz_load(path, "A");
-    cnpy::NpyArray B_npy = cnpy::npz_load(path, "B");
-    cnpy::NpyArray C_npy = cnpy::npz_load(path, "C");
-    cnpy::NpyArray D_npy = cnpy::npz_load(path, "D");
-    cnpy::NpyArray input = cnpy::npz_load(path, "input");
-    cnpy::NpyArray true_output = cnpy::npz_load(path, "output");
-
-    double err;
-    double *output, *stout;
-
-    output = (double *)calloc(p * dataframes, sizeof(double)); // allocate
-    stout = true_output.data<double>();
-
-    StateSpaceSystem<double> system(A_npy.data<double>(), B_npy.data<double>(), C_npy.data<double>(), D_npy.data<double>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
-    NativeSolver<double> dnat_solver(system);
-
-    for (auto _ : state)
-    {
-        dnat_solver.process(input.data<double>(), output, dataframes);
-    }
-}
-
-// Single precision BLAS GEMV Solver
-static void BM_FGEMVSolver(benchmark::State &state)
-{
-    int n = state.range(0);
-    int p = state.range(1);
-    int m = state.range(2);
-    int dataframes = state.range(3);
-    std::string inputfile = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(dataframes) + "single.npz";
-    std::string path = "systems/benchmark/" + inputfile;
-
-    cnpy::NpyArray A_npy = cnpy::npz_load(path, "A");
-    cnpy::NpyArray B_npy = cnpy::npz_load(path, "B");
-    cnpy::NpyArray C_npy = cnpy::npz_load(path, "C");
-    cnpy::NpyArray D_npy = cnpy::npz_load(path, "D");
-    cnpy::NpyArray input = cnpy::npz_load(path, "input");
-    cnpy::NpyArray true_output = cnpy::npz_load(path, "output");
-
-    float err;
-    float *output, *stout;
-
-    output = (float *)calloc(p * dataframes, sizeof(float)); // allocate
-    stout = true_output.data<float>();
-
-    StateSpaceSystem<float> system(A_npy.data<float>(), B_npy.data<float>(), C_npy.data<float>(), D_npy.data<float>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
-    XGEMVSolver<float> sgemv_solver(system);
-
-    for (auto _ : state)
-    {
-        sgemv_solver.process(input.data<float>(), output, dataframes);
-    }
-}
-
-// Double precision native solver
-static void BM_DGEMVSolver(benchmark::State &state)
-{
-    int n = state.range(0);
-    int p = state.range(1);
-    int m = state.range(2);
-    int dataframes = state.range(3);
-    std::string inputfile = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(dataframes) + "double.npz";
-    std::string path = "systems/benchmark/" + inputfile;
-
-    cnpy::NpyArray A_npy = cnpy::npz_load(path, "A");
-    cnpy::NpyArray B_npy = cnpy::npz_load(path, "B");
-    cnpy::NpyArray C_npy = cnpy::npz_load(path, "C");
-    cnpy::NpyArray D_npy = cnpy::npz_load(path, "D");
-    cnpy::NpyArray input = cnpy::npz_load(path, "input");
-    cnpy::NpyArray true_output = cnpy::npz_load(path, "output");
-
-    double err;
-    double *output, *stout;
-
-    output = (double *)calloc(p * dataframes, sizeof(double)); // allocate
-    stout = true_output.data<double>();
-
-    StateSpaceSystem<double> system(A_npy.data<double>(), B_npy.data<double>(), C_npy.data<double>(), D_npy.data<double>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
-    XGEMVSolver<double> dgemv_solver(system);
-
-    for (auto _ : state)
-    {
-        dgemv_solver.process(input.data<double>(), output, dataframes);
-    }
-}
-
-BENCHMARK(BM_SinglePNativeSolver)->Args({10, 2, 5, 128})->Args({100, 2, 5, 128})->Args({1000, 2, 5, 128}); //->Args({5000, 2, 5, 128});
-BENCHMARK(BM_DoublePNativeSolver)->Args({10, 2, 5, 128})->Args({100, 2, 5, 128})->Args({1000, 2, 5, 128}); //->Args({5000, 2, 5, 128});
-BENCHMARK(BM_FGEMVSolver)->Args({10, 2, 5, 128})->Args({100, 2, 5, 128})->Args({1000, 2, 5, 128});         //->Args({5000, 2, 5, 128});
-BENCHMARK(BM_DGEMVSolver)->Args({10, 2, 5, 128})->Args({100, 2, 5, 128})->Args({1000, 2, 5, 128});         //->Args({5000, 2, 5, 128});
+BENCHMARK(BM_Solver<NativeSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+BENCHMARK(BM_Solver<NativeSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+BENCHMARK(BM_Solver<XGEMVSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+BENCHMARK(BM_Solver<XGEMVSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
 
 BENCHMARK_MAIN();

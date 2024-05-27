@@ -13,6 +13,8 @@ protected:
     StateSpaceSystem<T> &system_;
 
 public:
+    /// @brief Typename of class
+    typedef T value_type;
     /// @brief Initialization with system
     /// @param system State space system.
     Solver(StateSpaceSystem<T> &system) : system_(system){};

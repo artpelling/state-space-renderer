@@ -21,15 +21,27 @@ public:
     }
 };
 
-// Single precision initialization
-static void BM_CnpyStateSinglePrecision(benchmark::State &state)
+template <typename T>
+void BM_CnpyInitialization(benchmark::State &state)
 {
     int n = state.range(0);
     int p = state.range(1);
     int m = state.range(2);
     int dataframes = state.range(3);
-    std::string input = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(dataframes) + "single.npz";
-    std::string path = "systems/benchmark/" + input;
+
+    // Type evaluation
+    std::string type_string;
+    if (std ::integral_constant<bool, std::is_same<float, typename std::remove_cv<T>::type>::value>::value)
+    {
+        type_string = "single";
+    }
+    else if (std ::integral_constant<bool, std::is_same<double, typename std::remove_cv<T>::type>::value>::value)
+    {
+        type_string = "double";
+    }
+
+    std::string inputfile = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(dataframes) + type_string + ".npz";
+    std::string path = "systems/benchmark/" + inputfile;
 
     cnpy::NpyArray A_npy = cnpy::npz_load(path, "A");
     cnpy::NpyArray B_npy = cnpy::npz_load(path, "B");
@@ -38,33 +50,11 @@ static void BM_CnpyStateSinglePrecision(benchmark::State &state)
 
     for (auto _ : state)
     {
-        NoProcess<float> nonempty_state(A_npy.data<float>(), B_npy.data<float>(), C_npy.data<float>(), D_npy.data<float>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
+        NoProcess<T> nonempty_state(A_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
     }
 }
 
-BENCHMARK(BM_CnpyStateSinglePrecision)->Args({10, 2, 5, 128})->Args({100, 2, 5, 128})->Args({1000, 2, 5, 128});//->Args({5000, 2, 5, 128});
-
-// Double precision initialization
-static void BM_CnpyStateDoublePrecision(benchmark::State &state)
-{
-    int n = state.range(0);
-    int p = state.range(1);
-    int m = state.range(2);
-    int dataframes = state.range(3);
-    std::string input = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(dataframes) + "double.npz";
-    std::string path = "systems/benchmark/" + input;
-
-    cnpy::NpyArray A_npy = cnpy::npz_load(path, "A");
-    cnpy::NpyArray B_npy = cnpy::npz_load(path, "B");
-    cnpy::NpyArray C_npy = cnpy::npz_load(path, "C");
-    cnpy::NpyArray D_npy = cnpy::npz_load(path, "D");
-
-    for (auto _ : state)
-    {
-        NoProcess<double> nonempty_state(A_npy.data<double>(), B_npy.data<double>(), C_npy.data<double>(), D_npy.data<double>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
-    }
-}
-
-BENCHMARK(BM_CnpyStateDoublePrecision)->Args({10, 2, 5, 128})->Args({100, 2, 5, 128})->Args({1000, 2, 5, 128});//->Args({5000, 2, 5, 128});
+BENCHMARK(BM_CnpyInitialization<float>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+BENCHMARK(BM_CnpyInitialization<double>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
 
 BENCHMARK_MAIN();
