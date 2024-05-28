@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1716903816529,
+  "lastUpdate": 1716907800885,
   "repoUrl": "https://github.com/artpelling/state-space-renderer",
   "entries": {
     "C++ Benchmark": [
@@ -672,6 +672,102 @@ window.BENCHMARK_DATA = {
             "value": 1.1007461117999398,
             "unit": "kHz/iter",
             "extra": "iterations: 6\ncpu: 1.1008253664656955 kHz\nthreads: 1"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "a.pelling@tu-berlin.de",
+            "name": "Art Pelling",
+            "username": "artpelling"
+          },
+          "committer": {
+            "email": "a.pelling@tu-berlin.de",
+            "name": "Art Pelling",
+            "username": "artpelling"
+          },
+          "distinct": true,
+          "id": "dd8e90a84ec3552701a9ca086673244bd680d2b7",
+          "message": "std::swap",
+          "timestamp": "2024-05-28T16:48:15+02:00",
+          "tree_id": "de8878788b2e06352e9225eb546386c2d2ee6107",
+          "url": "https://github.com/artpelling/state-space-renderer/commit/dd8e90a84ec3552701a9ca086673244bd680d2b7"
+        },
+        "date": 1716907800061,
+        "tool": "googlecpp",
+        "benches": [
+          {
+            "name": "BM_Solver<NativeSolver<float>>/10/2/5/128",
+            "value": 1942.7252970967722,
+            "unit": "kHz/iter",
+            "extra": "iterations: 10713\ncpu: 1942.7448966911302 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_Solver<NativeSolver<float>>/100/2/5/128",
+            "value": 26.33922580744023,
+            "unit": "kHz/iter",
+            "extra": "iterations: 143\ncpu: 26.339310745681157 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_Solver<NativeSolver<float>>/1000/2/5/128",
+            "value": 0.26985274550997757,
+            "unit": "kHz/iter",
+            "extra": "iterations: 2\ncpu: 0.26985605234097626 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_Solver<NativeSolver<double>>/10/2/5/128",
+            "value": 1988.7584991317985,
+            "unit": "kHz/iter",
+            "extra": "iterations: 10813\ncpu: 1988.8279308425115 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_Solver<NativeSolver<double>>/100/2/5/128",
+            "value": 26.407442129524643,
+            "unit": "kHz/iter",
+            "extra": "iterations: 144\ncpu: 26.407735344897098 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_Solver<NativeSolver<double>>/1000/2/5/128",
+            "value": 0.273162163867784,
+            "unit": "kHz/iter",
+            "extra": "iterations: 2\ncpu: 0.2731649060909259 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_Solver<XGEMVSolver<float>>/10/2/5/128",
+            "value": 6273.027386662514,
+            "unit": "kHz/iter",
+            "extra": "iterations: 33039\ncpu: 6273.141459027503 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_Solver<XGEMVSolver<float>>/100/2/5/128",
+            "value": 152.6614597074008,
+            "unit": "kHz/iter",
+            "extra": "iterations: 852\ncpu: 152.66268145339455 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_Solver<XGEMVSolver<float>>/1000/2/5/128",
+            "value": 1.1337438349117563,
+            "unit": "kHz/iter",
+            "extra": "iterations: 6\ncpu: 1.1337879276697325 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_Solver<XGEMVSolver<double>>/10/2/5/128",
+            "value": 6090.703616047198,
+            "unit": "kHz/iter",
+            "extra": "iterations: 33150\ncpu: 6090.730963074575 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_Solver<XGEMVSolver<double>>/100/2/5/128",
+            "value": 148.94875439796402,
+            "unit": "kHz/iter",
+            "extra": "iterations: 824\ncpu: 148.95116143895652 kHz\nthreads: 1"
+          },
+          {
+            "name": "BM_Solver<XGEMVSolver<double>>/1000/2/5/128",
+            "value": 1.137337459686427,
+            "unit": "kHz/iter",
+            "extra": "iterations: 6\ncpu: 1.1373735585850515 kHz\nthreads: 1"
           }
         ]
       }
