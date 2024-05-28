@@ -74,10 +74,7 @@ void NativeSolver<T>::process(T *input, T *output, int dataframes)
             output[j * dataframes + i] = y[j];
         }
 
-        for (int j = 0; j < n; j++)
-        {
-            x[j] = x1[j]; // Move to next time step
-        }
+        std::swap(x, x1);
     }
 }
 
@@ -130,10 +127,7 @@ void XGEMVSolver<T>::process(T *input, T *output, int dataframes)
             output[j * dataframes + i] = y[j];
         }
 
-        for (int j = 0; j < n; j++)
-        {
-            x[j] = x1[j]; // Move to next time step
-        }
+        std::swap(x, x1);
     }
 }
 
