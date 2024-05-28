@@ -9,6 +9,7 @@
 #include "solver.h"
 #include "utils.h"
 
+// Solver single data benchmark
 template <class Solver>
 void BM_Solver(benchmark::State &state)
 {
@@ -52,7 +53,8 @@ void BM_Solver(benchmark::State &state)
     }
 }
 
-BENCHMARK(BM_Solver<NativeSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+// BENCHMARK(BM_Solver<NativeSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}}); // All combinations of set up
+BENCHMARK(BM_Solver<NativeSolver<float>>)->RangeMultiplier(10)->Ranges({{10, 1000}, {2, 2}, {5, 5}, {128, 128}}); // Ranges of setup
 BENCHMARK(BM_Solver<NativeSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
 BENCHMARK(BM_Solver<XGEMVSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
 BENCHMARK(BM_Solver<XGEMVSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
