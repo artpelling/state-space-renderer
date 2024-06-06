@@ -1,0 +1,91 @@
+#include <string>
+#include <limits>
+#include <cassert>
+#include <type_traits>
+#include <queue>
+#include <random>
+
+#include "../cnpy/cnpy.h"
+#include "../src/state_space_system.h"
+#include "../src/solver.h"
+#include "../src/utils.h"
+
+template <class Solver>
+void Test_Datastream(int n, int p, int m, int dataframes, int dataframes_n)
+{
+    using T = typename Solver::value_type;
+    std::default_random_engine gen;
+    std::uniform_real_distribution<T> dist(0.0, 100.0);
+
+    // Type evaluation
+    std::string type_string;
+    if (std ::integral_constant<bool, std::is_same<float, typename std::remove_cv<T>::type>::value>::value)
+    {
+        type_string = "single";
+    }
+    else if (std ::integral_constant<bool, std::is_same<double, typename std::remove_cv<T>::type>::value>::value)
+    {
+        type_string = "double";
+    }
+
+    std::string inputfile = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(dataframes) + type_string + ".npz";
+    std::string path = "systems/benchmark/" + inputfile;
+
+    cnpy::NpyArray A_npy = cnpy::npz_load(path, "A");
+    cnpy::NpyArray B_npy = cnpy::npz_load(path, "B");
+    cnpy::NpyArray C_npy = cnpy::npz_load(path, "C");
+    cnpy::NpyArray D_npy = cnpy::npz_load(path, "D");
+
+    std::queue<T *> input_buff;
+    T *input_arr;
+    T *output;
+
+    // Allocate buffer
+    for (size_t i = 0; i < dataframes_n; i++)
+    {
+        input_arr = (T *)malloc(m * dataframes * sizeof(T));
+        for (size_t j = 0; j < dataframes; j++)
+        {
+            for (size_t k = 0; k < m; k++)
+            {
+                input_arr[k * dataframes + j] = dist(gen);
+            }
+        }
+        input_buff.push(std::move(input_arr));
+
+        for (size_t j = 0; j < dataframes; j++)
+        {
+            for (size_t k = 0; k < m; k++)
+            {
+                std::cout << " " << input_buff.front()[k * dataframes + j] << " ";
+            }
+            std::cout << std::endl;
+        }
+    }
+
+    StateSpaceSystem<T> system(A_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
+    Solver solver(system);
+    std::cout << input_buff.size() << std::endl;
+    for (size_t i = 0; i < dataframes_n; i++)
+    {
+        output = (T *)calloc(p * dataframes, sizeof(T));
+        solver.process(input_buff.front(), output, dataframes);
+        input_buff.pop();
+        std::cout << "Dataframe " << i << std::endl;
+        for (size_t j = 0; j < dataframes; j++)
+        {
+            for (size_t k = 0; k < p; k++)
+            {
+                std::cout << " " << output[k * dataframes + j] << " ";
+            }
+            std::cout << std::endl;
+        }
+        free(output);
+    }
+    std::cout << input_buff.size() << std::endl;
+}
+
+int main(int argc, char const *argv[])
+{
+    Test_Datastream<NativeSolver<double>>(10, 2, 5, 16, 5);
+}
