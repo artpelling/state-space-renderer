@@ -98,10 +98,13 @@ void BM_Datastream(benchmark::State &state)
     // Allocate buffer
     for (size_t i = 0; i < dataframes_n; i++)
     {
-        input_arr = (T *)calloc(m * dataframes, sizeof(T));
+        input_arr = (T *)malloc(m * dataframes * sizeof(T));
         for (size_t j = 0; j < dataframes; j++)
         {
-            input_arr[j] = dist(gen);
+            for (size_t k = 0; k < m; k++)
+            {
+                input_arr[k * dataframes + j] = dist(gen);
+            }
         }
         input_buff.push(std::move(input_arr));
     }
@@ -121,12 +124,13 @@ void BM_Datastream(benchmark::State &state)
     }
 }
 
-BENCHMARK(BM_Solver<NativeSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}}); // All combinations of set up
-// BENCHMARK(BM_Solver<NativeSolver<float>>)->RangeMultiplier(10)->Ranges({{10, 1000}, {2, 2}, {5, 5}, {128, 128}}); // Ranges of setup
-// BENCHMARK(BM_Solver<NativeSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
-// BENCHMARK(BM_Solver<XGEMVSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+// BENCHMARK(BM_Solver<NativeSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}}); // All combinations of set up
+//  BENCHMARK(BM_Solver<NativeSolver<float>>)->RangeMultiplier(10)->Ranges({{10, 1000}, {2, 2}, {5, 5}, {128, 128}}); // Ranges of setup
+//  BENCHMARK(BM_Solver<NativeSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+BENCHMARK(BM_Solver<XGEMVSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+BENCHMARK(BM_Solver<XGEMVSolverV2<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
 // BENCHMARK(BM_Solver<XGEMVSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
 
-BENCHMARK(BM_Solver<NativeSolver<float>>)->ArgsProduct({{10}, {2}, {5}, {128}, {100}});
+// BENCHMARK(BM_Datastream<NativeSolver<float>>)->ArgsProduct({{10}, {2}, {5}, {128}, {100}});
 
 BENCHMARK_MAIN();
