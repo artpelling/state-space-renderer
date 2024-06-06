@@ -1,4 +1,5 @@
 #include <cstring>
+#include <immintrin.h>
 #include "solver.h"
 #include "utils.h"
 
@@ -137,6 +138,63 @@ void XGEMVSolver<T>::process(T *input, T *output, int dataframes)
     }
 }
 
+/* CBLAS_XGEMV-based solver */
+template <typename T>
+XGEMVSolverV2<T>::XGEMVSolverV2(StateSpaceSystem<T> &system) : Solver<T>(system)
+{
+    int n = this->system_.shape().n;
+    int m = this->system_.shape().m;
+    int p = this->system_.shape().p;
+
+    u = (T *)malloc(m * sizeof(T));
+    x = (T *)calloc(n, sizeof(T));
+    x1 = (T *)malloc(n * sizeof(T));
+    y = (T *)malloc(p * sizeof(T));
+}
+
+template <typename T>
+XGEMVSolverV2<T>::~XGEMVSolverV2()
+{
+    free(u);
+    free(x);
+    free(x1);
+    free(y);
+}
+
+template <typename T>
+void XGEMVSolverV2<T>::process(T *input, T *output, int dataframes)
+{
+    int n = this->system_.shape().n;
+    int m = this->system_.shape().m;
+    int p = this->system_.shape().p;
+    T zero = 0;
+    T one = 1;
+
+    for (int i = 0; i < dataframes; i++)
+    {
+#pragma omp simd
+        for (int j = 0; j < m; j++)
+        {
+            u[j] = input[j * dataframes + i];
+        }
+
+        XGEMV(CblasRowMajor, CblasNoTrans, p, m, one, this->system_.D(), m, u, 1, zero, y, 1);  // y = Du
+        XGEMV(CblasRowMajor, CblasNoTrans, p, n, one, this->system_.C(), n, x, 1, one, y, 1);   // y = y + Cx
+        XGEMV(CblasRowMajor, CblasNoTrans, n, n, one, this->system_.A(), n, x, 1, zero, x1, 1); // x1 = Ax
+        XGEMV(CblasRowMajor, CblasNoTrans, n, m, one, this->system_.B(), m, u, 1, one, x1, 1);  // x1 = x1 + Bu
+
+#pragma omp simd
+        for (int j = 0; j < p; j++)
+        {
+            output[j * dataframes + i] = y[j];
+        }
+
+        std::swap(x, x1);
+        // x = std::move(x1);
+    }
+    std::swap(x, x1);
+}
+
 template class Solver<double>;
 template class Solver<float>;
 
@@ -145,3 +203,6 @@ template class NativeSolver<float>;
 
 template class XGEMVSolver<double>;
 template class XGEMVSolver<float>;
+
+template class XGEMVSolverV2<double>;
+template class XGEMVSolverV2<float>;
