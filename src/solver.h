@@ -50,7 +50,7 @@ public:
     ~XGEMVSolver();
     void process(T *input, T *output, int dataframes);
 };
-
+/*
 /// @brief CBLAS_XGEMV-based solver.
 template <typename T>
 class XGEMVSolverV2 : public Solver<T>
@@ -62,14 +62,14 @@ public:
     XGEMVSolverV2(StateSpaceSystem<T> &system);
     ~XGEMVSolverV2();
     void process(T *input, T *output, int dataframes);
-};
+};*/
 
 /// @brief CBLAS_XGEMM-based solver.
 template <typename T>
 class XGEMMSolver : public Solver<T>
 {
 private:
-    T *U, *X, *X1, *Y, *x, *x1;
+    T *X, *x, *x1;
 
 public:
     XGEMMSolver(StateSpaceSystem<T> &system);

@@ -51,7 +51,7 @@ int main(int argc, char const *argv[])
     print_data(true_output);
     std::cout << "Calculated out:" << std::endl;
     print_data(output, p, dataframes);
-    std::cout << "DGEMV Solver - " << l2err(output, dtout) << std::endl;
+    std::cout << "DGEMM Solver - " << l2err(output, dtout) << std::endl;
 
     /* dgemv_solver2.process(input.data<double>(), output, dataframes);
     std::cout << "True out:" << std::endl;

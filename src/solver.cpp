@@ -1,5 +1,5 @@
 #include <cstring>
-#include <omp.h>
+// #include <omp.h>
 #include "solver.h"
 #include "utils.h"
 
@@ -138,7 +138,8 @@ void XGEMVSolver<T>::process(T *input, T *output, int dataframes)
     }
 }
 
-/* CBLAS_XGEMV-based solver */
+/* CBLAS_XGEMV2-based solver */
+/*
 template <typename T>
 XGEMVSolverV2<T>::XGEMVSolverV2(StateSpaceSystem<T> &system) : Solver<T>(system)
 {
@@ -193,9 +194,9 @@ void XGEMVSolverV2<T>::process(T *input, T *output, int dataframes)
         // x = std::move(x1);
     }
     std::swap(x, x1);
-}
+}*/
 
-/* CBLAS_XGEMV-based solver */
+/* CBLAS_XGEMM-based solver */
 template <typename T>
 XGEMMSolver<T>::XGEMMSolver(StateSpaceSystem<T> &system) : Solver<T>(system)
 {
@@ -210,6 +211,7 @@ XGEMMSolver<T>::~XGEMMSolver()
 {
     free(x);
     free(x1);
+    free(X);
 }
 
 template <typename T>
@@ -221,38 +223,60 @@ void XGEMMSolver<T>::process(T *input, T *output, int dataframes)
     T zero = 0;
     T one = 1;
 
-    X = (T *)calloc(n * dataframes, sizeof(T));
-    Y = (T *)calloc(p * dataframes, sizeof(T));
+    X = (T *)malloc(n * dataframes * sizeof(T));
 
-    U = std::move(input);
+    XGEMM(CblasRowMajor, CblasNoTrans, CblasNoTrans, n, dataframes, m, one, this->system_.B(), m, input, dataframes, zero, X, dataframes);
 
-    XGEMM(CblasRowMajor, CblasNoTrans, CblasNoTrans, n, dataframes, m, one, this->system_.B(), m, U, dataframes, zero, X, dataframes);
+    // X=BU
+    for (int j = 0; j < n; j++)
+    {
+        x1[j] = X[dataframes - 1 + j * dataframes];
+    }
 
-    for (int i = 0; i < dataframes; i++)
+    for (int i = 0; i < dataframes - 1; i++)
     {
         for (int j = 0; j < n; j++)
         {
-            x[j] = X[i + j * dataframes];
-            if (i != dataframes - 1)
+            std::swap(X[dataframes - 1 - i + j * dataframes], X[dataframes - 2 - i + j * dataframes]);
+        }
+    }
+
+    for (int j = 0; j < n; j++)
+    {
+        X[j * dataframes] = x1[j];
+    }
+
+    // x1 = Ax+BU
+    for (int i = 0; i < dataframes; i++)
+    {
+        if (i == 0)
+        {
+            for (int j = 0; j < n; j++)
             {
-                x1[j] = X[i + 1 + j * dataframes];
+                x1[j] = 0;
             }
-            else
+        }
+        else
+        {
+            for (int j = 0; j < n; j++)
             {
-                x1[j] = X[j * dataframes];
+                x1[j] = std::move(X[i + j * dataframes]);
             }
         }
 
         XGEMV(CblasRowMajor, CblasNoTrans, n, n, one, this->system_.A(), n, x, 1, one, x1, 1);
+
+        {
+            for (int j = 0; j < n; j++)
+            {
+                x[j] = x1[j];
+                X[i + j * dataframes] = std::move(x1[j]);
+            }
+        }
     }
 
-    XGEMM(CblasRowMajor, CblasNoTrans, CblasNoTrans, p, dataframes, n, one, this->system_.C(), n, X, dataframes, zero, Y, dataframes);
-    XGEMM(CblasRowMajor, CblasNoTrans, CblasNoTrans, p, dataframes, m, one, this->system_.D(), m, U, dataframes, one, Y, dataframes);
-
-    memcpy(output, Y, p * dataframes * sizeof(T));
-
-    free(U);
-    free(Y);
+    XGEMM(CblasRowMajor, CblasNoTrans, CblasNoTrans, p, dataframes, n, one, this->system_.C(), n, X, dataframes, zero, output, dataframes);
+    XGEMM(CblasRowMajor, CblasNoTrans, CblasNoTrans, p, dataframes, m, one, this->system_.D(), m, input, dataframes, one, output, dataframes);
 }
 
 template class Solver<double>;
@@ -264,8 +288,8 @@ template class NativeSolver<float>;
 template class XGEMVSolver<double>;
 template class XGEMVSolver<float>;
 
-template class XGEMVSolverV2<double>;
-template class XGEMVSolverV2<float>;
+// template class XGEMVSolverV2<double>;
+// template class XGEMVSolverV2<float>;
 
 template class XGEMMSolver<double>;
 template class XGEMMSolver<float>;
