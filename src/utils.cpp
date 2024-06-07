@@ -65,3 +65,21 @@ void XGEMV<double>(CBLAS_LAYOUT layout, CBLAS_TRANSPOSE TransA, const int M, con
 {
     cblas_dgemv(layout, TransA, M, N, alpha, A, lda, X, incX, beta, Y, incY);
 }
+
+// CBLAS template
+template <>
+void XGEMM<float>(CBLAS_LAYOUT layout, CBLAS_TRANSPOSE TransA, CBLAS_TRANSPOSE TransB, const int M, const int N, const int K,
+                  const float alpha, const float *A, const int lda,
+                  const float *B, const int ldb,
+                  const float beta, float *C, const int ldc)
+{
+    cblas_sgemm(layout, TransA, TransB, M, N, K, alpha, A, lda, B, ldb, beta, C, ldc);
+}
+template <>
+void XGEMM<double>(CBLAS_LAYOUT layout, CBLAS_TRANSPOSE TransA, CBLAS_TRANSPOSE TransB, const int M, const int N, const int K,
+                   const double alpha, const double *A, const int lda,
+                   const double *B, const int ldb,
+                   const double beta, double *C, const int ldc)
+{
+    cblas_dgemm(layout, TransA, TransB, M, N, K, alpha, A, lda, B, ldb, beta, C, ldc);
+}

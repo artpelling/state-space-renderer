@@ -30,7 +30,7 @@ int main(int argc, char const *argv[])
     StateSpaceSystem<double> system(A_npy.data<double>(), B_npy.data<double>(), C_npy.data<double>(), D_npy.data<double>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
     NativeSolver<double> dnat_solver(system);
     XGEMVSolver<double> dgemv_solver(system);
-    XGEMVSolverV2<double> dgemv_solver2(system);
+    XGEMMSolver<double> dgemm_solver(system);
 
     dnat_solver.process(input.data<double>(), output, dataframes);
     std::cout << "True out:" << std::endl;
@@ -46,12 +46,19 @@ int main(int argc, char const *argv[])
     print_data(output, p, dataframes);
     std::cout << "DGEMV Solver - " << l2err(output, dtout) << std::endl;
 
-    dgemv_solver2.process(input.data<double>(), output, dataframes);
+    dgemm_solver.process(input.data<double>(), output, dataframes);
     std::cout << "True out:" << std::endl;
     print_data(true_output);
     std::cout << "Calculated out:" << std::endl;
     print_data(output, p, dataframes);
     std::cout << "DGEMV Solver - " << l2err(output, dtout) << std::endl;
+
+    /* dgemv_solver2.process(input.data<double>(), output, dataframes);
+    std::cout << "True out:" << std::endl;
+    print_data(true_output);
+    std::cout << "Calculated out:" << std::endl;
+    print_data(output, p, dataframes);
+    std::cout << "DGEMV Solver - " << l2err(output, dtout) << std::endl; */
 
     free(output);
 }

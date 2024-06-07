@@ -35,7 +35,7 @@ bin_PROGRAMS = test_system test_solver solver_benchmark system_benchmark
 LDADD = -lblas -l:libcnpy.a -lz
 
 AM_CPPFLAGS =
-AM_LDFLAGS = -std=c++11 -pthread -L$(srcdir)/cnpy/build/
+AM_LDFLAGS = -fopenmp -O3 -march=native -ftree-vectorize -std=c++11 -pthread -L$(srcdir)/cnpy/build/
 if ON_ARM64
 AM_CPPFLAGS += -I/Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Headers
 AM_LDFLAGS += -framework Accelerate

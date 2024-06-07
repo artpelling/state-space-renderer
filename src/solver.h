@@ -64,12 +64,17 @@ public:
     void process(T *input, T *output, int dataframes);
 };
 
-// /// @brief CBLAS_XGEMM-based solver.
-// template <typename T>
-// class XGEMMSolver : public Solver<T>
-// {
-// private:
-//     T *U, *X, *X1, *Y, *x, *x1;
-// };
+/// @brief CBLAS_XGEMM-based solver.
+template <typename T>
+class XGEMMSolver : public Solver<T>
+{
+private:
+    T *U, *X, *X1, *Y, *x, *x1;
+
+public:
+    XGEMMSolver(StateSpaceSystem<T> &system);
+    ~XGEMMSolver();
+    void process(T *input, T *output, int dataframes);
+};
 
 #endif // SOLVER_H_

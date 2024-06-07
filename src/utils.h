@@ -48,4 +48,22 @@ void XGEMV(CBLAS_LAYOUT layout, CBLAS_TRANSPOSE TransA, const int M, const int N
            const T *X, const int incX, const T beta,
            T *Y, const int incY);
 
+/// @brief Standard BLAS routine of matrix-matrix multiplication
+/// @tparam T data type
+/// @param layout
+/// @param TransA
+/// @param M
+/// @param N
+/// @param alpha
+/// @param A
+/// @param lda
+/// @param X
+/// @param incX
+/// @param beta
+/// @param Y
+/// @param incY
+template <typename T>
+void XGEMM(CBLAS_LAYOUT layout, CBLAS_TRANSPOSE TransA, CBLAS_TRANSPOSE TransB, const int M, const int N, const int K, const T alpha, const T *A, const int lda,
+           const T *B, const int ldb, const T beta, T *C, const int ldc);
+
 #endif // UTILS_H_

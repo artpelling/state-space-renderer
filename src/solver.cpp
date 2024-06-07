@@ -195,6 +195,66 @@ void XGEMVSolverV2<T>::process(T *input, T *output, int dataframes)
     std::swap(x, x1);
 }
 
+/* CBLAS_XGEMV-based solver */
+template <typename T>
+XGEMMSolver<T>::XGEMMSolver(StateSpaceSystem<T> &system) : Solver<T>(system)
+{
+    int n = this->system_.shape().n;
+
+    x = (T *)calloc(n, sizeof(T));
+    x1 = (T *)calloc(n, sizeof(T));
+}
+
+template <typename T>
+XGEMMSolver<T>::~XGEMMSolver()
+{
+    free(x);
+    free(x1);
+}
+
+template <typename T>
+void XGEMMSolver<T>::process(T *input, T *output, int dataframes)
+{
+    int n = this->system_.shape().n;
+    int m = this->system_.shape().m;
+    int p = this->system_.shape().p;
+    T zero = 0;
+    T one = 1;
+
+    X = (T *)calloc(n * dataframes, sizeof(T));
+    Y = (T *)calloc(p * dataframes, sizeof(T));
+
+    U = std::move(input);
+
+    XGEMM(CblasRowMajor, CblasNoTrans, CblasNoTrans, n, dataframes, m, one, this->system_.B(), m, U, dataframes, zero, X, dataframes);
+
+    for (int i = 0; i < dataframes; i++)
+    {
+        for (int j = 0; j < n; j++)
+        {
+            x[j] = X[i + j * dataframes];
+            if (i != dataframes - 1)
+            {
+                x1[j] = X[i + 1 + j * dataframes];
+            }
+            else
+            {
+                x1[j] = X[j * dataframes];
+            }
+        }
+
+        XGEMV(CblasRowMajor, CblasNoTrans, n, n, one, this->system_.A(), n, x, 1, one, x1, 1);
+    }
+
+    XGEMM(CblasRowMajor, CblasNoTrans, CblasNoTrans, p, dataframes, n, one, this->system_.C(), n, X, dataframes, zero, Y, dataframes);
+    XGEMM(CblasRowMajor, CblasNoTrans, CblasNoTrans, p, dataframes, m, one, this->system_.D(), m, U, dataframes, one, Y, dataframes);
+
+    memcpy(output, Y, p * dataframes * sizeof(T));
+
+    free(U);
+    free(Y);
+}
+
 template class Solver<double>;
 template class Solver<float>;
 
@@ -206,3 +266,6 @@ template class XGEMVSolver<float>;
 
 template class XGEMVSolverV2<double>;
 template class XGEMVSolverV2<float>;
+
+template class XGEMMSolver<double>;
+template class XGEMMSolver<float>;
