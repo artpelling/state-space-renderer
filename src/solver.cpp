@@ -1,5 +1,5 @@
 #include <cstring>
-#include <immintrin.h>
+#include <omp.h>
 #include "solver.h"
 #include "utils.h"
 
@@ -146,10 +146,10 @@ XGEMVSolverV2<T>::XGEMVSolverV2(StateSpaceSystem<T> &system) : Solver<T>(system)
     int m = this->system_.shape().m;
     int p = this->system_.shape().p;
 
-    u = (T *)malloc(m * sizeof(T));
+    u = (T *)calloc(m, sizeof(T));
     x = (T *)calloc(n, sizeof(T));
-    x1 = (T *)malloc(n * sizeof(T));
-    y = (T *)malloc(p * sizeof(T));
+    x1 = (T *)calloc(n, sizeof(T));
+    y = (T *)calloc(p, sizeof(T));
 }
 
 template <typename T>
@@ -172,9 +172,9 @@ void XGEMVSolverV2<T>::process(T *input, T *output, int dataframes)
 
     for (int i = 0; i < dataframes; i++)
     {
-#pragma omp simd
         for (int j = 0; j < m; j++)
         {
+#pragma omp simd
             u[j] = input[j * dataframes + i];
         }
 
@@ -183,9 +183,9 @@ void XGEMVSolverV2<T>::process(T *input, T *output, int dataframes)
         XGEMV(CblasRowMajor, CblasNoTrans, n, n, one, this->system_.A(), n, x, 1, zero, x1, 1); // x1 = Ax
         XGEMV(CblasRowMajor, CblasNoTrans, n, m, one, this->system_.B(), m, u, 1, one, x1, 1);  // x1 = x1 + Bu
 
-#pragma omp simd
         for (int j = 0; j < p; j++)
         {
+#pragma omp simd
             output[j * dataframes + i] = y[j];
         }
 
