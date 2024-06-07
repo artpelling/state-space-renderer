@@ -16,6 +16,17 @@ def random_stable_system(n, p, m):
     return A, B, C, D
 
 
+def random_stable_system_zero_D(n, p, m):
+    # create random stable A
+    lam = 1.8 * np.random.rand(n) - 0.9
+    V = np.random.randn(n, n)
+    A = np.linalg.inv(V) @ np.diag(lam) @ V
+    B = np.random.randn(n, m)
+    C = np.random.randn(p, n)
+    D = np.zeros((p, m))
+    return A, B, C, D
+
+
 def save_system(
     filename,
     A,
@@ -63,8 +74,8 @@ def save_system(
         C = C @ T
     if test_input:
         u = np.random.randn(m, test_input_length)
-        u = np.zeros((m, test_input_length))
-        u[0, 0] = 1
+        # u = np.zeros((m, test_input_length))
+        # u[0, 0] = 1
         # u[0, 1] = 1
         x = np.zeros(n)
 
