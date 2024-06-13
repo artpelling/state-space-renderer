@@ -45,11 +45,11 @@ void BM_Solver(benchmark::State &state)
     output = (T *)calloc(p * dataframes, sizeof(T));
 
     StateSpaceSystem<T> system(A_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
-    Solver solver(system);
+    Solver solver(system, dataframes);
 
     for (auto _ : state)
     {
-        solver.process(input.data<T>(), output, dataframes);
+        solver.process(input.data<T>(), output);
     }
 }
 
@@ -110,27 +110,27 @@ void BM_Datastream(benchmark::State &state)
     }
 
     StateSpaceSystem<T> system(A_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
-    Solver solver(system);
+    Solver solver(system, dataframes);
 
     for (auto _ : state)
     {
         for (size_t i = 0; i < dataframes_n; i++)
         {
             output = (T *)calloc(p * dataframes, sizeof(T));
-            solver.process(input_buff.front(), output, dataframes);
+            solver.process(input_buff.front(), output);
             input_buff.pop();
             free(output);
         }
     }
 }
 
-// BENCHMARK(BM_Solver<NativeSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}}); // All combinations of set up
+BENCHMARK(BM_Solver<NativeSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}}); // All combinations of set up
 //   BENCHMARK(BM_Solver<NativeSolver<float>>)->RangeMultiplier(10)->Ranges({{10, 1000}, {2, 2}, {5, 5}, {128, 128}}); // Ranges of setup
-//   BENCHMARK(BM_Solver<NativeSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+BENCHMARK(BM_Solver<NativeSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
 BENCHMARK(BM_Solver<XGEMVSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+BENCHMARK(BM_Solver<XGEMVSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
 BENCHMARK(BM_Solver<XGEMMSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
-// BENCHMARK(BM_Solver<XGEMVSolverV2<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
-//  BENCHMARK(BM_Solver<XGEMVSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+BENCHMARK(BM_Solver<XGEMMSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
 
 // BENCHMARK(BM_Datastream<NativeSolver<float>>)->ArgsProduct({{10}, {2}, {5}, {128}, {100}});
 
