@@ -9,7 +9,7 @@ void print_data(cnpy::NpyArray matrix)
     {
         for (size_t j = 0; j < matrix.shape[1]; j++)
         {
-            std::cout << " " << matrix.data<double>()[j + matrix.shape[1] * i] << " ";
+            std::cout << " " << matrix.data<double>()[i + matrix.shape[0] * j] << " ";
         }
         std::cout << std::endl;
     }
@@ -22,7 +22,7 @@ void print_data(T *data, int n, int m)
     {
         for (size_t j = 0; j < m; j++)
         {
-            std::cout << " " << data[j + m * i] << " ";
+            std::cout << " " << data[i + n * j] << " ";
         }
         std::cout << std::endl;
     }
