@@ -30,7 +30,7 @@ template <typename T>
 class NativeSolver : public Solver<T>
 {
 private:
-    T *u, *x, *x1, *y;
+    T *x, *x1, *y;
 
 public:
     NativeSolver(StateSpaceSystem<T> &system);
@@ -43,26 +43,13 @@ template <typename T>
 class XGEMVSolver : public Solver<T>
 {
 private:
-    T *u, *x, *x1, *y;
+    T *x, *x1;
 
 public:
     XGEMVSolver(StateSpaceSystem<T> &system);
     ~XGEMVSolver();
     void process(T *input, T *output, int dataframes);
 };
-/*
-/// @brief CBLAS_XGEMV-based solver.
-template <typename T>
-class XGEMVSolverV2 : public Solver<T>
-{
-private:
-    T *u, *x, *x1, *y;
-
-public:
-    XGEMVSolverV2(StateSpaceSystem<T> &system);
-    ~XGEMVSolverV2();
-    void process(T *input, T *output, int dataframes);
-};*/
 
 /// @brief CBLAS_XGEMM-based solver.
 template <typename T>
