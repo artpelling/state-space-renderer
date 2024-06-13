@@ -91,6 +91,9 @@ tests: test_system test_solver system_file
 
 
 # CLEAN
+clean-system:
+	-rm systems/*.npz
+	-rm -rf systems/benchmark
 clean-local:
 	-rm -rf $(VENVDIR)
 	-rm systems/*.npz
