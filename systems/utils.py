@@ -86,18 +86,18 @@ def save_system(
             x = B @ u[:, i] + A @ x
         np.savez(
             Path(filename).with_suffix(".npz"),
-            A=np.ascontiguousarray(A, dtype=dtype),
-            B=np.ascontiguousarray(B, dtype=dtype),
-            C=np.ascontiguousarray(C, dtype=dtype),
-            D=np.ascontiguousarray(D, dtype=dtype),
-            input=np.ascontiguousarray(u, dtype=dtype),
-            output=np.ascontiguousarray(y, dtype=dtype),
+            A=np.asfortranarray(A, dtype=dtype),
+            B=np.asfortranarray(B, dtype=dtype),
+            C=np.asfortranarray(C, dtype=dtype),
+            D=np.asfortranarray(D, dtype=dtype),
+            input=np.asfortranarray(u, dtype=dtype),
+            output=np.asfortranarray(y, dtype=dtype),
         )
     else:
         np.savez(
             Path(filename).with_suffix(".npz"),
-            A=np.ascontiguousarray(A, dtype=dtype),
-            B=np.ascontiguousarray(B, dtype=dtype),
-            C=np.ascontiguousarray(C, dtype=dtype),
-            D=np.ascontiguousarray(D, dtype=dtype),
+            A=np.asfortranarray(A, dtype=dtype),
+            B=np.asfortranarray(B, dtype=dtype),
+            C=np.asfortranarray(C, dtype=dtype),
+            D=np.asfortranarray(D, dtype=dtype),
         )
