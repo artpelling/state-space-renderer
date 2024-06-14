@@ -17,11 +17,11 @@ public:
     typedef T value_type;
     /// @brief Initialization with system
     /// @param system State space system.
+    /// @param dataframes Number of dataframe
     Solver(StateSpaceSystem<T> &system, const int &dataframes) : system_(system){};
     /// @brief Solve state space system
     /// @param input Input
     /// @param output Output
-    /// @param dataframes Number of dataframe
     void virtual process(T *input, T *output) = 0;
 };
 
@@ -56,7 +56,7 @@ template <typename T>
 class XGEMMSolver : public Solver<T>
 {
 private:
-    T *X, *x, *x1;
+    T *X;
 
 public:
     XGEMMSolver(StateSpaceSystem<T> &system, const int &dataframes);
