@@ -9,7 +9,7 @@ void print_data(cnpy::NpyArray matrix)
     {
         for (size_t j = 0; j < matrix.shape[1]; j++)
         {
-            std::cout << " " << matrix.data<double>()[j + matrix.shape[1] * i] << " ";
+            std::cout << " " << matrix.data<double>()[i + matrix.shape[0] * j] << " ";
         }
         std::cout << std::endl;
     }
@@ -22,7 +22,7 @@ void print_data(T *data, int n, int m)
     {
         for (size_t j = 0; j < m; j++)
         {
-            std::cout << " " << data[j + m * i] << " ";
+            std::cout << " " << data[i + n * j] << " ";
         }
         std::cout << std::endl;
     }
@@ -64,4 +64,22 @@ void XGEMV<double>(CBLAS_LAYOUT layout, CBLAS_TRANSPOSE TransA, const int M, con
                    const double beta, double *Y, const int incY)
 {
     cblas_dgemv(layout, TransA, M, N, alpha, A, lda, X, incX, beta, Y, incY);
+}
+
+// CBLAS template
+template <>
+void XGEMM<float>(CBLAS_LAYOUT layout, CBLAS_TRANSPOSE TransA, CBLAS_TRANSPOSE TransB, const int M, const int N, const int K,
+                  const float alpha, const float *A, const int lda,
+                  const float *B, const int ldb,
+                  const float beta, float *C, const int ldc)
+{
+    cblas_sgemm(layout, TransA, TransB, M, N, K, alpha, A, lda, B, ldb, beta, C, ldc);
+}
+template <>
+void XGEMM<double>(CBLAS_LAYOUT layout, CBLAS_TRANSPOSE TransA, CBLAS_TRANSPOSE TransB, const int M, const int N, const int K,
+                   const double alpha, const double *A, const int lda,
+                   const double *B, const int ldb,
+                   const double beta, double *C, const int ldc)
+{
+    cblas_dgemm(layout, TransA, TransB, M, N, K, alpha, A, lda, B, ldb, beta, C, ldc);
 }

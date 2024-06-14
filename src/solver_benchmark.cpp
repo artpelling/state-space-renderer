@@ -45,11 +45,11 @@ void BM_Solver(benchmark::State &state)
     output = (T *)calloc(p * dataframes, sizeof(T));
 
     StateSpaceSystem<T> system(A_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
-    Solver solver(system);
+    Solver solver(system, dataframes);
 
     for (auto _ : state)
     {
-        solver.process(input.data<T>(), output, dataframes);
+        solver.process(input.data<T>(), output);
     }
 }
 
@@ -57,5 +57,7 @@ BENCHMARK(BM_Solver<NativeSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5
 BENCHMARK(BM_Solver<NativeSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
 BENCHMARK(BM_Solver<XGEMVSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
 BENCHMARK(BM_Solver<XGEMVSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+BENCHMARK(BM_Solver<XGEMMSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+BENCHMARK(BM_Solver<XGEMMSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
 
 BENCHMARK_MAIN();

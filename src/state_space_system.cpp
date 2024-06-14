@@ -134,25 +134,25 @@ T *StateSpaceSystem<T>::D()
 template <typename T>
 T StateSpaceSystem<T>::A(int i, int j)
 {
-    return A_[j + n_ * i];
+    return A_[i + n_ * j];
 }
 
 template <typename T>
 T StateSpaceSystem<T>::B(int i, int j)
 {
-    return B_[j + m_ * i];
+    return B_[i + n_ * j];
 }
 
 template <typename T>
 T StateSpaceSystem<T>::C(int i, int j)
 {
-    return C_[j + n_ * i];
+    return C_[i + p_ * j];
 }
 
 template <typename T>
 T StateSpaceSystem<T>::D(int i, int j)
 {
-    return D_[j + m_ * i];
+    return D_[i + p_ * j];
 }
 
 // List available typenames here :

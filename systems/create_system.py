@@ -46,7 +46,7 @@ if __name__ == "__main__":
     n, p, m = args.shape
     matrices = random_stable_system(n, p, m)
     filename = path / f"n{n}p{p}m{m}d{args.input_length}{args.precision}"
-    if not filename.with_suffix('.npz').exists():
+    if not filename.with_suffix(".npz").exists():
         save_system(
             filename,
             *matrices,
