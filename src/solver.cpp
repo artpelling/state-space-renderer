@@ -1,7 +1,6 @@
 #include <cstring>
 #include "solver.h"
 #include "utils.h"
-#include "span.hpp"
 
 /* CPP-based solver */
 template <typename T>
@@ -34,7 +33,10 @@ void NativeSolver<T>::process(T *input, T *output)
 
     for (int i = 0; i < this->dataframes_; i++)
     {
-        tcb::span<T> u{input + i * m, input + (i + 1) * m};
+        for (int j = 0; j < m; j++)
+        {
+            u[j] = input[j + i * m]
+        }
 
         for (int j = 0; j < p; j++)
         {
@@ -124,8 +126,6 @@ XGEMMSolver<T>::XGEMMSolver(StateSpaceSystem<T> &system, const int &dataframes) 
     int n = this->system_.shape().n;
     this->dataframes_ = dataframes;
 
-    x = (T *)calloc(n, sizeof(T));
-    x1 = (T *)calloc(n, sizeof(T));
     X = (T *)calloc(n * (this->dataframes_ + 1), sizeof(T));
 }
 
