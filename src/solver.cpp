@@ -159,7 +159,7 @@ void XGEMMSolver<T>::process(T *input, T *output)
 
     for (int j = 0; j < n; j++)
     {
-        X[j] = X[j + this->dataframes_];
+        std::swap(X[j], X[j + this->dataframes_]);
     }
 }
 
