@@ -1,5 +1,4 @@
 #include <cstring>
-// #include <omp.h>
 #include "solver.h"
 #include "utils.h"
 #include "span.hpp"
@@ -133,8 +132,6 @@ XGEMMSolver<T>::XGEMMSolver(StateSpaceSystem<T> &system, const int &dataframes) 
 template <typename T>
 XGEMMSolver<T>::~XGEMMSolver()
 {
-    free(x);
-    free(x1);
     free(X);
 }
 

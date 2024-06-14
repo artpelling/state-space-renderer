@@ -36,7 +36,6 @@ AC_PROG_CC
 AC_PROG_CXX
 
 AC_CHECK_HEADERS(cblas.h)
-AC_CHECK_HEADERS(omp.h)
 # We can add more checks in this section
 
 # Tells automake to create a Makefile
