@@ -33,18 +33,13 @@ void NativeSolver<T>::process(T *input, T *output)
 
     for (int i = 0; i < this->dataframes_; i++)
     {
-        for (int j = 0; j < m; j++)
-        {
-            u[j] = input[j + i * m]
-        }
-
         for (int j = 0; j < p; j++)
         {
             y[j] = 0;
             // D*u
             for (int k = 0; k < m; k++)
             {
-                y[j] += this->system_.D(j, k) * u[k];
+                y[j] += this->system_.D(j, k) * input[k + i * m];
             }
             // C*x
             for (int k = 0; k < n; k++)
@@ -64,7 +59,7 @@ void NativeSolver<T>::process(T *input, T *output)
             // B*u
             for (int k = 0; k < m; k++)
             {
-                x1[j] += this->system_.B(j, k) * u[k];
+                x1[j] += this->system_.B(j, k) * input[k + i * m];
             }
         }
 
