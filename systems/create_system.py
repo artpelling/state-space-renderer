@@ -3,7 +3,7 @@
 
 import numpy as np
 from pathlib import Path
-from utils import random_stable_system, random_stable_system_zero_D, save_system
+from utils import random_stable_system, save_system
 
 
 if __name__ == "__main__":
