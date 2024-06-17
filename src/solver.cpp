@@ -121,7 +121,7 @@ XGEMMSolver<T>::XGEMMSolver(StateSpaceSystem<T> &system, const int &dataframes) 
     int n = this->system_.shape().n;
     this->dataframes_ = dataframes;
 
-    X = (T *)calloc(n * (this->dataframes_ + 1), sizeof(T));
+    X = (T *)aligned_alloc(64, n * (this->dataframes_ + 1) * sizeof(T));
 }
 
 template <typename T>

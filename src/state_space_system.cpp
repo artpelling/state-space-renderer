@@ -1,6 +1,5 @@
 #include <cstring>
 #include <cassert>
-#include <stdlib.h>
 #include "utils.h"
 #include "state_space_system.h"
 
