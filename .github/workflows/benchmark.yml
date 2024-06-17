@@ -1,5 +1,6 @@
 name: C++ Runtime Benchmark
 on:
+  pull_request:
   push:
     branches:
       - main
@@ -37,6 +38,7 @@ jobs:
 
       - name: Store benchmark result
         uses: benchmark-action/github-action-benchmark@v1
+        if: github.ref == 'refs/heads/main'
         with:
           name: C++ Benchmark
           tool: 'googlecpp'
