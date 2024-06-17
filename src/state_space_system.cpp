@@ -1,9 +1,11 @@
 #include <cstring>
 #include <cassert>
+#include <stdlib.h>
 #include "utils.h"
 #include "state_space_system.h"
 
 /*Base State System*/
+
 
 template <typename T>
 StateSpaceSystem<T>::StateSpaceSystem()

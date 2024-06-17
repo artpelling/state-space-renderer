@@ -79,7 +79,7 @@ benchmark_files: venv $(srcdir)/systems/create_benchmark_systems.py
 
 # BENCHMARKS
 bench: solver_benchmark
-	./solver_benchmark
+	./solver_benchmark --benchmark_time_unit=ms
 
 bench-json: solver_benchmark
 	./solver_benchmark --benchmark_time_unit=ms --benchmark_format=json | tee benchmark_result.json
