@@ -30,10 +30,10 @@ StateSpaceSystem<T>::StateSpaceSystem(T *A, T *B, T *C, T *D, int n, int m, int 
     this->m_ = m;
     this->p_ = p;
 
-    this->A_ = (T *)malloc(this->n_ * this->n_ * sizeof(T));
-    this->B_ = (T *)malloc(this->n_ * this->m_ * sizeof(T));
-    this->C_ = (T *)malloc(this->p_ * this->n_ * sizeof(T));
-    this->D_ = (T *)malloc(this->p_ * this->m_ * sizeof(T));
+    this->A_ = (T *)aligned_alloc(64, this->n_ * this->n_ * sizeof(T));
+    this->B_ = (T *)aligned_alloc(64, this->n_ * this->m_ * sizeof(T));
+    this->C_ = (T *)aligned_alloc(64, this->p_ * this->n_ * sizeof(T));
+    this->D_ = (T *)aligned_alloc(64, this->p_ * this->m_ * sizeof(T));
 
     memcpy(this->A_, A, this->n_ * this->n_ * sizeof(T));
     memcpy(this->B_, B, this->n_ * this->m_ * sizeof(T));
