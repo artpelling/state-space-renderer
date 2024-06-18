@@ -23,6 +23,8 @@ public:
     /// @param input Input
     /// @param output Output
     void virtual process(T *input, T *output) = 0;
+    int input_size();
+    int output_size();
 };
 
 /// @brief CPP-based solver.
