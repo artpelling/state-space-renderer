@@ -12,13 +12,10 @@ void Renderer<T>::render()
 {
     std::cout << "Render start" << std::endl;
     std::thread processor(&Renderer::process_data, this);
-
-    load_data();
-
-    stop_flag_.store(true);
-    buffer_cv_.notify_all();
+    std::thread loader(&Renderer::load_data, this);
 
     processor.join();
+    loader.join();
 }
 
 template <typename T>
@@ -77,9 +74,7 @@ void Renderer<T>::register_output_callback(std::function<void(T *)> callback)
 #include <random>
 
 template <typename T>
-RandomRenderer<T>::RandomRenderer(Solver<T> &solver) : Renderer<T>(solver)
-{
-}
+RandomRenderer<T>::RandomRenderer(Solver<T> &solver, double run_duration) : Renderer<T>(solver), run_duration_(std::chrono::duration<double>(run_duration)) {}
 
 template <typename T>
 T *RandomRenderer<T>::get_output()
@@ -102,7 +97,8 @@ void RandomRenderer<T>::load_data()
     std::uniform_real_distribution<> dis(0.0, 1.0);
     std::uniform_int_distribution<> disint(100, 1000);
 
-    for (int i = 0; i < 10; ++i)
+    auto start_time = std::chrono::high_resolution_clock::now();
+    while (!this->stop_flag_.load())
     {
         T *input = (T *)malloc(this->solver_.input_size() * sizeof(T));
         for (int j = 0; j < this->solver_.input_size(); ++j)
@@ -111,6 +107,16 @@ void RandomRenderer<T>::load_data()
         }
         this->add_data(input);
         std::this_thread::sleep_for(std::chrono::milliseconds(disint(gen)));
+        if (this->run_duration_.count() > 0)
+        {
+            auto current_time = std::chrono::high_resolution_clock::now();
+            if (std::chrono::duration_cast<std::chrono::duration<double>>(current_time - start_time) >= this->run_duration_)
+            {
+                this->stop_flag_.store(true);
+                this->buffer_cv_.notify_all(); // Ensure to wake up the processor thread
+                break;
+            }
+        }
     }
 }
 
