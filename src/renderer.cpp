@@ -8,9 +8,10 @@
 #include <chrono>
 
 template <typename T>
-void Renderer<T>::render(T *output)
+void Renderer<T>::render()
 {
-    std::thread processor(&Renderer::process_data, output, this);
+    std::cout << "Render start" << std::endl;
+    std::thread processor(&Renderer::process_data, this);
 
     load_data();
 
@@ -21,17 +22,17 @@ void Renderer<T>::render(T *output)
 }
 
 template <typename T>
-void Renderer<T>::add_data(const T *input)
+void Renderer<T>::add_data(T *input)
 {
     {
         std::lock_guard<std::mutex> lock(buffer_mutex_);
-        buffer_.emplace_back(input);
+        buffer_.emplace(input);
     }
     buffer_cv_.notify_one();
 }
 
 template <typename T>
-void Renderer<T>::process_data(T *output)
+void Renderer<T>::process_data()
 {
     while (!stop_flag_.load())
     {
@@ -45,14 +46,76 @@ void Renderer<T>::process_data(T *output)
             buffer_.pop();
             lock.unlock();
 
-            T *output(data.size());
+            T *output = (T *)malloc(solver_.output_size() * sizeof(T));
             solver_.process(input, output);
 
-            // Print processed data to the console immediately
-            std::cout << "Processed data.";
-            std::cout << std::endl;
+            if (output_callback_)
+            {
+                output_callback_(output);
+            }
+            {
+                std::lock_guard<std::mutex> output_lock(output_mutex_);
+                processed_outputs_.push(output);
+                output_cv_.notify_one();
+            }
+            free(input);
+            // free(output);
+
+            std::cout << "..." << std::endl;
 
             lock.lock();
         }
     }
 }
+
+template <typename T>
+void Renderer<T>::register_output_callback(std::function<void(T *)> callback)
+{
+    output_callback_ = callback;
+}
+
+#include <random>
+
+template <typename T>
+RandomRenderer<T>::RandomRenderer(Solver<T> &solver) : Renderer<T>(solver)
+{
+}
+
+template <typename T>
+T *RandomRenderer<T>::get_output()
+{
+    if (this->processed_outputs_.empty())
+    {
+        return nullptr;
+    }
+    auto output = this->processed_outputs_.front();
+    std::cout << this->processed_outputs_.size() << std::endl;
+    this->processed_outputs_.pop();
+    return output; // Return the raw pointer
+}
+
+template <typename T>
+void RandomRenderer<T>::load_data()
+{
+    std::seed_seq seed{42};
+    std::mt19937 gen(seed);
+    std::uniform_real_distribution<> dis(0.0, 1.0);
+    std::uniform_int_distribution<> disint(100, 1000);
+
+    for (int i = 0; i < 10; ++i)
+    {
+        T *input = (T *)malloc(this->solver_.input_size() * sizeof(T));
+        for (int j = 0; j < this->solver_.input_size(); ++j)
+        {
+            input[j] = dis(gen);
+        }
+        this->add_data(input);
+        std::this_thread::sleep_for(std::chrono::milliseconds(disint(gen)));
+    }
+}
+
+template class Renderer<float>;
+template class Renderer<double>;
+
+template class RandomRenderer<float>;
+template class RandomRenderer<double>;

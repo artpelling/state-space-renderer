@@ -30,7 +30,7 @@ $(srcdir)/cnpy/build/libcnpy.a: $(srcdir)/cnpy/build
 # STATE SPACE RENDERER
 BUILT_SOURCES = $(srcdir)/benchmark/build/src/libbenchmark.a $(srcdir)/cnpy/build/libcnpy.a
 
-bin_PROGRAMS = test_system test_solver solver_benchmark system_benchmark
+bin_PROGRAMS = test_system test_solver test_renderer solver_benchmark system_benchmark
 
 LDADD = -lblas -l:libcnpy.a -lz
 
@@ -46,6 +46,9 @@ test_system_DEPENDENCIES = $(srcdir)/cnpy/build/libcnpy.a system_file
 
 test_solver_SOURCES = tests/test_solver.cpp src/state_space_system.cpp src/solver.cpp src/utils.cpp
 test_solver_DEPENDENCIES = $(srcdir)/cnpy/build/libcnpy.a system_file
+
+test_renderer_SOURCES = tests/test_renderer.cpp src/state_space_system.cpp src/renderer.cpp src/solver.cpp src/utils.cpp
+test_renderer_DEPENDENCIES = $(srcdir)/cnpy/build/libcnpy.a system_file
 
 solver_benchmark_SOURCES = src/solver_benchmark.cpp src/state_space_system.cpp src/solver.cpp src/utils.cpp
 solver_benchmark_CPPFLAGS = $(AM_CPPFLAGS) -isystem $(srcdir)/benchmark/include
