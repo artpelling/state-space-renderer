@@ -25,7 +25,7 @@ protected:
     std::mutex output_mutex_;
     std::condition_variable output_cv_;
 
-    virtual void load_data() = 0;
+    virtual void load_input() = 0;
     void process_data();
     void add_data(T *input);
 
@@ -44,11 +44,46 @@ template <typename T>
 class RandomRenderer : public Renderer<T>
 {
 private:
-    void load_data();
+    void load_input();
     std::chrono::duration<double> run_duration_;
 
 public:
     RandomRenderer(Solver<T> &solver, double run_duration = 0);
+    T *get_output();
+};
+
+#include <jack/jack.h>
+
+/// @brief Jack Renderer.
+template <typename T>
+class JackRenderer : public Renderer<T>
+{
+private:
+    void load_input();
+
+    /// @brief number of channels
+    int n_channels_;
+
+    /// @brief the jack client
+    jack_client_t *client_;
+    /// @brief gets the status from the jack server
+    jack_status_t status_;
+    /// @brief the jack input ports
+    jack_port_t **input_port_;
+    /// @brief the jack output ports
+    jack_port_t **output_port_;
+
+    ///
+    /// \brief in
+    jack_default_audio_sample_t **in_;
+    ///
+    /// \brief out
+    jack_default_audio_sample_t **out_;
+
+    int process_jack_buffer(jack_nframes_t nframes);
+
+public:
+    JackRenderer(Solver<T> &solver, int n_channels);
     T *get_output();
 };
 
