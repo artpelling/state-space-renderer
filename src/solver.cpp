@@ -2,6 +2,18 @@
 #include "solver.h"
 #include "utils.h"
 
+template <typename T>
+int Solver<T>::input_size()
+{
+    return this->system_.shape().m * dataframes_;
+}
+
+template <typename T>
+int Solver<T>::output_size()
+{
+    return this->system_.shape().p * dataframes_;
+}
+
 /* CPP-based solver */
 template <typename T>
 NativeSolver<T>::NativeSolver(StateSpaceSystem<T> &system, const int &dataframes) : Solver<T>(system, dataframes)
