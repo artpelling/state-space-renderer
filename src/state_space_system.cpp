@@ -24,18 +24,81 @@ StateSpaceSystem<T>::StateSpaceSystem(int n, int m, int p)
 }
 
 template <typename T>
-StateSpaceSystem<T>::StateSpaceSystem(T *A, T *B, T *C, T *D, int n, int m, int p)
+StateSpaceSystem<T>::StateSpaceSystem(T *A, T *B, T *C, T *D, int n, int m, int p, MatrixStructure A_type)
 {
     this->n_ = n;
     this->m_ = m;
     this->p_ = p;
 
-    this->A_ = (T *)malloc(this->n_ * this->n_ * sizeof(T));
+    A_type_ = A_type;
+    int k;
+    int lda;
+    switch (A_type_)
+    {
+    case General:
+    case Triangular:
+        this->A_ = (T *)malloc(this->n_ * this->n_ * sizeof(T));
+        memcpy(this->A_, A, this->n_ * this->n_ * sizeof(T));
+        break;
+    case Diagonal:
+        this->A_ = (T *)malloc(this->n_ * sizeof(T));
+        for (int j = 0; j < n; j++)
+        {
+            A_[j] = A[j + j * n];
+        }
+        break;
+    case Tridiagonal:
+        lda = 3;
+        this->A_ = (T *)malloc(lda * this->n_ * sizeof(T));
+        for (int j = 0; j < n; j++)
+        {
+            k = 1 - j;
+            for (int i = std::max(0, j - 1); i < std::min(this->n_, j + 2); i++)
+            {
+                A_[k + i + j * (lda)] = A[i + j * n];
+            }
+        }
+        break;
+    case FullHessenberg:
+        lda = 2 + this->n_;
+        this->A_ = (T *)malloc(lda * this->n_ * sizeof(T));
+        for (int j = 0; j < n; j++)
+        {
+            k = n_ - j;
+            for (int i = std::max(0, j - n_); i < std::min(this->n_, j + 2); i++)
+            {
+                A_[k + i + j * (lda)] = A[i + j * n];
+            }
+        }
+        break;
+    case MixedHessenberg:
+        lda = 2 + this->n_;
+        this->A_ = (T *)malloc((this->n_ + lda) * this->n_ * sizeof(T));
+        for (int j = 0; j < n; j++)
+        {
+            for (int i = 0; i < n; i++)
+            {
+                A_[i + j * n_] = A[i + j * n];
+            }
+        }
+        for (int j = 0; j < n; j++)
+        {
+            k = n_ * n_ + n_ - j;
+            for (int i = std::max(0, j - n_); i < std::min(this->n_, j + 2); i++)
+            {
+                A_[k + i + j * (lda)] = A[i + j * n];
+            }
+        }
+        break;
+    default:
+        throw std::invalid_argument("Not valid matrix structure!");
+        break;
+    }
+
     this->B_ = (T *)malloc(this->n_ * this->m_ * sizeof(T));
     this->C_ = (T *)malloc(this->p_ * this->n_ * sizeof(T));
     this->D_ = (T *)malloc(this->p_ * this->m_ * sizeof(T));
 
-    memcpy(this->A_, A, this->n_ * this->n_ * sizeof(T));
     memcpy(this->B_, B, this->n_ * this->m_ * sizeof(T));
     memcpy(this->C_, C, this->p_ * this->n_ * sizeof(T));
     memcpy(this->D_, D, this->p_ * this->m_ * sizeof(T));
