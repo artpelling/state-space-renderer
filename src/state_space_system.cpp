@@ -60,7 +60,7 @@ StateSpaceSystem<T>::StateSpaceSystem(T *A, T *B, T *C, T *D, int n, int m, int 
         }
         break;
     case FullHessenberg:
-        lda = 2 + this->n_;
+        lda = 1 + this->n_;
         this->A_ = (T *)malloc(lda * this->n_ * sizeof(T));
         for (int j = 0; j < n; j++)
         {
@@ -72,15 +72,9 @@ StateSpaceSystem<T>::StateSpaceSystem(T *A, T *B, T *C, T *D, int n, int m, int 
         }
         break;
     case MixedHessenberg:
-        lda = 2 + this->n_;
+        lda = 2;
         this->A_ = (T *)malloc((this->n_ + lda) * this->n_ * sizeof(T));
-        for (int j = 0; j < n; j++)
-        {
-            for (int i = 0; i < n; i++)
-            {
-                A_[i + j * n_] = A[i + j * n];
-            }
-        }
+        memcpy(this->A_, A, this->n_ * this->n_ * sizeof(T));
         for (int j = 0; j < n; j++)
         {
             k = n_ * n_ + n_ - j;
