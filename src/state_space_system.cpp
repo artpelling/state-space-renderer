@@ -31,68 +31,35 @@ StateSpaceSystem<T>::StateSpaceSystem(T *A, T *B, T *C, T *D, int n, int m, int 
     this->p_ = p;
 
     A_type_ = A_type;
-    int k;
     int lda;
     switch (A_type_)
     {
     case General:
     case Triangular:
-        this->A_ = (T *)malloc(this->n_ * this->n_ * sizeof(T));
-        memcpy(this->A_, A, this->n_ * this->n_ * sizeof(T));
+        lda = this->n_;
         break;
     case Diagonal:
-        this->A_ = (T *)malloc(this->n_ * sizeof(T));
-        for (int j = 0; j < n; j++)
-        {
-            A_[j] = A[j + j * n];
-        }
+        lda = 1;
         break;
     case Tridiagonal:
         lda = 3;
-        this->A_ = (T *)malloc(lda * this->n_ * sizeof(T));
-        for (int j = 0; j < n; j++)
-        {
-            k = 1 - j;
-            for (int i = std::max(0, j - 1); i < std::min(this->n_, j + 2); i++)
-            {
-                A_[k + i + j * (lda)] = A[i + j * n];
-            }
-        }
         break;
     case FullHessenberg:
         lda = 1 + this->n_;
-        this->A_ = (T *)malloc(lda * this->n_ * sizeof(T));
-        for (int j = 0; j < n; j++)
-        {
-            k = n_ - j;
-            for (int i = std::max(0, j - n_); i < std::min(this->n_, j + 2); i++)
-            {
-                A_[k + i + j * (lda)] = A[i + j * n];
-            }
-        }
         break;
     case MixedHessenberg:
-        lda = 2;
-        this->A_ = (T *)malloc((this->n_ + lda) * this->n_ * sizeof(T));
-        memcpy(this->A_, A, this->n_ * this->n_ * sizeof(T));
-        for (int j = 0; j < n; j++)
-        {
-            k = n_ * n_ + n_ - j;
-            for (int i = std::max(0, j - n_); i < std::min(this->n_, j + 2); i++)
-            {
-                A_[k + i + j * (lda)] = A[i + j * n];
-            }
-        }
+        lda = 2 + this->n_;
         break;
     default:
         throw std::invalid_argument("Not valid matrix structure!");
         break;
     }
-
+    this.A_ = (T *)malloc(lda * this->n_ * sizeof(T));
     this->B_ = (T *)malloc(this->n_ * this->m_ * sizeof(T));
     this->C_ = (T *)malloc(this->p_ * this->n_ * sizeof(T));
     this->D_ = (T *)malloc(this->p_ * this->m_ * sizeof(T));
 
+    memcpy(this->A_, A, lda * this->n_ * sizeof(T));
     memcpy(this->B_, B, this->n_ * this->m_ * sizeof(T));
     memcpy(this->C_, C, this->p_ * this->n_ * sizeof(T));
     memcpy(this->D_, D, this->p_ * this->m_ * sizeof(T));
@@ -189,9 +156,38 @@ T *StateSpaceSystem<T>::D()
 }
 
 template <typename T>
-T StateSpaceSystem<T>::A(int i, int j)
+T StateSpaceSystem<T>::A(int i, int j) // Need to adjust to each matrix type
 {
-    return A_[i + n_ * j];
+    T zero = 0;
+    switch (A_type_)
+    {
+    case General:
+    case Triangular:
+        return A_[i + n_ * j];
+        break;
+    case Diagonal:
+        if (i == j)
+        {
+            return A_[i];
+        }
+        else
+        {
+            return zero;
+        }
+        break;
+    case Tridiagonal:
+        if (std::abs(i - j) <= 1)
+        {
+            return A_[1 - j + i + j * 3]
+        }
+        else
+        {
+            return zero;
+        }
+
+    default:
+        break;
+    }
 }
 
 template <typename T>
