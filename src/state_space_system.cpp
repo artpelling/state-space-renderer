@@ -120,6 +120,12 @@ void StateSpaceSystem<T>::info()
 }
 
 template <typename T>
+MatrixStructure StateSpaceSystem<T>::matrix_struct()
+{
+    return A_type_;
+}
+
+template <typename T>
 struct system_shape StateSpaceSystem<T>::shape()
 {
     struct system_shape shape;

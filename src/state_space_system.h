@@ -76,6 +76,10 @@ public:
     /// @brief Prints system information and all matrices.
     void info();
 
+    /// @brief Matrix structure of A
+    /// @return MatrixStructure variable of A.
+    MatrixStructure matrix_struct();
+
     /// @brief State matrix A
     T *A();
     /// @brief State matrix B
