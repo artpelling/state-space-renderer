@@ -48,10 +48,10 @@ def save_system(
             lam, T = spla.eig(A)
             if real:
                 lam, T = spla.cdf2rdf(lam, T)
-                A = np.zeros([3, n], dtype=dtype)
-                A[0, 1:] = np.diag(lam, k=1)
-                A[1] = np.diag(lam, k=0)
-                A[2, :-1] = np.diag(lam, k=-1)
+                A = np.zeros([1, n], dtype=dtype)
+                # A[0, 1:] = np.diag(lam, k=1)
+                A = np.diag(lam, k=0)
+                # A[2, :-1] = np.diag(lam, k=-1)
             else:
                 A = lam
         elif structure == "schur":
@@ -72,7 +72,11 @@ def save_system(
 
         for i in np.arange(test_input_length):
             y[:, i] = C @ x + D @ u[:, i]
-            x = B @ u[:, i] + A @ x
+            match structure:
+                case "dense":
+                    x = B @ u[:, i] + A @ x
+                case "diagonal":
+                    x = B @ u[:, i] + A * x
         np.savez(
             Path(filename).with_suffix(".npz"),
             A=np.asfortranarray(A, dtype=dtype),

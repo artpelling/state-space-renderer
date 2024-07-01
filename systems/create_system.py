@@ -39,18 +39,28 @@ if __name__ == "__main__":
         help="Precision of the system data type (single/double).",
     )
 
+    parser.add_argument(
+        "--structure",
+        metavar="structure",
+        type=str,
+        default="dense",
+        help="Structure of A matrix in system.",
+    )
+
     args = parser.parse_args()
 
     path = Path("systems")
 
     n, p, m = args.shape
     matrices = random_stable_system(n, p, m)
-    filename = path / f"n{n}p{p}m{m}d{args.input_length}{args.precision}"
+    filename = (
+        path / f"n{n}p{p}m{m}d{args.input_length}{args.precision}{args.structure}"
+    )
     if not filename.with_suffix(".npz").exists():
         save_system(
             filename,
             *matrices,
-            structure="dense",
+            structure=args.structure,
             precision=args.precision,
             real=True,
             test_input=True,
