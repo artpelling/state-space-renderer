@@ -184,6 +184,20 @@ T StateSpaceSystem<T>::A(int i, int j) // Need to adjust to each matrix type
         {
             return zero;
         }
+    case MixedHessenberg:
+    case FullHessenberg:
+        if (j >= i)
+        {
+            return A_[i + n_ * j];
+        }
+        else if (j == i - 1)
+        {
+            return A_[n_ * n_ + i + 2 * j];
+        }
+        else
+        {
+            return zero;
+        }
 
     default:
         break;
