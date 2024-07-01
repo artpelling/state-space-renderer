@@ -57,7 +57,7 @@ T *general_to_band_storage(T *A, int n, int ku, int kl)
     int lda = 1 + ku + kl;
     T *A_;
 
-    A_ = (T *)malloc(lda * this->n_ * sizeof(T));
+    A_ = (T *)malloc(lda * n * sizeof(T));
     for (int j = 0; j < n; j++)
     {
         k = ku - j;
@@ -72,6 +72,29 @@ T *general_to_band_storage(T *A, int n, int ku, int kl)
 
 template float *general_to_band_storage(float *A, int n, int ku, int kl);
 template double *general_to_band_storage(double *A, int n, int ku, int kl);
+
+template <typename T>
+T *band_to_general_storage(T *A, int n, int ku, int kl)
+{
+    int k;
+    int lda = 1 + ku + kl;
+    T *A_;
+
+    A_ = (T *)malloc(n * n * sizeof(T));
+    for (int j = 0; j < n; j++)
+    {
+        k = ku - j;
+        for (int i = std::max(0, j - ku); i < min(n, j + kl + 1); i++)
+        {
+            A_[i + j * n] = A[(k + i) + j * lda];
+        }
+    }
+
+    return A_;
+}
+
+template float *band_to_general_storage(float *A, int n, int ku, int kl);
+template double *band_to_general_storage(double *A, int n, int ku, int kl);
 
 template <typename T>
 T *general_to_diagonal(T *A, int n)
