@@ -18,6 +18,38 @@ public:
     }
 };
 
+MatrixStructure stringToMatStruct(const std::string &matstruct_str)
+{
+    if (matstruct_str == "General")
+    {
+        return General;
+    }
+    else if (matstruct_str == "Triangular")
+    {
+        return Triangular;
+    }
+    else if (matstruct_str == "Diagonal")
+    {
+        return Diagonal;
+    }
+    else if (matstruct_str == "Tridiagonal")
+    {
+        return Tridiagonal;
+    }
+    else if (matstruct_str == "MixedHessenberg")
+    {
+        return MixedHessenberg;
+    }
+    else if (matstruct_str == "FullHessenberg")
+    {
+        return FullHessenberg;
+    }
+    else
+    {
+        throw std::invalid_argument("Not valid matrix structure!");
+    }
+}
+
 int main(int argc, char const *argv[])
 {
     std::string filename = argv[1];
@@ -25,6 +57,8 @@ int main(int argc, char const *argv[])
     cnpy::NpyArray B_npy = cnpy::npz_load(filename, "B");
     cnpy::NpyArray C_npy = cnpy::npz_load(filename, "C");
     cnpy::NpyArray D_npy = cnpy::npz_load(filename, "D");
+
+    MatrixStructure matstruct = stringToMatStruct(argv[2]);
 
     /* Default state space */
 
@@ -37,11 +71,11 @@ int main(int argc, char const *argv[])
     zero_state_float.info();
 
     std::cout << "- STL double Cnpy import - " << std::endl;
-    NoProcess<double> nonempty_state_double(A_npy.data<double>(), B_npy.data<double>(), C_npy.data<double>(), D_npy.data<double>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], General);
+    NoProcess<double> nonempty_state_double(A_npy.data<double>(), B_npy.data<double>(), C_npy.data<double>(), D_npy.data<double>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
     nonempty_state_double.info();
 
     std::cout << "- STL float Cnpy import - *Bug in cnpy* " << std::endl;
     // Note that you have to be careful when casting datatypes using cnpy, since float in python is internally casted as double. As you can see here, the value does not coincide correctly.
-    NoProcess<float> nonempty_state_float(A_npy.data<float>(), B_npy.data<float>(), C_npy.data<float>(), D_npy.data<float>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], General);
+    NoProcess<float> nonempty_state_float(A_npy.data<float>(), B_npy.data<float>(), C_npy.data<float>(), D_npy.data<float>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
     nonempty_state_float.info();
 }

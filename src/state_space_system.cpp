@@ -54,7 +54,7 @@ StateSpaceSystem<T>::StateSpaceSystem(T *A, T *B, T *C, T *D, int n, int m, int 
         throw std::invalid_argument("Not valid matrix structure!");
         break;
     }
-    this.A_ = (T *)malloc(lda * this->n_ * sizeof(T));
+    this->A_ = (T *)malloc(lda * this->n_ * sizeof(T));
     this->B_ = (T *)malloc(this->n_ * this->m_ * sizeof(T));
     this->C_ = (T *)malloc(this->p_ * this->n_ * sizeof(T));
     this->D_ = (T *)malloc(this->p_ * this->m_ * sizeof(T));
@@ -178,7 +178,7 @@ T StateSpaceSystem<T>::A(int i, int j) // Need to adjust to each matrix type
     case Tridiagonal:
         if (std::abs(i - j) <= 1)
         {
-            return A_[1 - j + i + j * 3]
+            return A_[1 - j + i + j * 3];
         }
         else
         {
