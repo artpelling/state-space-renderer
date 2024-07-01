@@ -48,6 +48,74 @@ T l2err(T *x, T *y)
 template float l2err<float>(float *x, float *y);
 template double l2err<double>(double *x, double *y);
 
+/*Matrix storage conversions*/
+
+template <typename T>
+T *general_to_band_storage(T *A, int n, int ku, int kl)
+{
+    int k;
+    int lda = 1 + ku + kl;
+    T *A_;
+
+    A_ = (T *)malloc(lda * this->n_ * sizeof(T));
+    for (int j = 0; j < n; j++)
+    {
+        k = ku - j;
+        for (int i = std::max(0, j - ku); i < min(n, j + kl + 1); i++)
+        {
+            A_[(k + i) + j * lda] = A[i + j * n];
+        }
+    }
+
+    return A_;
+}
+
+template float *general_to_band_storage(float *A, int n, int ku, int kl);
+template double *general_to_band_storage(double *A, int n, int ku, int kl);
+
+template <typename T>
+T *general_to_diagonal(T *A, int n)
+{
+    return general_to_band_storage(A, n, 0, 0);
+}
+
+template float *general_to_diagonal(float *A, int n);
+template double *general_to_diagonal(double *A, int n);
+
+template <typename T>
+T *general_to_tridiagonal(T *A, int n)
+{
+    return general_to_band_storage(A, n, 1, 1);
+}
+
+template float *general_to_tridiagonal(float *A, int n);
+template double *general_to_tridiagonal(double *A, int n);
+
+template <typename T>
+T *general_to_hessenberg(T *A, int n, bool band)
+{
+    if (band)
+    {
+        return general_to_band_storage(A, n, n - 1, 1);
+    }
+    else
+    {
+        T *A_;
+        A_ = (T *)malloc((n + 2) * n * sizeof(T));
+        memcpy(A_, A, n * n * sizeof(T));
+        memcpy(A_ + n * n, general_to_band_storage(A, n, 0, 1), 2 * n * sizeof(T));
+        for (size_t i = 0; i < n; i++)
+        {
+            A_[n * n + i + i * 2] = 0;
+        }
+
+        return A_;
+    }
+}
+
+template float *general_to_hessenberg(float *A, int n, bool band);
+template double *general_to_hessenberg(double *A, int n, bool band);
+
 // CBLAS template
 template <>
 void XGEMV<float>(CBLAS_LAYOUT layout, CBLAS_TRANSPOSE TransA, const int M, const int N,

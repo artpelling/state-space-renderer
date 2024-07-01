@@ -28,6 +28,41 @@ void print_data(T *data, int n, int m);
 template <typename T>
 T l2err(T *x1, T *x2);
 
+/// @brief Transform general matrix storage to band storage.
+/// @tparam T data type
+/// @param A Matrix
+/// @param n Matrix order
+/// @param ku Number of superdiagonals
+/// @param kl Number of subdiagonals
+/// @return
+template <typename T>
+T *general_to_band_storage(T *A, int n, int ku, int kl);
+
+/// @brief Transform general matrix storage to diagonal matrix storage (band).
+/// @tparam T data type
+/// @param A Matrix
+/// @param n Matrix order
+/// @return
+template <typename T>
+T *general_to_diagonal(T *A, int n);
+
+/// @brief Transform general matrix storage to tridiagonal matrix storage (band).
+/// @tparam T data type
+/// @param A Matrix
+/// @param n Matrix order
+/// @return
+template <typename T>
+T *general_to_tridiagonal(T *A, int n);
+
+/// @brief Transform general matrix storage to hessenberg matrix storage.
+/// @tparam T data type
+/// @param A Matrix
+/// @param n Matrix order
+/// @param band Full band storage
+/// @return
+template <typename T>
+T *general_to_hessenberg(T *A, int n, bool band);
+
 /// @brief Standard BLAS routine of matrix-vector multiplication
 /// @tparam T data type
 /// @param layout
