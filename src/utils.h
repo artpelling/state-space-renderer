@@ -38,6 +38,16 @@ T l2err(T *x1, T *x2);
 template <typename T>
 T *general_to_band_storage(T *A, int n, int ku, int kl);
 
+/// @brief Transform banded matrix storage to general storage.
+/// @tparam T data type
+/// @param A Matrix
+/// @param n Matrix order
+/// @param ku Number of superdiagonals
+/// @param kl Number of subdiagonals
+/// @return
+template <typename T>
+T *band_to_general_storage(T *A, int n, int ku, int kl);
+
 /// @brief Transform general matrix storage to diagonal matrix storage (band).
 /// @tparam T data type
 /// @param A Matrix
