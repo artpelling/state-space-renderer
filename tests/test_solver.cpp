@@ -3,6 +3,38 @@
 #include "../src/solver.h"
 #include "../src/utils.h"
 
+MatrixStructure stringToMatStruct(const std::string &matstruct_str)
+{
+    if (matstruct_str == "General")
+    {
+        return General;
+    }
+    else if (matstruct_str == "Triangular")
+    {
+        return Triangular;
+    }
+    else if (matstruct_str == "Diagonal")
+    {
+        return Diagonal;
+    }
+    else if (matstruct_str == "Tridiagonal")
+    {
+        return Tridiagonal;
+    }
+    else if (matstruct_str == "MixedHessenberg")
+    {
+        return MixedHessenberg;
+    }
+    else if (matstruct_str == "FullHessenberg")
+    {
+        return FullHessenberg;
+    }
+    else
+    {
+        throw std::invalid_argument("Not valid matrix structure!");
+    }
+}
+
 int main(int argc, char const *argv[])
 {
     std::string filename = argv[1];
@@ -14,6 +46,8 @@ int main(int argc, char const *argv[])
     cnpy::NpyArray true_output = cnpy::npz_load(filename, "output");
     auto dataframes = input.shape[1];
     auto n = A_npy.shape[0], m = B_npy.shape[1], p = C_npy.shape[0];
+
+    MatrixStructure matstruct = stringToMatStruct(argv[2]);
 
     std::cout << "dataframes: " << dataframes << std::endl;
     std::cout << "n: " << n << std::endl;
@@ -27,10 +61,10 @@ int main(int argc, char const *argv[])
 
     output = (double *)calloc(p * dataframes, sizeof(double)); // allocate
     dtout = true_output.data<double>();
-    StateSpaceSystem<double> system(A_npy.data<double>(), B_npy.data<double>(), C_npy.data<double>(), D_npy.data<double>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
+    StateSpaceSystem<double> system(A_npy.data<double>(), B_npy.data<double>(), C_npy.data<double>(), D_npy.data<double>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
     NativeSolver<double> dnat_solver(system, dataframes);
     XGEMVSolver<double> dgemv_solver(system, dataframes);
-    XGEMMSolver<double> dgemm_solver(system, dataframes);
+    // XGEMMSolver<double> dgemm_solver(system, dataframes);
 
     dnat_solver.process(input.data<double>(), output);
     std::cout << "True out:" << std::endl;
@@ -45,14 +79,14 @@ int main(int argc, char const *argv[])
     std::cout << "Calculated out:" << std::endl;
     print_data(output, p, dataframes);
     std::cout << "DGEMV Solver - " << l2err(output, dtout) << std::endl;
-
+    /*
     dgemm_solver.process(input.data<double>(), output);
     std::cout << "True out:" << std::endl;
     print_data(true_output);
     std::cout << "Calculated out:" << std::endl;
     print_data(output, p, dataframes);
     std::cout << "DGEMM Solver - " << l2err(output, dtout) << std::endl;
-
+ */
     /* dgemv_solver2.process(input.data<double>(), output, dataframes);
     std::cout << "True out:" << std::endl;
     print_data(true_output);

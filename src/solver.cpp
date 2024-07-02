@@ -122,14 +122,46 @@ XGEMVSolver<T>::XGEMVSolver(StateSpaceSystem<T> &system, const int &dataframes) 
     this->dataframes_ = dataframes;
 
     x = (T *)calloc(n, sizeof(T));
-    x1 = (T *)calloc(n, sizeof(T));
+    switch (this->system_.matrix_struct())
+    {
+    case General:
+    case Diagonal:
+    case Tridiagonal:
+    case FullHessenberg:
+    case MixedHessenberg:
+        x1 = (T *)calloc(n, sizeof(T));
+        break;
+
+    case Triangular:
+        break;
+
+    default:
+        x1 = (T *)calloc(n, sizeof(T));
+        break;
+    }
 }
 
 template <typename T>
 XGEMVSolver<T>::~XGEMVSolver()
 {
     free(x);
-    free(x1);
+    switch (this->system_.matrix_struct())
+    {
+    case General:
+    case Diagonal:
+    case Tridiagonal:
+    case FullHessenberg:
+    case MixedHessenberg:
+        free(x1);
+        break;
+
+    case Triangular:
+        break;
+
+    default:
+        free(x1);
+        break;
+    }
 }
 
 template <typename T>
@@ -145,12 +177,75 @@ void XGEMVSolver<T>::process(T *input, T *output)
     {
         XGEMV(CblasColMajor, CblasNoTrans, p, m, one, this->system_.D(), p, input + i * m, 1, zero, output + i * p, 1); // y = Du
         XGEMV(CblasColMajor, CblasNoTrans, p, n, one, this->system_.C(), p, x, 1, one, output + i * p, 1);              // y = y + Cx
-        XGEMV(CblasColMajor, CblasNoTrans, n, n, one, this->system_.A(), n, x, 1, zero, x1, 1);                         // x1 = Ax
-        XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1);              // x1 = x1 + Bu
+        switch (this->system_.matrix_struct())
+        {
+        case General:
+            XGEMV(CblasColMajor, CblasNoTrans, n, n, one, this->system_.A(), n, x, 1, zero, x1, 1);            // x1 = Ax
+            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
 
-        std::swap(x, x1);
+            std::swap(x, x1);
+            break;
+
+        case Triangular:
+            XTRMV(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, n, this->system_.A(), n, x, 1);      // x = Ax
+            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x, 1); // x = x + Bu
+            break;
+
+        case Diagonal:
+            XGBMV(CblasColMajor, CblasNoTrans, n, n, 0, 0, one, this->system_.A(), 1, x, 1, zero, x1, 1);      // x1 = Ax
+            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
+
+            std::swap(x, x1);
+            break;
+
+        case Tridiagonal:
+            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, 1, one, this->system_.A(), 1, x, 1, zero, x1, 1);      // x1 = Ax
+            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
+
+            std::swap(x, x1);
+            break;
+
+        case FullHessenberg:
+            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, n - 1, one, this->system_.A(), 1, x, 1, zero, x1, 1);  // x1 = Ax
+            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
+
+            std::swap(x, x1);
+            break;
+
+        case MixedHessenberg:
+            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, 0, one, this->system_.A(), 1, x, 1, zero, x1, 1);      // x1 = A_lowerband*x
+            XTRMV(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, n, this->system_.A(), n, x, 1);       // x = A_triangular*x
+            XAXPY(n, one, x, 1, x1, 1);                                                                        // x1 = x1 + x
+            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
+
+            std::swap(x, x1);
+            break;
+
+        default:
+            XGEMV(CblasColMajor, CblasNoTrans, n, n, one, this->system_.A(), n, x, 1, zero, x1, 1);            // x1 = Ax
+            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
+
+            std::swap(x, x1);
+            break;
+        }
     }
-    std::swap(x, x1);
+    switch (this->system_.matrix_struct())
+    {
+    case General:
+    case Diagonal:
+    case Tridiagonal:
+    case FullHessenberg:
+    case MixedHessenberg:
+        std::swap(x, x1);
+        break;
+
+    case Triangular:
+        break;
+
+    default:
+        std::swap(x, x1);
+        break;
+    }
 }
 
 /* CBLAS_XGEMM-based solver */
