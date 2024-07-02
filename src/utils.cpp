@@ -1,4 +1,5 @@
 #include <cblas.h>
+#include <cstring>
 #include "../cnpy/cnpy.h"
 #include "solver.h"
 #include "utils.h"
@@ -61,7 +62,7 @@ T *general_to_band_storage(T *A, int n, int ku, int kl)
     for (int j = 0; j < n; j++)
     {
         k = ku - j;
-        for (int i = std::max(0, j - ku); i < min(n, j + kl + 1); i++)
+        for (int i = std::max(0, j - ku); i < std::min(n, j + kl + 1); i++)
         {
             A_[(k + i) + j * lda] = A[i + j * n];
         }
@@ -84,7 +85,7 @@ T *band_to_general_storage(T *A, int n, int ku, int kl)
     for (int j = 0; j < n; j++)
     {
         k = ku - j;
-        for (int i = std::max(0, j - ku); i < min(n, j + kl + 1); i++)
+        for (int i = std::max(0, j - ku); i < std::min(n, j + kl + 1); i++)
         {
             A_[i + j * n] = A[(k + i) + j * lda];
         }
@@ -138,6 +139,22 @@ T *general_to_hessenberg(T *A, int n, bool band)
 
 template float *general_to_hessenberg(float *A, int n, bool band);
 template double *general_to_hessenberg(double *A, int n, bool band);
+
+/* LEVEL 1 ROUTINES */
+
+// CBLAS AXPY template
+template <>
+void XAXPY<float>(const int N, const float alpha, const float *X, const int incX, float *Y, const int incY)
+{
+    cblas_saxpy(N, alpha, X, incX, Y, incY);
+}
+template <>
+void XAXPY<double>(const int N, const double alpha, const double *X, const int incX, double *Y, const int incY)
+{
+    cblas_daxpy(N, alpha, X, incX, Y, incY);
+}
+
+/* LEVEL 2 ROUTINES */
 
 // CBLAS GEMV template
 template <>
@@ -193,6 +210,8 @@ void XTRMV<double>(CBLAS_LAYOUT layout, CBLAS_UPLO uplo, CBLAS_TRANSPOSE TransA,
 {
     cblas_dtrmv(layout, uplo, TransA, diag, N, A, lda, X, incX);
 }
+
+/* LEVEL 3 Routine */
 
 // CBLAS GEMM template
 template <>

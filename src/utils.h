@@ -73,6 +73,21 @@ T *general_to_tridiagonal(T *A, int n);
 template <typename T>
 T *general_to_hessenberg(T *A, int n, bool band);
 
+/* LEVEL 1 ROUTINES */
+
+/// @brief Standard BLAS routint of vector-scalar product.
+/// @tparam T data type
+/// @param N Number of elements in vector
+/// @param alpha Scalar a
+/// @param X Array
+/// @param incX Increment of elements of X
+/// @param Y Array
+/// @param incY Increment of elements of Y
+template <typename T>
+void XAXPY(const int N, const T alpha, const T *X, const int incX, T *Y, const int incY);
+
+/* LEVEL 2 ROUTINES */
+
 /// @brief Standard BLAS routine of matrix-vector multiplication
 /// @tparam T data type
 /// @param layout
@@ -130,6 +145,8 @@ template <typename T>
 void XTRMV(CBLAS_LAYOUT layout, CBLAS_UPLO uplo, CBLAS_TRANSPOSE TransA,
            CBLAS_DIAG diag, const int N, const T *A, const int lda,
            T *X, const int incX);
+
+/* LEVEL 3 ROUTINES */
 
 /// @brief Standard BLAS routine of matrix-matrix multiplication
 /// @tparam T data type
