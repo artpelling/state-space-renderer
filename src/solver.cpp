@@ -52,10 +52,49 @@ void NativeSolver<T>::process(T *input, T *output)
         {
             x1[j] = 0;
             // A*x
-            for (int k = 0; k < n; k++)
+            switch (this->system_.matrix_struct())
             {
-                x1[j] += this->system_.A(j, k) * x[k];
+            case General:
+                for (int k = 0; k < n; k++)
+                {
+                    x1[j] += this->system_.A(j, k) * x[k];
+                }
+                break;
+
+            case Triangular:
+                for (int k = j; k < n; k++)
+                {
+                    x1[j] += this->system_.A(j, k) * x[k];
+                }
+                break;
+
+            case Diagonal:
+                x1[j] += this->system_.A(j, j) * x[j];
+                break;
+
+            case Tridiagonal:
+                for (int k = std::max(0, j - 1); k < std::min(n, j + 2); k++)
+                {
+                    x1[j] += this->system_.A(j, k) * x[k];
+                }
+                break;
+
+            case FullHessenberg:
+            case MixedHessenberg:
+                for (int k = std::max(0, j - 1); k < n; k++)
+                {
+                    x1[j] += this->system_.A(j, k) * x[k];
+                }
+                break;
+
+            default:
+                for (int k = 0; k < n; k++)
+                {
+                    x1[j] += this->system_.A(j, k) * x[k];
+                }
+                break;
             }
+
             // B*u
             for (int k = 0; k < m; k++)
             {
