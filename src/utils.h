@@ -93,6 +93,44 @@ void XGEMV(CBLAS_LAYOUT layout, CBLAS_TRANSPOSE TransA, const int M, const int N
            const T *X, const int incX, const T beta,
            T *Y, const int incY);
 
+/// @brief Standard BLAS routine of general band matrix-vector multiplication
+/// @tparam T data type
+/// @param layout
+/// @param TransA
+/// @param M
+/// @param N
+/// @param kl
+/// @param ku
+/// @param alpha
+/// @param A
+/// @param lda
+/// @param X
+/// @param incX
+/// @param beta
+/// @param Y
+/// @param incY
+template <typename T>
+void XGBMV(CBLAS_LAYOUT layout, CBLAS_TRANSPOSE TransA, const int M, const int N,
+           const int kl, const int ku, const T alpha, const T *A, const int lda,
+           const T *X, const int incX, const T beta,
+           T *Y, const int incY);
+
+/// @brief Standard BLAS routine of triangular matrix-vector multiplication
+/// @tparam T data type
+/// @param layout
+/// @param uplo
+/// @param TransA
+/// @param diag
+/// @param N
+/// @param A
+/// @param lda
+/// @param X
+/// @param incX
+template <typename T>
+void XTRMV(CBLAS_LAYOUT layout, CBLAS_UPLO uplo, CBLAS_TRANSPOSE TransA,
+           CBLAS_DIAG diag, const int N, const T *A, const int lda,
+           T *X, const int incX);
+
 /// @brief Standard BLAS routine of matrix-matrix multiplication
 /// @tparam T data type
 /// @param layout
