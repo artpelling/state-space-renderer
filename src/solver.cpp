@@ -206,21 +206,21 @@ void XGEMVSolver<T>::process(T *input, T *output)
             break;
 
         case Tridiagonal:
-            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, 1, one, this->system_.A(), 1, x, 1, zero, x1, 1);      // x1 = Ax
+            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, 1, one, this->system_.A(), 3, x, 1, zero, x1, 1);      // x1 = Ax
             XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
 
             std::swap(x, x1);
             break;
 
         case FullHessenberg:
-            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, n - 1, one, this->system_.A(), 1, x, 1, zero, x1, 1);  // x1 = Ax
-            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
+            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, n - 1, one, this->system_.A(), n + 1, x, 1, zero, x1, 1); // x1 = Ax
+            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1);    // x1 = x1 + Bu
 
             std::swap(x, x1);
             break;
 
         case MixedHessenberg:
-            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, 0, one, this->system_.A() + n * n, 1, x, 1, zero, x1, 1); // x1 = A_lowerband*x
+            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, 0, one, this->system_.A() + n * n, 2, x, 1, zero, x1, 1); // x1 = A_lowerband*x
             XTRMV(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, n, this->system_.A(), n, x, 1);          // x = A_triangular*x
             XAXPY(n, one, x, 1, x1, 1);                                                                           // x1 = x1 + x
             XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1);    // x1 = x1 + Bu
@@ -297,11 +297,11 @@ void XGEMMSolver<T>::process(T *input, T *output)
             break;
 
         case Tridiagonal:
-            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, 1, one, this->system_.A(), 1, X + n * (i - 1), 1, one, X + n * i, 1);
+            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, 1, one, this->system_.A(), 3, X + n * (i - 1), 1, one, X + n * i, 1);
             break;
 
         case FullHessenberg:
-            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, n - 1, one, this->system_.A(), 1, X + n * (i - 1), 1, one, X + n * i, 1);
+            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, n - 1, one, this->system_.A(), n + 1, X + n * (i - 1), 1, one, X + n * i, 1);
             break;
 
         case MixedHessenberg:
