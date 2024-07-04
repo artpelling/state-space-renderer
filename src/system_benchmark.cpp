@@ -86,9 +86,11 @@ void BM_CnpyInitialization(benchmark::State &state)
     cnpy::NpyArray C_npy = cnpy::npz_load(path, "C");
     cnpy::NpyArray D_npy = cnpy::npz_load(path, "D");
 
+    T *A = conversion_function(A_npy.data<T>());
+
     for (auto _ : state)
     {
-        NoProcess<T> nonempty_state(conversion_function(A_npy.data<T>()), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
+        NoProcess<T> nonempty_state(A, B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
     }
 }
 

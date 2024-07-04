@@ -77,20 +77,19 @@ void BM_Solver(benchmark::State &state)
     cnpy::NpyArray C_npy = cnpy::npz_load(path, "C");
     cnpy::NpyArray D_npy = cnpy::npz_load(path, "D");
     cnpy::NpyArray input = cnpy::npz_load(path, "input");
-    cnpy::NpyArray true_output = cnpy::npz_load(path, "output");
 
-    T *output;
-    output = (T *)calloc(p * dataframes, sizeof(T));
+    T *A = conversion_function(A_npy.data<T>());
 
-    StateSpaceSystem<T> system(conversion_function(A_npy.data<T>()), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
+    std::vector<T> output(p * dataframes);
+
+    StateSpaceSystem<T> system(A, B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
     Solver solver(system, dataframes);
 
     for (auto _ : state)
     {
-        solver.process(input.data<T>(), output);
+        solver.process(input.data<T>(), output.data());
     }
 }
-
 BENCHMARK(BM_Solver<NativeSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}, {0, 1, 2, 3, 4, 5}}); // All combinations of set up
 BENCHMARK(BM_Solver<NativeSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}, {0, 1, 2, 3, 4, 5}});
 BENCHMARK(BM_Solver<XGEMVSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}, {0, 1, 2, 3, 4, 5}});
