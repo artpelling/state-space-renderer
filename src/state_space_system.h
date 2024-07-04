@@ -33,6 +33,11 @@ enum MatrixStructure
     MixedHessenberg = 5
 };
 
+/// @brief Utility for deducing matrix structures with string. Useful for passing arguments in main.
+/// @param matstruct_str String of matrix structure.
+/// @return MatrixStructure object.
+MatrixStructure string_to_matstruct(const std::string &matstruct_str);
+
 /* Base State Space System */
 
 /// @brief Class of a system of states, consisting of state matrices A, B, C, D.

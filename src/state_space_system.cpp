@@ -3,6 +3,39 @@
 #include "utils.h"
 #include "state_space_system.h"
 
+// Matrix structure evaluation
+MatrixStructure string_to_matstruct(const std::string &matstruct_str)
+{
+    if (matstruct_str == "General")
+    {
+        return General;
+    }
+    else if (matstruct_str == "Triangular")
+    {
+        return Triangular;
+    }
+    else if (matstruct_str == "Diagonal")
+    {
+        return Diagonal;
+    }
+    else if (matstruct_str == "Tridiagonal")
+    {
+        return Tridiagonal;
+    }
+    else if (matstruct_str == "MixedHessenberg")
+    {
+        return MixedHessenberg;
+    }
+    else if (matstruct_str == "FullHessenberg")
+    {
+        return FullHessenberg;
+    }
+    else
+    {
+        throw std::invalid_argument("Not valid matrix structure!");
+    }
+};
+
 /*Base State System*/
 
 template <typename T>
