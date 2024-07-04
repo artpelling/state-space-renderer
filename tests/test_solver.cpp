@@ -49,6 +49,37 @@ int main(int argc, char const *argv[])
 
     MatrixStructure matstruct = stringToMatStruct(argv[2]);
 
+    auto conversion_function = [matstruct, n](auto *val)
+    {
+        switch (matstruct)
+        {
+        case General:
+        case Triangular:
+            return val;
+            break;
+
+        case Diagonal:
+            return general_to_diagonal(val, n);
+            break;
+
+        case Tridiagonal:
+            return general_to_tridiagonal(val, n);
+            break;
+
+        case FullHessenberg:
+            return general_to_hessenberg(val, n, true);
+            break;
+
+        case MixedHessenberg:
+            return general_to_hessenberg(val, n, false);
+            break;
+
+        default:
+            std::invalid_argument("Invalid structure!");
+            break;
+        }
+    };
+
     std::cout << "dataframes: " << dataframes << std::endl;
     std::cout << "n: " << n << std::endl;
     std::cout << "m: " << m << std::endl;
@@ -61,7 +92,7 @@ int main(int argc, char const *argv[])
 
     output = (double *)calloc(p * dataframes, sizeof(double)); // allocate
     dtout = true_output.data<double>();
-    StateSpaceSystem<double> system(A_npy.data<double>(), B_npy.data<double>(), C_npy.data<double>(), D_npy.data<double>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
+    StateSpaceSystem<double> system(conversion_function(A_npy.data<double>()), B_npy.data<double>(), C_npy.data<double>(), D_npy.data<double>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
     NativeSolver<double> dnat_solver(system, dataframes);
     XGEMVSolver<double> dgemv_solver(system, dataframes);
     XGEMMSolver<double> dgemm_solver(system, dataframes);
