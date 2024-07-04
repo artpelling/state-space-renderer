@@ -9,6 +9,11 @@
 #include "solver.h"
 #include "utils.h"
 
+MatrixStructure StructureIdx(int m)
+{
+    return static_cast<MatrixStructure>(m);
+}
+
 // Solver single data benchmark
 template <class Solver>
 void BM_Solver(benchmark::State &state)
@@ -17,6 +22,39 @@ void BM_Solver(benchmark::State &state)
     int p = state.range(1);
     int m = state.range(2);
     int dataframes = state.range(3);
+    MatrixStructure matstruct = StructureIdx(state.range(4));
+
+    auto conversion_function = [matstruct, n](auto *val)
+    {
+        switch (matstruct)
+        {
+        case General:
+        case Triangular:
+            return val;
+            break;
+
+        case Diagonal:
+            return general_to_diagonal(val, n);
+            break;
+
+        case Tridiagonal:
+            return general_to_tridiagonal(val, n);
+            break;
+
+        case FullHessenberg:
+            return general_to_hessenberg(val, n, true);
+            break;
+
+        case MixedHessenberg:
+            return general_to_hessenberg(val, n, false);
+            break;
+
+        default:
+            std::invalid_argument("Invalid structure!");
+            return val;
+            break;
+        }
+    };
 
     using T = typename Solver::value_type;
 
@@ -44,7 +82,7 @@ void BM_Solver(benchmark::State &state)
     T *output;
     output = (T *)calloc(p * dataframes, sizeof(T));
 
-    StateSpaceSystem<T> system(A_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
+    StateSpaceSystem<T> system(conversion_function(A_npy.data<T>()), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
     Solver solver(system, dataframes);
 
     for (auto _ : state)
@@ -53,11 +91,11 @@ void BM_Solver(benchmark::State &state)
     }
 }
 
-BENCHMARK(BM_Solver<NativeSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}}); // All combinations of set up
-BENCHMARK(BM_Solver<NativeSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
-BENCHMARK(BM_Solver<XGEMVSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
-BENCHMARK(BM_Solver<XGEMVSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
-BENCHMARK(BM_Solver<XGEMMSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
-BENCHMARK(BM_Solver<XGEMMSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+BENCHMARK(BM_Solver<NativeSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}, {1, 2, 3, 4, 5}}); // All combinations of set up
+BENCHMARK(BM_Solver<NativeSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}, {1, 2, 3, 4, 5}});
+BENCHMARK(BM_Solver<XGEMVSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}, {1, 2, 3, 4, 5}});
+BENCHMARK(BM_Solver<XGEMVSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}, {1, 2, 3, 4, 5}});
+BENCHMARK(BM_Solver<XGEMMSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}, {1, 2, 3, 4}});
+BENCHMARK(BM_Solver<XGEMMSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}, {1, 2, 3, 4}});
 
 BENCHMARK_MAIN();
