@@ -130,7 +130,7 @@ T *general_to_hessenberg(T *A, int n, bool band)
         memcpy(A_ + n * n, general_to_band_storage(A, n, 0, 1), 2 * n * sizeof(T));
         for (size_t i = 0; i < n; i++)
         {
-            A_[n * n + i + i * 2] = 0;
+            A_[n * n + 2 * i] = 0;
         }
 
         return A_;

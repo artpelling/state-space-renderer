@@ -41,7 +41,7 @@ AM_CPPFLAGS += -I/Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/System/
 AM_LDFLAGS += -framework Accelerate
 endif
 
-test_system_SOURCES = tests/test_system.cpp src/state_space_system.cpp
+test_system_SOURCES = tests/test_system.cpp src/state_space_system.cpp src/utils.cpp
 test_system_DEPENDENCIES = $(srcdir)/cnpy/build/libcnpy.a system_file
 
 test_solver_SOURCES = tests/test_solver.cpp src/state_space_system.cpp src/solver.cpp src/utils.cpp
@@ -70,8 +70,10 @@ venv: $(srcdir)/systems/requirements.txt
 
 system_file: venv $(srcdir)/systems/create_system.py
 	mkdir -p $(builddir)/systems
-	. $(VENVBIN) && which python && python $(srcdir)/systems/create_system.py
-	. $(VENVBIN) && which python && python $(srcdir)/systems/create_system.py --structure diagonal
+	. $(VENVBIN) && which python && python $(srcdir)/systems/create_system.py --shape 4 3 5
+	. $(VENVBIN) && which python && python $(srcdir)/systems/create_system.py --shape 4 3 5 --structure diagonal
+	. $(VENVBIN) && which python && python $(srcdir)/systems/create_system.py --shape 4 3 5 --structure tridiagonal
+	. $(VENVBIN) && which python && python $(srcdir)/systems/create_system.py --shape 4 3 5 --structure hessenberg
 
 benchmark_files: venv $(srcdir)/systems/create_benchmark_systems.py
 	mkdir -p $(builddir)/systems/benchmark
