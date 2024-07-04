@@ -23,12 +23,18 @@ def save_system(
     C,
     D=None,
     structure="dense",
+    banded_storage=False,
     real=True,
     precision="double",
     test_input=False,
     test_input_length=1,
 ):
-    assert structure in ("dense", "diagonal", "schur")
+    assert structure in (
+        "dense",
+        "diagonal",
+        "tridiagonal",
+        "hessenberg",
+    )
     assert precision in ("single", "double")
     dtype = np.float64
     if precision == "single":
@@ -46,17 +52,32 @@ def save_system(
         if structure == "diagonal":
             print("Applying diagonal transformation ...")
             lam, T = spla.eig(A)
-            if real:
-                lam, T = spla.cdf2rdf(lam, T)
-                A = np.zeros([1, n], dtype=dtype)
-                # A[0, 1:] = np.diag(lam, k=1)
-                A = np.diag(lam, k=0)
-                # A[2, :-1] = np.diag(lam, k=-1)
+            if banded_storage:
+                A = lam
+            else:
+                A = np.diag(lam)
+        elif structure == "tridiagonal":
+            print("Applying diagonal transformation ...")
+            lam, T = spla.eig(A)
+            lam, T = spla.cdf2rdf(lam, T)
+            if banded_storage:
+                A = np.zeros([3, n], dtype=dtype)
+                A[0, 1:] = np.diag(lam, k=1)
+                A[1] = np.diag(lam, k=0)
+                A[2, :-1] = np.diag(lam, k=-1)
             else:
                 A = lam
-        elif structure == "schur":
+        elif structure == "hessenberg":
             print("Applying Schur transformation ...")
-            A, T = spla.schur(A, output="real" if real else "complex")
+            Ap, T = spla.schur(A, output="real" if real else "complex")
+            print(Ap)
+            if banded_storage:
+                A = np.zeros([n + 1, n], dtype=dtype)
+                for i in range(n):
+                    A[i, n - 1 - i :] = np.diag(Ap, k=n - 1 - i)
+                A[n, :-1] = np.diag(Ap, k=-1)
+            else:
+                A = Ap
         print(f"Condition number of transformation: {np.linalg.cond(T)}")
         B, *_, svs = spla.lstsq(T, B)
         print(f"Singular values: {svs}")
@@ -72,11 +93,8 @@ def save_system(
 
         for i in np.arange(test_input_length):
             y[:, i] = C @ x + D @ u[:, i]
-            match structure:
-                case "dense":
-                    x = B @ u[:, i] + A @ x
-                case "diagonal":
-                    x = B @ u[:, i] + A * x
+            x = B @ u[:, i] + A @ x
+
         np.savez(
             Path(filename).with_suffix(".npz"),
             A=np.asfortranarray(A, dtype=dtype),
