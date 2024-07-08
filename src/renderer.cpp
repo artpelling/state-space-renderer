@@ -234,6 +234,22 @@ T *JackRenderer<T>::get_output()
     auto output = this->processed_outputs_.front();
     std::cout << this->processed_outputs_.size() << std::endl;
     this->processed_outputs_.pop();
+
+    jack_nframes_t nframes = jack_get_buffer_size(client_);
+
+    for (int i = 0; i < n_channels_; ++i)
+    {
+        out_[i] = static_cast<jack_default_audio_sample_t *>(jack_port_get_buffer(output_port_[i], nframes));
+    }
+
+    for (int i = 0; i < nframes; ++i)
+    {
+        for (int j = 0; j < n_channels_; ++j)
+        {
+            out_[j][i] = static_cast<jack_default_audio_sample_t>(output[i * n_channels_ + j]);
+        }
+    }
+
     return output; // Return the raw pointer
 }
 
