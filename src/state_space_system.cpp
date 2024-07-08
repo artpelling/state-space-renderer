@@ -3,7 +3,7 @@
 #include "utils.h"
 #include "state_space_system.h"
 
-// Matrix structure evaluation
+// Matrix structure string conversion to type
 MatrixStructure string_to_matstruct(const std::string &matstruct_str)
 {
     if (matstruct_str == "General")
@@ -201,8 +201,15 @@ T StateSpaceSystem<T>::A(int i, int j) // Need to adjust to each matrix type
     switch (A_type_)
     {
     case General:
-    case Triangular:
         return A_[i + n_ * j];
+        break;
+    case Triangular:
+        if (j >= i)
+            return A_[i + n_ * j];
+        else
+        {
+            return zero;
+        }
         break;
     case Diagonal:
         if (i == j)
@@ -247,6 +254,7 @@ T StateSpaceSystem<T>::A(int i, int j) // Need to adjust to each matrix type
         }
 
     default:
+        return A_[i + n_ * j];
         break;
     }
 }

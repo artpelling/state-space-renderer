@@ -35,38 +35,6 @@ void BM_CnpyInitialization(benchmark::State &state)
     int dataframes = state.range(3);
     MatrixStructure matstruct = StructureIdx(state.range(4));
 
-    auto conversion_function = [matstruct, n](auto *val)
-    {
-        switch (matstruct)
-        {
-        case General:
-        case Triangular:
-            return val;
-            break;
-
-        case Diagonal:
-            return general_to_diagonal(val, n);
-            break;
-
-        case Tridiagonal:
-            return general_to_tridiagonal(val, n);
-            break;
-
-        case FullHessenberg:
-            return general_to_hessenberg(val, n, true);
-            break;
-
-        case MixedHessenberg:
-            return general_to_hessenberg(val, n, false);
-            break;
-
-        default:
-            std::invalid_argument("Invalid structure!");
-            return val;
-            break;
-        }
-    };
-
     // Type evaluation
     std::string type_string;
     if (std ::integral_constant<bool, std::is_same<float, typename std::remove_cv<T>::type>::value>::value)
@@ -78,19 +46,51 @@ void BM_CnpyInitialization(benchmark::State &state)
         type_string = "double";
     }
 
-    std::string inputfile = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(dataframes) + type_string + ".npz";
+    // Structure evaluation
+    std::string struct_string;
+    switch (matstruct)
+    {
+    case General:
+        struct_string = "general";
+        break;
+
+    case Triangular:
+        struct_string = "triangular";
+        break;
+
+    case Diagonal:
+        struct_string = "diagonal";
+        break;
+
+    case Tridiagonal:
+        struct_string = "tridiagonal";
+        break;
+
+    case FullHessenberg:
+        struct_string = "fullhessenberg";
+        break;
+
+    case MixedHessenberg:
+        struct_string = "mixedhessenberg";
+        break;
+
+    default:
+        struct_string = "general";
+        break;
+    }
+
+    std::string inputfile = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(dataframes) + type_string + struct_string + ".npz";
     std::string path = "systems/benchmark/" + inputfile;
 
     cnpy::NpyArray A_npy = cnpy::npz_load(path, "A");
+    cnpy::NpyArray Ab_npy = cnpy::npz_load(path, "Ab");
     cnpy::NpyArray B_npy = cnpy::npz_load(path, "B");
     cnpy::NpyArray C_npy = cnpy::npz_load(path, "C");
     cnpy::NpyArray D_npy = cnpy::npz_load(path, "D");
 
-    T *A = conversion_function(A_npy.data<T>());
-
     for (auto _ : state)
     {
-        NoProcess<T> nonempty_state(A, B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
+        NoProcess<T> nonempty_state(Ab_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
     }
 }
 
