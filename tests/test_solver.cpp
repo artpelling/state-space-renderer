@@ -31,6 +31,8 @@ int main(int argc, char const *argv[])
     NativeSolver<double> dnat_solver(system, dataframes);
     XGEMVSolver<double> dgemv_solver(system, dataframes);
     XGEMMSolver<double> dgemm_solver(system, dataframes);
+    EigenMVSolver<double> eigmv_solver(system, dataframes);
+    EigenMMSolver<double> eigmm_solver(system, dataframes);
 
     dnat_solver.process(input.data<double>(), output);
     std::cout << "True out:" << std::endl;
@@ -59,6 +61,20 @@ int main(int argc, char const *argv[])
     std::cout << "Calculated out:" << std::endl;
     print_data(output, p, dataframes);
     std::cout << "DGEMV Solver - " << l2err(output, dtout) << std::endl; */
+
+    eigmv_solver.process(input.data<double>(), output);
+    std::cout << "True out:" << std::endl;
+    print_data(true_output);
+    std::cout << "Calculated out:" << std::endl;
+    print_data(output, p, dataframes);
+    std::cout << "EigMV Solver - " << l2err(output, dtout) << std::endl;
+
+    eigmm_solver.process(input.data<double>(), output);
+    std::cout << "True out:" << std::endl;
+    print_data(true_output);
+    std::cout << "Calculated out:" << std::endl;
+    print_data(output, p, dataframes);
+    std::cout << "EigMM Solver - " << l2err(output, dtout) << std::endl;
 
     free(output);
 }
