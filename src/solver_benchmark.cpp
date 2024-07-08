@@ -59,5 +59,9 @@ BENCHMARK(BM_Solver<XGEMVSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}
 BENCHMARK(BM_Solver<XGEMVSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
 BENCHMARK(BM_Solver<XGEMMSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
 BENCHMARK(BM_Solver<XGEMMSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+BENCHMARK(BM_Solver<EigenMVSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+BENCHMARK(BM_Solver<EigenMVSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+BENCHMARK(BM_Solver<EigenMMSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+BENCHMARK(BM_Solver<EigenMMSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
 
 BENCHMARK_MAIN();
