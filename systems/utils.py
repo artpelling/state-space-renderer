@@ -22,18 +22,19 @@ def save_system(
     B,
     C,
     D=None,
-    structure="dense",
-    banded_storage=False,
+    structure="general",
     real=True,
     precision="double",
     test_input=False,
     test_input_length=1,
 ):
     assert structure in (
-        "dense",
+        "triangular",
+        "general",
         "diagonal",
         "tridiagonal",
-        "hessenberg",
+        "fullhessenberg",
+        "mixedhessenberg",
     )
     assert precision in ("single", "double")
     dtype = np.float64
@@ -48,40 +49,62 @@ def save_system(
     assert C.shape == (p, n)
     D = np.zeros((C.shape[0], B.shape[1]), dtype=dtype) if D is None else D
     assert D.shape == (p, m)
-    if structure != "dense":
-        if structure == "diagonal":
+    if structure != "general":
+        if structure == "triangular":
+            print("Applying Schur transformation ...")
+            Ap, T = spla.schur(A, output="real" if real else "complex")
+            # System storage, normal
+            Ab = Ap - np.diag(np.diag(Ap, k=-1), k=-1)
+            #####
+            A = Ap
+            A = A - np.diag(np.diag(A, k=-1), k=-1)
+        elif structure == "diagonal":
             print("Applying diagonal transformation ...")
             lam, T = spla.eig(A)
-            if banded_storage:
-                A = lam
-            else:
-                A = np.diag(lam)
+            # System storage, banded
+            Ab = lam
+            #####
+            A = np.diag(lam)
         elif structure == "tridiagonal":
             print("Applying diagonal transformation ...")
             lam, T = spla.eig(A)
             lam, T = spla.cdf2rdf(lam, T)
-            if banded_storage:
-                A = np.zeros([3, n], dtype=dtype)
-                A[0, 1:] = np.diag(lam, k=1)
-                A[1] = np.diag(lam, k=0)
-                A[2, :-1] = np.diag(lam, k=-1)
-            else:
-                A = lam
-        elif structure == "hessenberg":
+            # System storage, banded
+            Ab = np.zeros([3, n], dtype=dtype)
+            Ab[0, 1:] = np.diag(lam, k=1)
+            Ab[1] = np.diag(lam, k=0)
+            Ab[2, :-1] = np.diag(lam, k=-1)
+            ######
+            A = lam
+        elif structure == "fullhessenberg":
             print("Applying Schur transformation ...")
             Ap, T = spla.schur(A, output="real" if real else "complex")
-            print(Ap)
-            if banded_storage:
-                A = np.zeros([n + 1, n], dtype=dtype)
-                for i in range(n):
-                    A[i, n - 1 - i :] = np.diag(Ap, k=n - 1 - i)
-                A[n, :-1] = np.diag(Ap, k=-1)
-            else:
-                A = Ap
+            # System storage, banded
+            Ab = np.zeros([n + 1, n], dtype=dtype)
+            for i in range(n):
+                Ab[i, n - 1 - i :] = np.diag(Ap, k=n - 1 - i)
+            Ab[n, :-1] = np.diag(Ap, k=-1)
+            #######
+            A = Ap
+        elif structure == "mixedhessenberg":
+            print("Applying Schur transformation ...")
+            Ap, T = spla.schur(A, output="real" if real else "complex")
+            # System storage, normal + banded
+            A1 = Ap
+            A2 = np.zeros([2, n], dtype=dtype)
+            A2[1, :-1] = np.diag(Ap, k=-1)
+            print(A1)
+            print(A2)
+            Ab = np.append(A1.flatten("F"), A2.flatten("F"))
+            print(Ab)
+            #######
+            A = Ap
         print(f"Condition number of transformation: {np.linalg.cond(T)}")
         B, *_, svs = spla.lstsq(T, B)
         print(f"Singular values: {svs}")
         C = C @ T
+    else:
+        Ab = A
     if test_input:
         u = np.random.randn(m, test_input_length)
         # u = np.zeros((m, test_input_length))
@@ -98,6 +121,7 @@ def save_system(
         np.savez(
             Path(filename).with_suffix(".npz"),
             A=np.asfortranarray(A, dtype=dtype),
+            Ab=np.asfortranarray(Ab, dtype=dtype),
             B=np.asfortranarray(B, dtype=dtype),
             C=np.asfortranarray(C, dtype=dtype),
             D=np.asfortranarray(D, dtype=dtype),
@@ -108,6 +132,7 @@ def save_system(
         np.savez(
             Path(filename).with_suffix(".npz"),
             A=np.asfortranarray(A, dtype=dtype),
+            Ab=np.asfortranarray(Ab, dtype=dtype),
             B=np.asfortranarray(B, dtype=dtype),
             C=np.asfortranarray(C, dtype=dtype),
             D=np.asfortranarray(D, dtype=dtype),
