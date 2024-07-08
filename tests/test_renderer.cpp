@@ -25,8 +25,8 @@ int main(int argc, char const *argv[])
 
     StateSpaceSystem<T> system(A_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
     sol solver(system, dataframes);
-    RandomRenderer<T> renderer(solver, 30);
-    // JackRenderer<T> renderer(solver, 2);
+    // RandomRenderer<T> renderer(solver, 30);
+    JackRenderer<T> renderer(solver, 2);
 
     // Atomic flag to indicate when rendering is done
     std::atomic<bool> rendering_done{false};
