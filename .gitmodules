@@ -4,3 +4,6 @@
 [submodule "cnpy"]
 	path = cnpy
 	url = git@github.com:rogersce/cnpy.git
+[submodule "eigen"]
+	path = eigen
+	url = git@github.com:libigl/eigen.git

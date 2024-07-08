@@ -3,6 +3,8 @@
 
 #include "state_space_system.h"
 #include "utils.h"
+#define EIGEN_USE_BLAS
+#include <eigen/Eigen/Core>
 
 /// @brief Base solver.
 template <typename T>
@@ -57,10 +59,50 @@ class XGEMMSolver : public Solver<T>
 {
 private:
     T *X;
+    typedef Eigen::Matrix<float, 1, Eigen::Dynamic> MatrixType;
+    typedef Eigen::Map<MatrixType> MapType;
 
 public:
     XGEMMSolver(StateSpaceSystem<T> &system, const int &dataframes);
     ~XGEMMSolver();
+    void process(T *input, T *output);
+};
+
+/// @brief Eigen MV-based solver.
+template <typename T>
+class EigenMVSolver : public Solver<T>
+{
+private:
+    typedef Eigen::Matrix<T, Eigen::Dynamic, 1> vector_t;
+    typedef Eigen::Map<vector_t> vector_map;
+    typedef Eigen::Map<const vector_t> const_vector_map;
+
+    typedef Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> matrix_t;
+    typedef Eigen::Map<matrix_t> matrix_map;
+    typedef Eigen::Map<const matrix_t> const_matrix_map;
+
+    vector_t x;
+
+public:
+    EigenMVSolver(StateSpaceSystem<T> &system, const int &dataframes);
+    ~EigenMVSolver();
+    void process(T *input, T *output);
+};
+
+/// @brief Eigen MM-based solver.
+template <typename T>
+class EigenMMSolver : public Solver<T>
+{
+private:
+    typedef Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> matrix_t;
+    typedef Eigen::Map<matrix_t> matrix_map;
+    typedef Eigen::Map<const matrix_t> const_matrix_map;
+
+    matrix_t X;
+
+public:
+    EigenMMSolver(StateSpaceSystem<T> &system, const int &dataframes);
+    ~EigenMMSolver();
     void process(T *input, T *output);
 };
 

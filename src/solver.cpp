@@ -2,6 +2,9 @@
 #include "solver.h"
 #include "utils.h"
 
+template class Solver<double>;
+template class Solver<float>;
+
 /* CPP-based solver */
 template <typename T>
 NativeSolver<T>::NativeSolver(StateSpaceSystem<T> &system, const int &dataframes) : Solver<T>(system, dataframes)
@@ -73,6 +76,9 @@ void NativeSolver<T>::process(T *input, T *output)
     std::swap(x, x1);
 }
 
+template class NativeSolver<double>;
+template class NativeSolver<float>;
+
 /* CBLAS_XGEMV-based solver */
 template <typename T>
 XGEMVSolver<T>::XGEMVSolver(StateSpaceSystem<T> &system, const int &dataframes) : Solver<T>(system, dataframes)
@@ -113,6 +119,9 @@ void XGEMVSolver<T>::process(T *input, T *output)
     }
     std::swap(x, x1);
 }
+
+template class XGEMVSolver<double>;
+template class XGEMVSolver<float>;
 
 /* CBLAS_XGEMM-based solver */
 template <typename T>
@@ -158,14 +167,92 @@ void XGEMMSolver<T>::process(T *input, T *output)
     }
 }
 
-template class Solver<double>;
-template class Solver<float>;
-
-template class NativeSolver<double>;
-template class NativeSolver<float>;
-
-template class XGEMVSolver<double>;
-template class XGEMVSolver<float>;
-
 template class XGEMMSolver<double>;
 template class XGEMMSolver<float>;
+
+/* Eigen MV-based solver */
+template <typename T>
+EigenMVSolver<T>::EigenMVSolver(StateSpaceSystem<T> &system, const int &dataframes) : Solver<T>(system, dataframes)
+{
+    int n = this->system_.shape().n;
+    int m = this->system_.shape().m;
+    int p = this->system_.shape().p;
+    this->dataframes_ = dataframes;
+
+    x = vector_t::Zero(n);
+}
+
+template <typename T>
+EigenMVSolver<T>::~EigenMVSolver()
+{
+}
+
+template <typename T>
+void EigenMVSolver<T>::process(T *input, T *output)
+{
+    int n = this->system_.shape().n;
+    int m = this->system_.shape().m;
+    int p = this->system_.shape().p;
+
+    const_matrix_map A(this->system_.A(), n, n);
+    const_matrix_map B(this->system_.B(), n, m);
+    const_matrix_map C(this->system_.C(), p, n);
+    const_matrix_map D(this->system_.D(), p, m);
+
+    const_matrix_map u(input, m, this->dataframes_);
+    matrix_map y(output, p, this->dataframes_);
+
+    for (int i = 0; i < this->dataframes_; i++)
+    {
+        y.col(i) = C * x + D * u.col(i);
+        x = A * x + B * u.col(i);
+    }
+}
+
+template class EigenMVSolver<double>;
+template class EigenMVSolver<float>;
+
+/* Eigen MM-based solver */
+template <typename T>
+EigenMMSolver<T>::EigenMMSolver(StateSpaceSystem<T> &system, const int &dataframes) : Solver<T>(system, dataframes)
+{
+    int n = this->system_.shape().n;
+    int m = this->system_.shape().m;
+    int p = this->system_.shape().p;
+    this->dataframes_ = dataframes;
+
+    X = matrix_t::Zero(n, this->dataframes_ + 1);
+}
+
+template <typename T>
+EigenMMSolver<T>::~EigenMMSolver()
+{
+}
+
+template <typename T>
+void EigenMMSolver<T>::process(T *input, T *output)
+{
+    int n = this->system_.shape().n;
+    int m = this->system_.shape().m;
+    int p = this->system_.shape().p;
+
+    const_matrix_map A(this->system_.A(), n, n);
+    const_matrix_map B(this->system_.B(), n, m);
+    const_matrix_map C(this->system_.C(), p, n);
+    const_matrix_map D(this->system_.D(), p, m);
+
+    const_matrix_map U(input, m, this->dataframes_);
+    matrix_map Y(output, p, this->dataframes_);
+
+    X.rightCols(this->dataframes_) = B * U;
+    for (int i = 0; i < this->dataframes_; i++)
+    {
+        X.col(i + 1) = A * X.col(i) + X.col(i + 1);
+    }
+    Y = C * X.leftCols(this->dataframes_) + D * U;
+
+    X.col(0) = X.col(this->dataframes_);
+}
+
+template class EigenMMSolver<double>;
+template class EigenMMSolver<float>;
