@@ -7,6 +7,7 @@ int main(int argc, char const *argv[])
 {
     std::string filename = argv[1];
     cnpy::NpyArray A_npy = cnpy::npz_load(filename, "A");
+    cnpy::NpyArray Ab_npy = cnpy::npz_load(filename, "Ab");
     cnpy::NpyArray B_npy = cnpy::npz_load(filename, "B");
     cnpy::NpyArray C_npy = cnpy::npz_load(filename, "C");
     cnpy::NpyArray D_npy = cnpy::npz_load(filename, "D");
@@ -16,38 +17,6 @@ int main(int argc, char const *argv[])
     auto n = A_npy.shape[0], m = B_npy.shape[1], p = C_npy.shape[0];
 
     MatrixStructure matstruct = string_to_matstruct(argv[2]);
-
-    auto conversion_function = [matstruct, n](auto *val)
-    {
-        switch (matstruct)
-        {
-        case General:
-        case Triangular:
-            return val;
-            break;
-
-        case Diagonal:
-            return general_to_diagonal(val, n);
-            break;
-
-        case Tridiagonal:
-            return general_to_tridiagonal(val, n);
-            break;
-
-        case FullHessenberg:
-            return general_to_hessenberg(val, n, true);
-            break;
-
-        case MixedHessenberg:
-            return general_to_hessenberg(val, n, false);
-            break;
-
-        default:
-            std::invalid_argument("Invalid structure!");
-            break;
-        }
-    };
-    std::shared_ptr<double> A(conversion_function(A_npy.data<double>()));
 
     std::cout << "dataframes: " << dataframes << std::endl;
     std::cout << "n: " << n << std::endl;
@@ -61,7 +30,7 @@ int main(int argc, char const *argv[])
 
     output = (double *)calloc(p * dataframes, sizeof(double)); // allocate
     dtout = true_output.data<double>();
-    StateSpaceSystem<double> system(A.get(), B_npy.data<double>(), C_npy.data<double>(), D_npy.data<double>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
+    StateSpaceSystem<double> system(Ab_npy.data<double>(), B_npy.data<double>(), C_npy.data<double>(), D_npy.data<double>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
     NativeSolver<double> dnat_solver(system, dataframes);
     XGEMVSolver<double> dgemv_solver(system, dataframes);
     XGEMMSolver<double> dgemm_solver(system, dataframes);
@@ -95,5 +64,4 @@ int main(int argc, char const *argv[])
     std::cout << "DGEMV Solver - " << l2err(output, dtout) << std::endl; */
 
     free(output);
-    // free(A);
 }
