@@ -23,7 +23,7 @@ int main(int argc, char const *argv[])
     std::cout << "m: " << m << std::endl;
     std::cout << "p: " << p << std::endl;
 
-    StateSpaceSystem<T> system(A_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
+    StateSpaceSystem<T> system(A_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], Diagonal);
     sol solver(system);
     JackRenderer<T> renderer(solver, m, p);
 

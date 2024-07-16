@@ -5,7 +5,6 @@
 template <typename T>
 int Solver<T>::set_buffer_size(const int &buffer_size)
 {
-    std::cout << buffer_size << " solver "  << std::endl;
     this->buffer_size_ = buffer_size;
     return 0;
 }

@@ -54,6 +54,8 @@ void JackRenderer<T>::render()
     in_ = new jack_default_audio_sample_t *;
 
     jack_activate(this->client_);
+
+    sleep(-1);
 }
 
 template <typename T>
