@@ -83,14 +83,13 @@ void BM_CnpyInitialization(benchmark::State &state)
     std::string path = "systems/benchmark/" + inputfile;
 
     cnpy::NpyArray A_npy = cnpy::npz_load(path, "A");
-    cnpy::NpyArray Ab_npy = cnpy::npz_load(path, "Ab");
     cnpy::NpyArray B_npy = cnpy::npz_load(path, "B");
     cnpy::NpyArray C_npy = cnpy::npz_load(path, "C");
     cnpy::NpyArray D_npy = cnpy::npz_load(path, "D");
 
     for (auto _ : state)
     {
-        NoProcess<T> nonempty_state(Ab_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
+        NoProcess<T> nonempty_state(A_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
     }
 }
 

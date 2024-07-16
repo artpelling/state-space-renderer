@@ -120,8 +120,7 @@ def save_system(
 
         np.savez(
             Path(filename).with_suffix(".npz"),
-            A=np.asfortranarray(A, dtype=dtype),
-            Ab=np.asfortranarray(Ab, dtype=dtype),
+            A=np.asfortranarray(Ab, dtype=dtype),
             B=np.asfortranarray(B, dtype=dtype),
             C=np.asfortranarray(C, dtype=dtype),
             D=np.asfortranarray(D, dtype=dtype),
@@ -131,8 +130,7 @@ def save_system(
     else:
         np.savez(
             Path(filename).with_suffix(".npz"),
-            A=np.asfortranarray(A, dtype=dtype),
-            Ab=np.asfortranarray(Ab, dtype=dtype),
+            A=np.asfortranarray(Ab, dtype=dtype),
             B=np.asfortranarray(B, dtype=dtype),
             C=np.asfortranarray(C, dtype=dtype),
             D=np.asfortranarray(D, dtype=dtype),

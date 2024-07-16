@@ -23,7 +23,6 @@ int main(int argc, char const *argv[])
 {
     std::string filename = argv[1];
     cnpy::NpyArray A_npy = cnpy::npz_load(filename, "A");
-    cnpy::NpyArray Ab_npy = cnpy::npz_load(filename, "Ab");
     cnpy::NpyArray B_npy = cnpy::npz_load(filename, "B");
     cnpy::NpyArray C_npy = cnpy::npz_load(filename, "C");
     cnpy::NpyArray D_npy = cnpy::npz_load(filename, "D");
@@ -43,11 +42,11 @@ int main(int argc, char const *argv[])
     zero_state_float.info();
 
     std::cout << "- STL double Cnpy import - " << std::endl;
-    NoProcess<double> nonempty_state_double(Ab_npy.data<double>(), B_npy.data<double>(), C_npy.data<double>(), D_npy.data<double>(), B_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
+    NoProcess<double> nonempty_state_double(A_npy.data<double>(), B_npy.data<double>(), C_npy.data<double>(), D_npy.data<double>(), B_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
     nonempty_state_double.info();
 
     std::cout << "- STL float Cnpy import" << std::endl;
     // Note that you have to be careful when casting datatypes using cnpy, since float in python is internally casted as double. As you can see here, the value does not coincide correctly.
-    NoProcess<float> nonempty_state_float(Ab_npy.data<float>(), B_npy.data<float>(), C_npy.data<float>(), D_npy.data<float>(), B_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
+    NoProcess<float> nonempty_state_float(A_npy.data<float>(), B_npy.data<float>(), C_npy.data<float>(), D_npy.data<float>(), B_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
     nonempty_state_float.info();
 }
