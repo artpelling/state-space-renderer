@@ -31,7 +31,8 @@ private:
     T *u, *y;
 
     /// @brief number of channels
-    int n_channels_;
+    int n_inputs_;
+    int n_outputs_;
 
     /// @brief the jack client
     jack_client_t *client_;
@@ -65,9 +66,10 @@ private:
     /// \return
     ///
     static int callback_process(jack_nframes_t x, void *object);
+    static int callback_buffer_size(jack_nframes_t x, void *object);
 
 public:
-    JackRenderer(Solver<T> &solver, int n_channels);
+    JackRenderer(Solver<T> &solver, int n_inputs, int n_outputs);
     void render();
 };
 
