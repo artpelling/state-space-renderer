@@ -1,10 +1,19 @@
 #!/usr/bin/nv python3
 
-
+from itertools import product
 import numpy as np
 from pathlib import Path
 from utils import random_stable_system, save_system
 
+precisions = ("single", "double")
+structures = (
+    "triangular",
+    "general",
+    "diagonal",
+    "tridiagonal",
+    "fullhessenberg",
+    "mixedhessenberg",
+)
 
 if __name__ == "__main__":
     import argparse
@@ -31,43 +40,43 @@ if __name__ == "__main__":
         help="Length of the input signal.",
     )
 
-    parser.add_argument(
-        "--precision",
-        metavar="precision",
-        type=str,
-        default="double",
-        help="Precision of the system data type (single/double).",
-    )
-
     args = parser.parse_args()
 
     path = Path("systems")
 
     n, p, m = args.shape
     matrices = random_stable_system(n, p, m)
-    filename = path / f"n{n}p{p}m{m}d{args.input_length}{args.precision}"
-    if not filename.with_suffix(".npz").exists():
-        save_system(
-            filename,
-            *matrices,
-            structure="dense",
-            precision=args.precision,
-            real=True,
-            test_input=True,
-            test_input_length=args.input_length,
-        )
+    for precision, structure in product(precisions, structures):
+        filename = path / f"n{n}p{p}m{m}d{args.input_length}{precision}{structure}"
+        if not filename.with_suffix(".npz").exists():
+            save_system(
+                filename,
+                *matrices,
+                structure=structure,
+                precision=precision,
+                real=True,
+                test_input=True,
+                test_input_length=args.input_length,
+            )
 
-    d = np.load(filename.with_suffix(".npz"))
-    A, B, C, D, input, output = d["A"], d["B"], d["C"], d["D"], d["input"], d["output"]
-    print(f"A: {A.shape} - {A.dtype}")
-    print(A)
-    print(f"B: {B.shape} - {B.dtype}")
-    print(B)
-    print(f"C: {C.shape} - {C.dtype}")
-    print(C)
-    print(f"D: {D.shape} - {D.dtype}")
-    print(D)
-    print(f"input: {input.shape} - {input.dtype}")
-    print(input)
-    print(f"output: {output.shape} - {output.dtype}")
-    print(output)
+        d = np.load(filename.with_suffix(".npz"))
+        A, B, C, D, input, output = (
+            d["A"],
+            d["B"],
+            d["C"],
+            d["D"],
+            d["input"],
+            d["output"],
+        )
+        print(f"A: {A.shape} - {A.dtype}")
+        print(A)
+        print(f"B: {B.shape} - {B.dtype}")
+        print(B)
+        print(f"C: {C.shape} - {C.dtype}")
+        print(C)
+        print(f"D: {D.shape} - {D.dtype}")
+        print(D)
+        print(f"input: {input.shape} - {input.dtype}")
+        print(input)
+        print(f"output: {output.shape} - {output.dtype}")
+        print(output)

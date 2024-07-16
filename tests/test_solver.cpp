@@ -15,6 +15,8 @@ int main(int argc, char const *argv[])
     auto dataframes = input.shape[1];
     auto n = A_npy.shape[0], m = B_npy.shape[1], p = C_npy.shape[0];
 
+    MatrixStructure matstruct = string_to_matstruct(argv[2]);
+
     std::cout << "dataframes: " << dataframes << std::endl;
     std::cout << "n: " << n << std::endl;
     std::cout << "m: " << m << std::endl;
@@ -27,7 +29,7 @@ int main(int argc, char const *argv[])
 
     output = (double *)calloc(p * dataframes, sizeof(double)); // allocate
     dtout = true_output.data<double>();
-    StateSpaceSystem<double> system(A_npy.data<double>(), B_npy.data<double>(), C_npy.data<double>(), D_npy.data<double>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
+    StateSpaceSystem<double> system(A_npy.data<double>(), B_npy.data<double>(), C_npy.data<double>(), D_npy.data<double>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
     NativeSolver<double> dnat_solver(system, dataframes);
     XGEMVSolver<double> dgemv_solver(system, dataframes);
     XGEMMSolver<double> dgemm_solver(system, dataframes);

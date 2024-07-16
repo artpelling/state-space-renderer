@@ -14,6 +14,30 @@ struct system_shape
     int n, m, p;
 };
 
+/* Matrix Structure Enumerator */
+
+/// @brief Matrix structure
+enum MatrixStructure
+{
+    /// @brief General matrix
+    General = 0,
+    /// @brief Triangular matrix
+    Triangular = 1,
+    /// @brief Diagonal matrix
+    Diagonal = 2,
+    /// @brief Tridiagonal matrix
+    Tridiagonal = 3,
+    /// @brief Hessenberg matrix with banded storage
+    FullHessenberg = 4,
+    /// @brief Hessenberg matrix with mix of banded and triangular matrix storage
+    MixedHessenberg = 5
+};
+
+/// @brief Utility for deducing matrix structures with string. Useful for passing arguments in main.
+/// @param matstruct_str String of matrix structure.
+/// @return MatrixStructure object.
+MatrixStructure string_to_matstruct(const std::string &matstruct_str);
+
 /* Base State Space System */
 
 /// @brief Class of a system of states, consisting of state matrices A, B, C, D.
@@ -24,6 +48,7 @@ class StateSpaceSystem
 
 protected:
     int n_ = 0, m_ = 0, p_ = 0;
+    MatrixStructure A_type_ = General;
     T *A_, *B_, *C_, *D_;
 
 public:
@@ -44,7 +69,9 @@ public:
     /// @param n dimension of A. nxn.
     /// @param m column size of B. nxm.
     /// @param p row size of C. pxn.
-    StateSpaceSystem(T *A, T *B, T *C, T *D, int n, int m, int p);
+    /// @param A_type Structure of matrix A. \n
+    /// General, Triangular, Diagonal, Tridiagonal, FullHessenberg, MixedHessenberg.
+    StateSpaceSystem(T *A, T *B, T *C, T *D, int n, int m, int p, MatrixStructure A_type);
 
     /* Destructors */
     /// @brief System destructor.
@@ -53,6 +80,10 @@ public:
     /* Utility methods */
     /// @brief Prints system information and all matrices.
     void info();
+
+    /// @brief Matrix structure of A
+    /// @return MatrixStructure variable of A.
+    MatrixStructure matrix_struct();
 
     /// @brief State matrix A
     T *A();

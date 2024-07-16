@@ -9,6 +9,11 @@
 #include "solver.h"
 #include "utils.h"
 
+MatrixStructure StructureIdx(int m)
+{
+    return static_cast<MatrixStructure>(m);
+}
+
 // Solver single data benchmark
 template <class Solver>
 void BM_Solver(benchmark::State &state)
@@ -17,6 +22,7 @@ void BM_Solver(benchmark::State &state)
     int p = state.range(1);
     int m = state.range(2);
     int dataframes = state.range(3);
+    MatrixStructure matstruct = StructureIdx(state.range(4));
 
     using T = typename Solver::value_type;
 
@@ -31,7 +37,40 @@ void BM_Solver(benchmark::State &state)
         type_string = "double";
     }
 
-    std::string inputfile = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(dataframes) + type_string + ".npz";
+    // Structure evaluation
+    std::string struct_string;
+    switch (matstruct)
+    {
+    case General:
+        struct_string = "general";
+        break;
+
+    case Triangular:
+        struct_string = "triangular";
+        break;
+
+    case Diagonal:
+        struct_string = "diagonal";
+        break;
+
+    case Tridiagonal:
+        struct_string = "tridiagonal";
+        break;
+
+    case FullHessenberg:
+        struct_string = "fullhessenberg";
+        break;
+
+    case MixedHessenberg:
+        struct_string = "mixedhessenberg";
+        break;
+
+    default:
+        struct_string = "general";
+        break;
+    }
+
+    std::string inputfile = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(dataframes) + type_string + struct_string + ".npz";
     std::string path = "systems/benchmark/" + inputfile;
 
     cnpy::NpyArray A_npy = cnpy::npz_load(path, "A");
@@ -39,25 +78,22 @@ void BM_Solver(benchmark::State &state)
     cnpy::NpyArray C_npy = cnpy::npz_load(path, "C");
     cnpy::NpyArray D_npy = cnpy::npz_load(path, "D");
     cnpy::NpyArray input = cnpy::npz_load(path, "input");
-    cnpy::NpyArray true_output = cnpy::npz_load(path, "output");
 
-    T *output;
-    output = (T *)calloc(p * dataframes, sizeof(T));
+    std::vector<T> output(p * dataframes);
 
-    StateSpaceSystem<T> system(A_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0]);
+    StateSpaceSystem<T> system(A_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
     Solver solver(system, dataframes);
 
     for (auto _ : state)
     {
-        solver.process(input.data<T>(), output);
+        solver.process(input.data<T>(), output.data());
     }
 }
-
-BENCHMARK(BM_Solver<NativeSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}}); // All combinations of set up
-BENCHMARK(BM_Solver<NativeSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
-BENCHMARK(BM_Solver<XGEMVSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
-BENCHMARK(BM_Solver<XGEMVSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
-BENCHMARK(BM_Solver<XGEMMSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
-BENCHMARK(BM_Solver<XGEMMSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}});
+BENCHMARK(BM_Solver<NativeSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}, {0, 1, 2, 3, 4, 5}}); // All combinations of set up
+BENCHMARK(BM_Solver<NativeSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}, {0, 1, 2, 3, 4, 5}});
+BENCHMARK(BM_Solver<XGEMVSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}, {0, 1, 2, 3, 4, 5}});
+BENCHMARK(BM_Solver<XGEMVSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}, {0, 1, 2, 3, 4, 5}});
+BENCHMARK(BM_Solver<XGEMMSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}, {0, 1, 2, 3, 4}});
+BENCHMARK(BM_Solver<XGEMMSolver<double>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}, {0, 1, 2, 3, 4}});
 
 BENCHMARK_MAIN();

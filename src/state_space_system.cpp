@@ -3,6 +3,39 @@
 #include "utils.h"
 #include "state_space_system.h"
 
+// Matrix structure string conversion to type
+MatrixStructure string_to_matstruct(const std::string &matstruct_str)
+{
+    if (matstruct_str == "General")
+    {
+        return General;
+    }
+    else if (matstruct_str == "Triangular")
+    {
+        return Triangular;
+    }
+    else if (matstruct_str == "Diagonal")
+    {
+        return Diagonal;
+    }
+    else if (matstruct_str == "Tridiagonal")
+    {
+        return Tridiagonal;
+    }
+    else if (matstruct_str == "MixedHessenberg")
+    {
+        return MixedHessenberg;
+    }
+    else if (matstruct_str == "FullHessenberg")
+    {
+        return FullHessenberg;
+    }
+    else
+    {
+        throw std::invalid_argument("Not valid matrix structure!");
+    }
+};
+
 /*Base State System*/
 
 template <typename T>
@@ -24,18 +57,42 @@ StateSpaceSystem<T>::StateSpaceSystem(int n, int m, int p)
 }
 
 template <typename T>
-StateSpaceSystem<T>::StateSpaceSystem(T *A, T *B, T *C, T *D, int n, int m, int p)
+StateSpaceSystem<T>::StateSpaceSystem(T *A, T *B, T *C, T *D, int n, int m, int p, MatrixStructure A_type)
 {
     this->n_ = n;
     this->m_ = m;
     this->p_ = p;
 
-    this->A_ = (T *)malloc(this->n_ * this->n_ * sizeof(T));
+    A_type_ = A_type;
+    int lda;
+    switch (A_type_)
+    {
+    case General:
+    case Triangular:
+        lda = this->n_;
+        break;
+    case Diagonal:
+        lda = 1;
+        break;
+    case Tridiagonal:
+        lda = 3;
+        break;
+    case FullHessenberg:
+        lda = 1 + this->n_;
+        break;
+    case MixedHessenberg:
+        lda = 2 + this->n_;
+        break;
+    default:
+        throw std::invalid_argument("Not valid matrix structure!");
+        break;
+    }
+    this->A_ = (T *)malloc(lda * this->n_ * sizeof(T));
     this->B_ = (T *)malloc(this->n_ * this->m_ * sizeof(T));
     this->C_ = (T *)malloc(this->p_ * this->n_ * sizeof(T));
     this->D_ = (T *)malloc(this->p_ * this->m_ * sizeof(T));
 
-    memcpy(this->A_, A, this->n_ * this->n_ * sizeof(T));
+    memcpy(this->A_, A, lda * this->n_ * sizeof(T));
     memcpy(this->B_, B, this->n_ * this->m_ * sizeof(T));
     memcpy(this->C_, C, this->p_ * this->n_ * sizeof(T));
     memcpy(this->D_, D, this->p_ * this->m_ * sizeof(T));
@@ -96,6 +153,12 @@ void StateSpaceSystem<T>::info()
 }
 
 template <typename T>
+MatrixStructure StateSpaceSystem<T>::matrix_struct()
+{
+    return A_type_;
+}
+
+template <typename T>
 struct system_shape StateSpaceSystem<T>::shape()
 {
     struct system_shape shape;
@@ -132,9 +195,68 @@ T *StateSpaceSystem<T>::D()
 }
 
 template <typename T>
-T StateSpaceSystem<T>::A(int i, int j)
+T StateSpaceSystem<T>::A(int i, int j) // Need to adjust to each matrix type
 {
-    return A_[i + n_ * j];
+    T zero = 0;
+    switch (A_type_)
+    {
+    case General:
+        return A_[i + n_ * j];
+        break;
+    case Triangular:
+        if (j >= i)
+            return A_[i + n_ * j];
+        else
+        {
+            return zero;
+        }
+        break;
+    case Diagonal:
+        if (i == j)
+        {
+            return A_[i];
+        }
+        else
+        {
+            return zero;
+        }
+        break;
+    case Tridiagonal:
+        if (std::abs(i - j) <= 1)
+        {
+            return A_[1 - j + i + j * 3];
+        }
+        else
+        {
+            return zero;
+        }
+    case MixedHessenberg:
+        if (j >= i)
+        {
+            return A_[i + n_ * j];
+        }
+        else if (j == i - 1)
+        {
+            return A_[n_ * n_ - 1 + (i - j) + 2 * j];
+        }
+        else
+        {
+            return zero;
+        }
+    case FullHessenberg:
+        if (j >= i - 1)
+        {
+            return A_[(n_ - 1 - j + i) + j * (1 + n_)];
+        }
+        else
+        {
+            return zero;
+        }
+
+    default:
+        return A_[i + n_ * j];
+        break;
+    }
 }
 
 template <typename T>
