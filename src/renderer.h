@@ -15,41 +15,9 @@ class Renderer
 protected:
     Solver<T> &solver_;
 
-    std::atomic<bool> stop_flag_{false};
-
-    std::queue<T *> buffer_;
-    std::mutex buffer_mutex_;
-    std::condition_variable buffer_cv_;
-
-    std::queue<T *> processed_outputs_; // Queue to store processed outputs as raw pointers
-    std::mutex output_mutex_;
-    std::condition_variable output_cv_;
-
-    virtual void load_input() = 0;
-    void process_data();
-    void add_data(T *input);
-
-    std::function<void(T *)> output_callback_;
-
 public:
     Renderer(Solver<T> &solver) : solver_(solver){};
-    void render();
-    virtual T *get_output() = 0;
-
-    void register_output_callback(std::function<void(T *)> callback);
-};
-
-/// @brief Random Renderer.
-template <typename T>
-class RandomRenderer : public Renderer<T>
-{
-private:
-    void load_input();
-    std::chrono::duration<double> run_duration_;
-
-public:
-    RandomRenderer(Solver<T> &solver, double run_duration = 0);
-    T *get_output();
+    virtual void render() = 0;
 };
 
 #include <jack/jack.h>
@@ -59,7 +27,8 @@ template <typename T>
 class JackRenderer : public Renderer<T>
 {
 private:
-    void load_input();
+    /// Variables
+    T *u, *y;
 
     /// @brief number of channels
     int n_channels_;
@@ -80,11 +49,26 @@ private:
     /// \brief out
     jack_default_audio_sample_t **out_;
 
-    int process_jack_buffer(jack_nframes_t nframes);
+    ///
+    /// \brief process
+    /// \param nframes
+    /// \return
+    ///
+    int process(jack_nframes_t nframes);
+
+    ///
+    /// \brief callback_process
+    ///         is used to access the members of this
+    ///         class in the static mode
+    /// \param x number of samples in the buffer
+    /// \param object void pointer
+    /// \return
+    ///
+    static int callback_process(jack_nframes_t x, void *object);
 
 public:
     JackRenderer(Solver<T> &solver, int n_channels);
-    T *get_output();
+    void render();
 };
 
 #endif

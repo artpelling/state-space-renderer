@@ -29,20 +29,6 @@ int main(int argc, char const *argv[])
     JackRenderer<T> renderer(solver, 2);
 
     // Atomic flag to indicate when rendering is done
-    std::atomic<bool> rendering_done{false};
-
-    // Register the callback function
-    renderer.register_output_callback([&](T *output)
-                                      {
-        print_data(output, p, dataframes);
-        free(output); });
-
-    // Start the rendering process in a separate thread
-    std::thread render_thread([&]()
-                              {
-        renderer.render();
-        rendering_done.store(true); });
-    // Ensure the rendering thread has finished
-    render_thread.join();
+    renderer.render();
     return 0;
 }
