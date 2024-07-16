@@ -74,7 +74,6 @@ void BM_Solver(benchmark::State &state)
     std::string path = "systems/benchmark/" + inputfile;
 
     cnpy::NpyArray A_npy = cnpy::npz_load(path, "A");
-    cnpy::NpyArray Ab_npy = cnpy::npz_load(path, "Ab");
     cnpy::NpyArray B_npy = cnpy::npz_load(path, "B");
     cnpy::NpyArray C_npy = cnpy::npz_load(path, "C");
     cnpy::NpyArray D_npy = cnpy::npz_load(path, "D");
@@ -82,7 +81,7 @@ void BM_Solver(benchmark::State &state)
 
     std::vector<T> output(p * dataframes);
 
-    StateSpaceSystem<T> system(Ab_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
+    StateSpaceSystem<T> system(A_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
     Solver solver(system, dataframes);
 
     for (auto _ : state)

@@ -73,15 +73,9 @@ venv: $(srcdir)/systems/requirements.txt
 	. $(VENVBIN) && pip install -U pip && pip install -r $(srcdir)/systems/requirements.txt
 	touch venv
 
-TEST_STRUCTURES = general triangular diagonal tridiagonal fullhessenberg mixedhessenberg
-TEST_PRECISIONS = double
 system_file: venv $(srcdir)/systems/create_system.py
 	mkdir -p $(builddir)/systems
-	for PRECISION in $(TEST_PRECISIONS); do \
-    	for STRUCTURE in $(TEST_STRUCTURES); do \
-    		. $(VENVBIN) && which python && python $(srcdir)/systems/create_system.py --shape 4 3 5 --precision $$PRECISION --structure $$STRUCTURE; \
-		done; \
-	done
+	. $(VENVBIN) && which python && python $(srcdir)/systems/create_system.py --shape 4 3 5
 
 benchmark_files: venv $(srcdir)/systems/create_benchmark_systems.py
 	mkdir -p $(builddir)/systems/benchmark
