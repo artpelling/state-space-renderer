@@ -22,6 +22,7 @@ void BM_Solver(benchmark::State &state)
     int p = state.range(1);
     int m = state.range(2);
     int buffer_size = state.range(3);
+
     MatrixStructure matstruct = StructureIdx(state.range(4));
 
     using T = typename Solver::value_type;
