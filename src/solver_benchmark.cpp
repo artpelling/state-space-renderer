@@ -21,7 +21,8 @@ void BM_Solver(benchmark::State &state)
     int n = state.range(0);
     int p = state.range(1);
     int m = state.range(2);
-    int dataframes = state.range(3);
+    int buffer_size = state.range(3);
+
     MatrixStructure matstruct = StructureIdx(state.range(4));
 
     using T = typename Solver::value_type;
@@ -70,7 +71,7 @@ void BM_Solver(benchmark::State &state)
         break;
     }
 
-    std::string inputfile = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(dataframes) + type_string + struct_string + ".npz";
+    std::string inputfile = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(buffer_size) + type_string + struct_string + ".npz";
     std::string path = "systems/benchmark/" + inputfile;
 
     cnpy::NpyArray A_npy = cnpy::npz_load(path, "A");
@@ -79,10 +80,11 @@ void BM_Solver(benchmark::State &state)
     cnpy::NpyArray D_npy = cnpy::npz_load(path, "D");
     cnpy::NpyArray input = cnpy::npz_load(path, "input");
 
-    std::vector<T> output(p * dataframes);
+    std::vector<T> output(p * buffer_size);
 
     StateSpaceSystem<T> system(A_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
-    Solver solver(system, dataframes);
+    Solver solver(system);
+    solver.set_buffer_size(buffer_size);
 
     for (auto _ : state)
     {

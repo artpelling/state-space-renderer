@@ -9,7 +9,7 @@ template <typename T>
 class Solver
 {
 protected:
-    int dataframes_;
+    int buffer_size_ = 64;
     StateSpaceSystem<T> &system_;
 
 public:
@@ -17,13 +17,15 @@ public:
     typedef T value_type;
     /// @brief Initialization with system
     /// @param system State space system.
-    /// @param dataframes Number of dataframe
-    Solver(StateSpaceSystem<T> &system, const int &dataframes) : system_(system){};
+    /// @param buffer_size Number of dataframe
+    Solver(StateSpaceSystem<T> &system) : system_(system){};
     /// @brief Solve state space system
     /// @param input Input
     /// @param output Output
     void virtual process(T *input, T *output) = 0;
+    int set_buffer_size(const int &buffer_size);
 };
+
 
 /// @brief CPP-based solver.
 template <typename T>
@@ -33,7 +35,7 @@ private:
     T *x, *x1, *y;
 
 public:
-    NativeSolver(StateSpaceSystem<T> &system, const int &dataframes);
+    NativeSolver(StateSpaceSystem<T> &system);
     ~NativeSolver();
     void process(T *input, T *output);
 };
@@ -46,7 +48,7 @@ private:
     T *x, *x1;
 
 public:
-    XGEMVSolver(StateSpaceSystem<T> &system, const int &dataframes);
+    XGEMVSolver(StateSpaceSystem<T> &system);
     ~XGEMVSolver();
     void process(T *input, T *output);
 };
@@ -59,7 +61,7 @@ private:
     T *X;
 
 public:
-    XGEMMSolver(StateSpaceSystem<T> &system, const int &dataframes);
+    XGEMMSolver(StateSpaceSystem<T> &system);
     ~XGEMMSolver();
     void process(T *input, T *output);
 };

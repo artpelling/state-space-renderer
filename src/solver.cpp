@@ -2,14 +2,20 @@
 #include "solver.h"
 #include "utils.h"
 
+template <typename T>
+int Solver<T>::set_buffer_size(const int &buffer_size)
+{
+    this->buffer_size_ = buffer_size;
+    return 0;
+}
+
 /* CPP-based solver */
 template <typename T>
-NativeSolver<T>::NativeSolver(StateSpaceSystem<T> &system, const int &dataframes) : Solver<T>(system, dataframes)
+NativeSolver<T>::NativeSolver(StateSpaceSystem<T> &system) : Solver<T>(system)
 {
     int n = this->system_.shape().n;
     int m = this->system_.shape().m;
     int p = this->system_.shape().p;
-    this->dataframes_ = dataframes;
 
     x = (T *)calloc(n, sizeof(T));
     x1 = (T *)calloc(n, sizeof(T));
@@ -31,7 +37,7 @@ void NativeSolver<T>::process(T *input, T *output)
     int m = this->system_.shape().m;
     int p = this->system_.shape().p;
 
-    for (int i = 0; i < this->dataframes_; i++)
+    for (int i = 0; i < this->buffer_size_; i++)
     {
         for (int j = 0; j < p; j++)
         {
@@ -114,12 +120,11 @@ void NativeSolver<T>::process(T *input, T *output)
 
 /* CBLAS_XGEMV-based solver */
 template <typename T>
-XGEMVSolver<T>::XGEMVSolver(StateSpaceSystem<T> &system, const int &dataframes) : Solver<T>(system, dataframes)
+XGEMVSolver<T>::XGEMVSolver(StateSpaceSystem<T> &system) : Solver<T>(system)
 {
     int n = this->system_.shape().n;
     int m = this->system_.shape().m;
     int p = this->system_.shape().p;
-    this->dataframes_ = dataframes;
 
     x = (T *)calloc(n, sizeof(T));
     switch (this->system_.matrix_struct())
@@ -173,7 +178,7 @@ void XGEMVSolver<T>::process(T *input, T *output)
     T zero = 0;
     T one = 1;
 
-    for (int i = 0; i < this->dataframes_; i++)
+    for (int i = 0; i < this->buffer_size_; i++)
     {
         XGEMV(CblasColMajor, CblasNoTrans, p, m, one, this->system_.D(), p, input + i * m, 1, zero, output + i * p, 1); // y = Du
         XGEMV(CblasColMajor, CblasNoTrans, p, n, one, this->system_.C(), p, x, 1, one, output + i * p, 1);              // y = y + Cx
@@ -250,12 +255,11 @@ void XGEMVSolver<T>::process(T *input, T *output)
 
 /* CBLAS_XGEMM-based solver */
 template <typename T>
-XGEMMSolver<T>::XGEMMSolver(StateSpaceSystem<T> &system, const int &dataframes) : Solver<T>(system, dataframes)
+XGEMMSolver<T>::XGEMMSolver(StateSpaceSystem<T> &system) : Solver<T>(system)
 {
     int n = this->system_.shape().n;
-    this->dataframes_ = dataframes;
 
-    X = (T *)calloc(n * (this->dataframes_ + 1), sizeof(T));
+    X = (T *)calloc(n * (this->buffer_size_ + 1), sizeof(T));
 }
 
 template <typename T>
@@ -274,10 +278,10 @@ void XGEMMSolver<T>::process(T *input, T *output)
     T one = 1;
 
     // X = BU
-    XGEMM(CblasColMajor, CblasNoTrans, CblasNoTrans, n, this->dataframes_, m, one, this->system_.B(), n, input, m, zero, X + n, n);
+    XGEMM(CblasColMajor, CblasNoTrans, CblasNoTrans, n, this->buffer_size_, m, one, this->system_.B(), n, input, m, zero, X + n, n);
 
     // x1 = Ax+BU
-    for (int i = 1; i < this->dataframes_; i++)
+    for (int i = 1; i < this->buffer_size_; i++)
     {
         switch (this->system_.matrix_struct())
         {
@@ -308,12 +312,12 @@ void XGEMMSolver<T>::process(T *input, T *output)
     }
 
     // Y = CX+DU
-    XGEMM(CblasColMajor, CblasNoTrans, CblasNoTrans, p, this->dataframes_, n, one, this->system_.C(), p, X, n, zero, output, p);
-    XGEMM(CblasColMajor, CblasNoTrans, CblasNoTrans, p, this->dataframes_, m, one, this->system_.D(), p, input, m, one, output, p);
+    XGEMM(CblasColMajor, CblasNoTrans, CblasNoTrans, p, this->buffer_size_, n, one, this->system_.C(), p, X, n, zero, output, p);
+    XGEMM(CblasColMajor, CblasNoTrans, CblasNoTrans, p, this->buffer_size_, m, one, this->system_.D(), p, input, m, one, output, p);
 
     for (int j = 0; j < n; j++)
     {
-        std::swap(X[j], X[j + this->dataframes_]);
+        std::swap(X[j], X[j + this->buffer_size_]);
     }
 }
 
