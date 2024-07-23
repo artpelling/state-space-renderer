@@ -1,12 +1,6 @@
 #include "renderer.h"
 #include <iostream>
 #include <jack/types.h>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
-#include <queue>
-#include <atomic>
-#include <chrono>
 
 /* Jack Renderer */
 

@@ -91,8 +91,12 @@ bench-json: solver_benchmark
 	. $(VENVBIN) && python $(srcdir)/parse_json.py
 
 tests: test_system test_solver system_file
-	./test_solver systems/n10p2m5d16double.npz
-	./test_system systems/n10p2m5d16double.npz
+	./test_solver systems/n4p3m5d16doublegeneral.npz General
+	./test_solver systems/n4p3m5d16doubletriangular.npz Triangular
+	./test_solver systems/n4p3m5d16doublediagonal.npz Diagonal
+	./test_solver systems/n4p3m5d16doubletridiagonal.npz Tridiagonal
+	./test_solver systems/n4p3m5d16doublemixedhessenberg.npz MixedHessenberg
+	./test_solver systems/n4p3m5d16doublefullhessenberg.npz FullHessenberg
 
 
 # CLEAN

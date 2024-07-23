@@ -2,12 +2,6 @@
 #define RENDERER_H_
 
 #include "solver.h"
-#include <queue>
-#include <thread>             // For std::thread
-#include <mutex>              // For std::mutex, std::lock_guard, std::unique_lock
-#include <condition_variable> // For std::condition_variable
-#include <atomic>             // For std::atomic
-#include <functional>
 
 template <typename T>
 class Renderer
@@ -16,7 +10,7 @@ protected:
     Solver<T> &solver_;
 
 public:
-    Renderer(Solver<T> &solver) : solver_(solver){};
+    Renderer(Solver<T> &solver) : solver_(solver) {};
     virtual void render() = 0;
 };
 
