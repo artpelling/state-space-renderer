@@ -186,33 +186,33 @@ void XGEMVSolver<T>::process(T *input, T *output)
         {
         case General:
             XGEMV(CblasColMajor, CblasNoTrans, n, n, one, this->system_.A(), n, x, 1, zero, x1, 1);            // x1 = Ax
-            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
+            XGEMV(CblasRowMajor, CblasNoTrans, n, m, one, this->system_.B(), m, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
 
             std::swap(x, x1);
             break;
 
         case Triangular:
             XTRMV(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, n, this->system_.A(), n, x, 1);      // x = Ax
-            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x, 1); // x = x + Bu
+            XGEMV(CblasRowMajor, CblasNoTrans, n, m, one, this->system_.B(), m, input + i * m, 1, one, x, 1); // x = x + Bu
             break;
 
         case Diagonal:
             XGBMV(CblasColMajor, CblasNoTrans, n, n, 0, 0, one, this->system_.A(), 1, x, 1, zero, x1, 1);      // x1 = Ax
-            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
+            XGEMV(CblasRowMajor, CblasNoTrans, n, m, one, this->system_.B(), m, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
 
             std::swap(x, x1);
             break;
 
         case Tridiagonal:
             XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, 1, one, this->system_.A(), 3, x, 1, zero, x1, 1);      // x1 = Ax
-            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
+            XGEMV(CblasRowMajor, CblasNoTrans, n, m, one, this->system_.B(), m, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
 
             std::swap(x, x1);
             break;
 
         case FullHessenberg:
             XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, n - 1, one, this->system_.A(), n + 1, x, 1, zero, x1, 1); // x1 = Ax
-            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1);    // x1 = x1 + Bu
+            XGEMV(CblasRowMajor, CblasNoTrans, n, m, one, this->system_.B(), m, input + i * m, 1, one, x1, 1);    // x1 = x1 + Bu
 
             std::swap(x, x1);
             break;
@@ -221,14 +221,14 @@ void XGEMVSolver<T>::process(T *input, T *output)
             XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, 0, one, this->system_.A() + n * n, 2, x, 1, zero, x1, 1); // x1 = A_lowerband*x
             XTRMV(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, n, this->system_.A(), n, x, 1);          // x = A_triangular*x
             XAXPY(n, one, x, 1, x1, 1);                                                                           // x1 = x1 + x
-            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1);    // x1 = x1 + Bu
+            XGEMV(CblasRowMajor, CblasNoTrans, n, m, one, this->system_.B(), m, input + i * m, 1, one, x1, 1);    // x1 = x1 + Bu
 
             std::swap(x, x1);
             break;
 
         default:
             XGEMV(CblasColMajor, CblasNoTrans, n, n, one, this->system_.A(), n, x, 1, zero, x1, 1);            // x1 = Ax
-            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
+            XGEMV(CblasRowMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
 
             std::swap(x, x1);
             break;
