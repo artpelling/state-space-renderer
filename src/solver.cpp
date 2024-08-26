@@ -270,7 +270,7 @@ void XGEMMSolver<T>::process(T *input, T *output)
     T one = 1;
 
     // X = BU
-    XGEMM(CblasColMajor, CblasNoTrans, CblasNoTrans, n, this->buffer_size_, m, one, this->system_.B(), n, input, m, zero, X + n, n);
+    XGEMM(CblasColMajor, CblasNoTrans, CblasNoTrans, n, this->buffer_size_, m, one, this->system_.B(), n, input, m, zero, X + n, n); // Error because not yet row major
 
     // x1 = Ax+BU
     for (int i = 1; i < this->buffer_size_; i++)

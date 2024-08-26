@@ -13,7 +13,7 @@ CBLAS_TRANSPOSE TransIdx(int m)
 }
 
 template <typename T>
-void General(benchmark::State &state)
+void MatrixVector(benchmark::State &state)
 {
     int p = state.range(0);
     int m = state.range(1);
@@ -71,7 +71,7 @@ void General(benchmark::State &state)
 }
 
 template <typename T>
-void General(benchmark::State &state)
+void MatrixMatrix(benchmark::State &state)
 {
     int p = state.range(0);
     int m = state.range(1);
@@ -82,56 +82,70 @@ void General(benchmark::State &state)
     T *A;
     A = (T *)calloc(p * m, sizeof(T));
     T one = 1;
+    T zero = 0;
 
-    int lda;
+    int lda, ldin, ldx;
+    T *input, *X;
+
     switch (cblas_order)
     {
     case CblasColMajor:
-        lda = p;
+        switch (cblas_trans)
+        {
+        case CblasNoTrans:
+            lda = p;
+            ldin = m;
+            input = (T *)calloc(ldin * buffer_size, sizeof(T));
+            break;
+        case CblasTrans:
+            lda = m;
+            ldin = buffer_size;
+            input = (T *)calloc(ldin * m, sizeof(T));
+            break;
+
+        default:
+            break;
+        }
+        ldx = p;
+        X = (T *)calloc(ldx * buffer_size, sizeof(T));
         break;
 
     case CblasRowMajor:
-        lda = m;
+        switch (cblas_trans)
+        {
+        case CblasNoTrans:
+            lda = m;
+            ldin = buffer_size;
+            input = (T *)calloc(ldin * m, sizeof(T));
+            break;
+        case CblasTrans:
+            lda = p;
+            ldin = m;
+            input = (T *)calloc(ldin * buffer_size, sizeof(T));
+            break;
+
+        default:
+            break;
+        }
+        ldx = buffer_size;
+        X = (T *)calloc(ldx * p, sizeof(T));
         break;
 
     default:
         break;
     }
-
-    T *input, *x;
-    int input_length, x_length;
-    switch (cblas_trans)
-    {
-    case CblasNoTrans:
-        input_length = m;
-        x_length = p;
-        break;
-
-    case CblasTrans:
-        input_length = p;
-        x_length = m;
-        break;
-
-    default:
-        break;
-    }
-
-    input = (T *)calloc(input_length * buffer_size, sizeof(T));
-    x = (T *)calloc(x_length, sizeof(T));
 
     for (auto _ : state)
     {
-        for (int i = 0; i < buffer_size; i++)
-        {
-            XGEMV(cblas_order, cblas_trans, p, m, one, A, lda, input + i * input_length, 1, one, x, 1);
-        }
+        XGEMM(cblas_order, cblas_trans, cblas_trans, p, buffer_size, m, one, A, lda, input, ldin, zero, X, ldx);
     }
 }
 
 // GUIDE :
 //  101 -> CblasColMajor, 102 -> CblasRowMajor
 //  111 -> CblasNoTrans, 112 -> CblasTrans
-BENCHMARK(General<float>)->ArgsProduct({{10, 1000}, {10, 1000}, {1}, {101, 102}, {111, 112}});
+BENCHMARK(MatrixVector<float>)->ArgsProduct({{10, 500, 1000}, benchmark::CreateDenseRange(10, 1000, 10), {16, 1024}, {101, 102}, {111, 112}});
+BENCHMARK(MatrixMatrix<float>)->ArgsProduct({{10, 500, 1000}, benchmark::CreateDenseRange(10, 1000, 10), {16, 1024}, {101, 102}, {111, 112}});
 // BENCHMARK Results
 // General<float>/1000/10/1/101/111          2179 ns
 // General<float>/10/1000/1/101/111           778 ns
