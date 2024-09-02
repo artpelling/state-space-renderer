@@ -219,7 +219,7 @@ void XGEMVSolver<T>::process(T *input, T *output)
             throw std::invalid_argument("Not valid matrix structure!");
             break;
         }
-        XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
+        XGEMV(CblasRowMajor, CblasNoTrans, n, m, one, this->system_.B(), m, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
 
         if (this->system_.matrix_struct() != Triangular)
         {
