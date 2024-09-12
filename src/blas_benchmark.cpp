@@ -144,18 +144,18 @@ void MatrixMatrix(benchmark::State &state)
 // GUIDE :
 //  101 -> CblasColMajor, 102 -> CblasRowMajor
 //  111 -> CblasNoTrans, 112 -> CblasTrans
-BENCHMARK(MatrixVector<float>)->ArgsProduct({{10, 500, 1000}, benchmark::CreateDenseRange(10, 1000, 10), {16, 1024}, {101, 102}, {111, 112}});
-BENCHMARK(MatrixMatrix<float>)->ArgsProduct({{10, 500, 1000}, benchmark::CreateDenseRange(10, 1000, 10), {16, 1024}, {101, 102}, {111, 112}});
-// BENCHMARK Results
-// General<float>/1000/10/1/101/111          2179 ns
-// General<float>/10/1000/1/101/111           778 ns
-// Tall skinny matrices is slower in Column Major and NoTranspose than short fat matrices
-// General<float>/1000/10/1/102/111           600 ns          600 ns      1508177
-// General<float>/10/1000/1/102/111          7405 ns         7404 ns        98432
-// Short fat matrices is even slower in Row Major and NoTranspose than tall skinny matrices
-// General<float>/1000/10/1/101/112          8192 ns         8190 ns        79821
-// General<float>/10/1000/1/101/112           661 ns          661 ns      1277924
-// Transposed tall skinny matrices (short fat) is slower in Column Major than transposed short fat matrices
+BENCHMARK(MatrixVector<float>)->ArgsProduct({{10, 100, 200, 500, 1000}, benchmark::CreateDenseRange(1, 10000, 10), {1024}, {101, 102}, {111, 112}});
+// BENCHMARK(MatrixMatrix<float>)->ArgsProduct({{10, 100, 200, 500, 1000}, benchmark::CreateDenseRange(1, 10000, 10), {1024}, {101, 102}, {111, 112}});
+//  BENCHMARK Results
+//  General<float>/1000/10/1/101/111          2179 ns
+//  General<float>/10/1000/1/101/111           778 ns
+//  Tall skinny matrices is slower in Column Major and NoTranspose than short fat matrices
+//  General<float>/1000/10/1/102/111           600 ns          600 ns      1508177
+//  General<float>/10/1000/1/102/111          7405 ns         7404 ns        98432
+//  Short fat matrices is even slower in Row Major and NoTranspose than tall skinny matrices
+//  General<float>/1000/10/1/101/112          8192 ns         8190 ns        79821
+//  General<float>/10/1000/1/101/112           661 ns          661 ns      1277924
+//  Transposed tall skinny matrices (short fat) is slower in Column Major than transposed short fat matrices
 
 // BENCHMARK(General<double>)->ArgsProduct({{10, 1000}, {10, 1000}, {1}, {101, 102}, {111, 112}});
 
