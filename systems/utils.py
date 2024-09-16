@@ -121,7 +121,11 @@ def save_system(
         np.savez(
             Path(filename).with_suffix(".npz"),
             A=np.asfortranarray(Ab, dtype=dtype),
-            B=np.ascontiguousarray(B, dtype=dtype),
+            B=(
+                np.ascontiguousarray(B, dtype=dtype)
+                if n / m < 1
+                else np.asfortranarray(B, dtype=dtype)
+            ),
             C=np.asfortranarray(C, dtype=dtype),
             D=np.asfortranarray(D, dtype=dtype),
             input=np.asfortranarray(u, dtype=dtype),
@@ -131,7 +135,11 @@ def save_system(
         np.savez(
             Path(filename).with_suffix(".npz"),
             A=np.asfortranarray(Ab, dtype=dtype),
-            B=np.ascontiguousarray(B, dtype=dtype),
+            B=(
+                np.ascontiguousarray(B, dtype=dtype)
+                if n / m < 1
+                else np.asfortranarray(B, dtype=dtype)
+            ),
             C=np.asfortranarray(C, dtype=dtype),
             D=np.asfortranarray(D, dtype=dtype),
         )
