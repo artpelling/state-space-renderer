@@ -86,7 +86,7 @@ venv: $(srcdir)/systems/requirements.txt
 
 system_file: venv $(srcdir)/systems/create_system.py
 	mkdir -p $(builddir)/systems
-	. $(VENVBIN) && which python && python $(srcdir)/systems/create_system.py --shape 4 3 5
+	. $(VENVBIN) && which python && python $(srcdir)/systems/create_system.py --shape 4 3 5 --format h5
 
 benchmark_files: venv $(srcdir)/systems/create_benchmark_systems.py
 	mkdir -p $(builddir)/systems/benchmark
