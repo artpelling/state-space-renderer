@@ -10,11 +10,11 @@ public:
     {
     }
 
-    NoProcess(int n, int m, int p) : StateSpaceSystem<T>(n, m, p)
+    NoProcess(int n, int m, int p, MatrixStructure matstruct) : StateSpaceSystem<T>(n, m, p, matstruct)
     {
     }
 
-    NoProcess(T *A, T *B, T *C, T *D, int n, int m, int p, MatrixStructure General) : StateSpaceSystem<T>(A, B, C, D, n, m, p, General)
+    NoProcess(T *A, T *B, T *C, T *D, int n, int m, int p, MatrixStructure matstruct) : StateSpaceSystem<T>(A, B, C, D, n, m, p, matstruct)
     {
     }
 };
@@ -34,11 +34,11 @@ int main(int argc, char const *argv[])
     /* Default state space */
 
     std::cout << "- STL double zero states - " << std::endl;
-    NoProcess<double> zero_state_double(2, 2, 1);
+    NoProcess<double> zero_state_double(2, 2, 1, General);
     zero_state_double.info();
 
     std::cout << "- STL float zero states - " << std::endl;
-    NoProcess<float> zero_state_float(4, 4, 3);
+    NoProcess<float> zero_state_float(4, 4, 3, General);
     zero_state_float.info();
 
     std::cout << "- STL double Cnpy import - " << std::endl;

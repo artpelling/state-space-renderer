@@ -60,7 +60,7 @@ public:
     /// @param n dimension of A. nxn.
     /// @param m column size of B. nxm.
     /// @param p row size of C. pxn.
-    StateSpaceSystem(int n, int m, int p);
+    StateSpaceSystem(int n, int m, int p, MatrixStructure A_type);
     /// @brief Allocated initialization. All set to value of the defined A, B, C, D.
     /// @param A Matrix A
     /// @param B Matrix B

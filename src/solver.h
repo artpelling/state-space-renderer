@@ -3,6 +3,7 @@
 
 #include "state_space_system.h"
 #include "utils.h"
+#include <functional>
 
 /// @brief Base solver.
 template <typename T>
@@ -18,14 +19,13 @@ public:
     /// @brief Initialization with system
     /// @param system State space system.
     /// @param buffer_size Number of dataframe
-    Solver(StateSpaceSystem<T> &system) : system_(system){};
+    Solver(StateSpaceSystem<T> &system) : system_(system) {};
     /// @brief Solve state space system
     /// @param input Input
     /// @param output Output
     void virtual process(T *input, T *output) = 0;
     int set_buffer_size(const int &buffer_size);
 };
-
 
 /// @brief CPP-based solver.
 template <typename T>
@@ -46,10 +46,48 @@ class XGEMVSolver : public Solver<T>
 {
 private:
     T *x, *x1;
+    std::function<void()> Ax;
+    std::function<void(T *, int)> Bu;
+    T zero = 0;
+    T one = 1;
 
 public:
     XGEMVSolver(StateSpaceSystem<T> &system);
     ~XGEMVSolver();
+    void process(T *input, T *output);
+};
+
+/// @brief CBLAS_XGEMV-based solver.
+template <typename T>
+class XGEMVSolverV1 : public Solver<T>
+{
+private:
+    T *x, *x1;
+    std::function<void()> Ax;
+    std::function<void(T *, int)> Bu;
+    T zero = 0;
+    T one = 1;
+
+public:
+    XGEMVSolverV1(StateSpaceSystem<T> &system);
+    ~XGEMVSolverV1();
+    void process(T *input, T *output);
+};
+
+/// @brief CBLAS_XGEMV-based solver.
+template <typename T>
+class XGEMVSolverV2 : public Solver<T>
+{
+private:
+    T *x, *x1;
+    std::function<void()> Ax;
+    std::function<void(T *, int)> Bu;
+    T zero = 0;
+    T one = 1;
+
+public:
+    XGEMVSolverV2(StateSpaceSystem<T> &system);
+    ~XGEMVSolverV2();
     void process(T *input, T *output);
 };
 
