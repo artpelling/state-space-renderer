@@ -1,4 +1,5 @@
 ![State Space Model](ssm.png)
+
 # Benchmarks
 
 Current benchmarks can be found [here](https://artpelling.github.io/state-space-renderer/benchmarks/)
@@ -10,6 +11,7 @@ Current benchmarks can be found [here](https://artpelling.github.io/state-space-
 - autotools
 - cmake
 - g++
+- HDF5 C API (use `sudo apt-get install libhdf5-dev`), for state space imports.
 
 ## Compilation
 
