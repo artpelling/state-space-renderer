@@ -1,4 +1,3 @@
-#include "../cnpy/cnpy.h"
 #include "../src/state_space_system.h"
 #include "../src/utils.h"
 #include "hdf5.h"
