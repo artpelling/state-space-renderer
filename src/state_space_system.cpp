@@ -225,11 +225,11 @@ T StateSpaceSystem<T>::A(int i, int j) // Need to adjust to each matrix type
     switch (A_type_)
     {
     case General:
-        return A_[i + n_ * j];
+        return A_[j + n_ * i];
         break;
     case Triangular:
         if (j >= i)
-            return A_[i + n_ * j];
+            return A_[j + n_ * i];
         else
         {
             return zero;
@@ -257,11 +257,11 @@ T StateSpaceSystem<T>::A(int i, int j) // Need to adjust to each matrix type
     case MixedHessenberg:
         if (j >= i)
         {
-            return A_[i + n_ * j];
+            return A_[j + n_ * i];
         }
         else if (j == i - 1)
         {
-            return A_[n_ * n_ - 1 + (i - j) + 2 * j];
+            return A_[n_ * n_ - 1 + (j - i) + 2 * j];
         }
         else
         {
@@ -270,7 +270,7 @@ T StateSpaceSystem<T>::A(int i, int j) // Need to adjust to each matrix type
     case FullHessenberg:
         if (j >= i - 1)
         {
-            return A_[(n_ - 1 - j + i) + j * (1 + n_)];
+            return A_[(n_ - 1 - i + j) + i * (1 + n_)];
         }
         else
         {
@@ -278,7 +278,7 @@ T StateSpaceSystem<T>::A(int i, int j) // Need to adjust to each matrix type
         }
 
     default:
-        return A_[i + n_ * j];
+        return A_[j + n_ * i];
         break;
     }
 }
@@ -286,19 +286,19 @@ T StateSpaceSystem<T>::A(int i, int j) // Need to adjust to each matrix type
 template <typename T>
 T StateSpaceSystem<T>::B(int i, int j)
 {
-    return B_[i + n_ * j];
+    return B_[j + m_ * i];
 }
 
 template <typename T>
 T StateSpaceSystem<T>::C(int i, int j)
 {
-    return C_[i + p_ * j];
+    return C_[j + n_ * i];
 }
 
 template <typename T>
 T StateSpaceSystem<T>::D(int i, int j)
 {
-    return D_[i + p_ * j];
+    return D_[j + m_ * i];
 }
 
 // List available typenames here :
