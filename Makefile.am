@@ -26,16 +26,15 @@ $(srcdir)/cnpy/build/libcnpy.a: $(srcdir)/cnpy/build
 	cmake -DCMAKE_POSITION_INDEPENDENT_CODE=off ../ && \
 	make -j
 
-
 # STATE SPACE RENDERER
 BUILT_SOURCES = $(srcdir)/benchmark/build/src/libbenchmark.a $(srcdir)/cnpy/build/libcnpy.a
 
 bin_PROGRAMS = test_system test_solver test_renderer solver_benchmark system_benchmark blas_benchmark xgemv_benchmark
 
-LDADD = -lblas -l:libcnpy.a -lz
+LDADD = -lblas -l:libcnpy.a
 
-AM_CPPFLAGS =
-AM_LDFLAGS = -std=c++11 -pthread -L$(srcdir)/cnpy/build/
+AM_CPPFLAGS = $(HDF5_CFLAGS)
+AM_LDFLAGS = -std=c++11 -pthread -L$(srcdir)/cnpy/build/ $(HDF5_LIBS)
 if ON_ARM64
 AM_CPPFLAGS += -I/Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Headers
 AM_LDFLAGS += -framework Accelerate
@@ -87,6 +86,7 @@ venv: $(srcdir)/systems/requirements.txt
 system_file: venv $(srcdir)/systems/create_system.py
 	mkdir -p $(builddir)/systems
 	. $(VENVBIN) && which python && python $(srcdir)/systems/create_system.py --shape 4 3 5 --format h5
+	. $(VENVBIN) && which python && python $(srcdir)/systems/create_system.py --shape 4 3 5 --format npz
 
 benchmark_files: venv $(srcdir)/systems/create_benchmark_systems.py
 	mkdir -p $(builddir)/systems/benchmark

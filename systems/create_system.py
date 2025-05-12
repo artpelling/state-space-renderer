@@ -67,6 +67,7 @@ if __name__ == "__main__":
                 real=True,
                 test_input=True,
                 test_input_length=args.input_length,
+                format=args.format,
             )
 
         if fmt == "npz":
