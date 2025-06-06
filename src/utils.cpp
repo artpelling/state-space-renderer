@@ -3,6 +3,52 @@
 #include "solver.h"
 #include "utils.h"
 
+/* HDF5 imports*/
+
+template <typename T>
+MatrixData<T> load_matrices_from_hdf5(const char *filename)
+{
+    hid_t file_id = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+
+    auto get_dataset_info = [](hid_t file_id, const char *name)
+    {
+        dataset_info info;
+        info.id = H5Dopen2(file_id, name, H5P_DEFAULT);
+        hid_t space = H5Dget_space(info.id);
+        H5Sget_simple_extent_dims(space, info.shape, NULL);
+        return info;
+    };
+
+    dataset_info Ainfo = get_dataset_info(file_id, "A");
+    dataset_info Binfo = get_dataset_info(file_id, "B");
+    dataset_info Cinfo = get_dataset_info(file_id, "C");
+    dataset_info Dinfo = get_dataset_info(file_id, "D");
+
+    hsize_t n = Ainfo.shape[0], m = Binfo.shape[1], p = Cinfo.shape[0];
+
+    T *A = (T *)malloc(n * Ainfo.shape[1] * sizeof(T));
+    T *B = (T *)malloc(Binfo.shape[0] * m * sizeof(T));
+    T *C = (T *)malloc(p * Cinfo.shape[1] * sizeof(T));
+    T *D = (T *)malloc(Dinfo.shape[0] * Dinfo.shape[1] * sizeof(T));
+
+    hid_t dtype = std::is_same<T, float>::value ? H5T_NATIVE_FLOAT : H5T_NATIVE_DOUBLE;
+
+    H5Dread(Ainfo.id, dtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, A);
+    H5Dread(Binfo.id, dtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, B);
+    H5Dread(Cinfo.id, dtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, C);
+    H5Dread(Dinfo.id, dtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, D);
+
+    H5Fclose(file_id);
+
+    return MatrixData<T>{A, B, C, D, n, m, p};
+}
+
+// Instantiation
+template MatrixData<float> load_matrices_from_hdf5<float>(const char *filename);
+template MatrixData<double> load_matrices_from_hdf5<double>(const char *filename);
+
+/* Simple utility functions*/
+
 template <typename T>
 void print_data(T *data, int n, int m)
 {

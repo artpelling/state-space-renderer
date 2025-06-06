@@ -104,6 +104,7 @@ bench-json: solver_benchmark
 
 tests: test_system
 	./test_system systems/n4p3m5d16doublegeneral.h5 General
+	./test_system systems/n4p3m5d16singlegeneral.h5 General
 #	./test_system systems/n4p3m5d16doubletriangular.h5 Triangular
 #	./test_system systems/n4p3m5d16doubletridiagonal.h5 Tridiagonal
 #	./test_system systems/n4p3m5d16doublediagonal.h5 Diagonal
