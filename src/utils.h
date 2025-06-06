@@ -2,15 +2,11 @@
 #define UTILS_H_
 
 #include <cblas.h>
-#include "../cnpy/cnpy.h"
 
 #define UNDERLINE "\033[4m"
 #define CLOSEUNDERLINE "\033[0m"
 
 typedef CBLAS_ORDER CBLAS_LAYOUT; /* this for backward compatibility */
-/// @brief Prints Cnpy matrix.
-/// @param matrix
-void print_data(cnpy::NpyArray matrix);
 
 /// @brief Prints a pointer data
 /// @tparam T data type

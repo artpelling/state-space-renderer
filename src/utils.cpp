@@ -1,20 +1,7 @@
 #include <cblas.h>
 #include <cstring>
-#include "../cnpy/cnpy.h"
 #include "solver.h"
 #include "utils.h"
-
-void print_data(cnpy::NpyArray matrix)
-{
-    for (size_t i = 0; i < matrix.shape[0]; i++)
-    {
-        for (size_t j = 0; j < matrix.shape[1]; j++)
-        {
-            std::cout << " " << matrix.data<double>()[i + matrix.shape[0] * j] << " ";
-        }
-        std::cout << std::endl;
-    }
-}
 
 template <typename T>
 void print_data(T *data, int n, int m)
