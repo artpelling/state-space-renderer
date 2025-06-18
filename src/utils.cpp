@@ -24,12 +24,12 @@ MatrixData<T> load_matrices_from_hdf5(const char *filename)
     dataset_info Cinfo = get_dataset_info(file_id, "C");
     dataset_info Dinfo = get_dataset_info(file_id, "D");
 
-    hsize_t n = Ainfo.shape[0], m = Binfo.shape[1], p = Cinfo.shape[0];
+    hsize_t n = Ainfo.shape[0], m = Binfo.shape[0], p = Cinfo.shape[1];
 
-    T *A = (T *)malloc(n * Ainfo.shape[1] * sizeof(T));
-    T *B = (T *)malloc(Binfo.shape[0] * m * sizeof(T));
-    T *C = (T *)malloc(p * Cinfo.shape[1] * sizeof(T));
-    T *D = (T *)malloc(Dinfo.shape[0] * Dinfo.shape[1] * sizeof(T));
+    T *A = (T *)malloc(n * n * sizeof(T));
+    T *B = (T *)malloc(n * m * sizeof(T));
+    T *C = (T *)malloc(p * n * sizeof(T));
+    T *D = (T *)malloc(p * m * sizeof(T));
 
     hid_t dtype = std::is_same<T, float>::value ? H5T_NATIVE_FLOAT : H5T_NATIVE_DOUBLE;
 
