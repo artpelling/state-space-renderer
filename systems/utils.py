@@ -147,11 +147,19 @@ def save_system(
                 D=np.asfortranarray(D, dtype=dtype),
             )
     elif format == "h5":
+        print("Saving system in HDF5 format ...")
+        print("A", Ab)
+        print("B", B)
+        print("C", C)
+        print("D", D)
         hf = h5.File(Path(filename).with_suffix(".h5"), "w")
-        hf.create_dataset("A", data=Ab)
-        hf.create_dataset("B", data=B)
-        hf.create_dataset("C", data=C)
-        hf.create_dataset("D", data=D)
+        hf.create_dataset("A", data=Ab.T)
+        hf.create_dataset("B", data=B.T)
+        hf.create_dataset("C", data=C.T)
+        hf.create_dataset("D", data=D.T)
+        hf.create_dataset("n", data=n)
+        hf.create_dataset("m", data=m)
+        hf.create_dataset("p", data=p)
 
         if test_input:
             u = np.random.randn(m, test_input_length)
@@ -165,6 +173,6 @@ def save_system(
             for i in np.arange(test_input_length):
                 y[:, i] = C @ x + D @ u[:, i]
                 x = B @ u[:, i] + A @ x
-            hf.create_dataset("u", data=u)
-            hf.create_dataset("y", data=y)
+            hf.create_dataset("u", data=u.T)
+            hf.create_dataset("y", data=y.T)
         hf.close()
