@@ -64,7 +64,7 @@ def save_system(
             print("Applying diagonal transformation ...")
             lam, T = spla.eig(A)
             # System storage, banded
-            Ab = lam
+            Ab = lam.astype(dtype)
             #####
             A = np.diag(lam)
         elif structure == "tridiagonal":
