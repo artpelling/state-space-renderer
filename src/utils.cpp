@@ -15,7 +15,23 @@ MatrixData<T> load_matrices_from_hdf5(const char *filename)
         dataset_info info;
         info.id = H5Dopen2(file_id, name, H5P_DEFAULT);
         hid_t space = H5Dget_space(info.id);
-        H5Sget_simple_extent_dims(space, info.shape, NULL);
+
+        int ndims = H5Sget_simple_extent_ndims(space);
+        hsize_t shape[2] = {1, 1}; // default shape
+
+        if (ndims == 1)
+        {
+            H5Sget_simple_extent_dims(space, &shape[0], NULL);
+            shape[1] = 1;
+        }
+        else if (ndims == 2)
+        {
+            H5Sget_simple_extent_dims(space, shape, NULL);
+        }
+
+        info.shape[0] = shape[0];
+        info.shape[1] = shape[1];
+
         return info;
     };
 
@@ -23,13 +39,20 @@ MatrixData<T> load_matrices_from_hdf5(const char *filename)
     dataset_info Binfo = get_dataset_info(file_id, "B");
     dataset_info Cinfo = get_dataset_info(file_id, "C");
     dataset_info Dinfo = get_dataset_info(file_id, "D");
+    dataset_info ninfo = get_dataset_info(file_id, "n");
+    dataset_info minfo = get_dataset_info(file_id, "m");
+    dataset_info pinfo = get_dataset_info(file_id, "p");
 
-    hsize_t n = Ainfo.shape[0], m = Binfo.shape[0], p = Cinfo.shape[1];
+    hsize_t n, m, p;
 
-    T *A = (T *)malloc(n * n * sizeof(T));
-    T *B = (T *)malloc(n * m * sizeof(T));
-    T *C = (T *)malloc(p * n * sizeof(T));
-    T *D = (T *)malloc(p * m * sizeof(T));
+    H5Dread(ninfo.id, H5T_NATIVE_HSIZE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &n);
+    H5Dread(minfo.id, H5T_NATIVE_HSIZE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &m);
+    H5Dread(pinfo.id, H5T_NATIVE_HSIZE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &p);
+
+    T *A = (T *)malloc(Ainfo.shape[0] * Ainfo.shape[1] * sizeof(T));
+    T *B = (T *)malloc(Binfo.shape[0] * Binfo.shape[1] * sizeof(T));
+    T *C = (T *)malloc(Cinfo.shape[0] * Cinfo.shape[1] * sizeof(T));
+    T *D = (T *)malloc(Dinfo.shape[0] * Dinfo.shape[1] * sizeof(T));
 
     hid_t dtype = std::is_same<T, float>::value ? H5T_NATIVE_FLOAT : H5T_NATIVE_DOUBLE;
 
