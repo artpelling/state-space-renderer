@@ -19,7 +19,7 @@ struct dataset_info
 
 /// @brief Matrix dataset for storing state space in HDF5 format
 /// Contains pointers to matrices A, B, C, D and their dimensions n, m, p
-/// @note Matrices are stored in row-major order, default of HDF5
+/// @note Matrices are stored in col-major order, default of HDF5
 /// @tparam T data type of matrices
 template <typename T>
 struct MatrixData
@@ -30,13 +30,34 @@ struct MatrixData
     T *D;
     hsize_t n, m, p;
 };
+
+/// @brief Input/output sets for storing solution to a state space in HDF5 format
+/// Contains pointers to input and output data and their dimensions
+/// @note Vectors are stored in col-major order, default of HDF5
+/// @tparam T data type of matrices
+template <typename T>
+struct TestData
+{
+    T *u;
+    T *y;
+    hsize_t m, p, buffer_size;
+};
+
 /// @brief Import HDF5 state space system to a MatrixData structure
 /// @param filename Name of the HDF5 file to load
 /// @return MatrixData containing matrices A, B, C, D and their dimensions n, m, p
-/// @note Matrices are stored in row-major order, default of HDF5
+/// @note Datas are stored in column-major order, default of HDF5
 /// @tparam T data type of matrices
 template <typename T>
 MatrixData<T> load_matrices_from_hdf5(const char *filename);
+
+/// @brief Import HDF5 state space system to a TestData structure
+/// @param filename Name of the HDF5 file to load
+/// @return TestData containing vector series of input and output and their dimensions buffer size
+/// @note Datas are stored in column-major order, default of HDF5
+/// @tparam T data type of matrices
+template <typename T>
+TestData<T> load_test_from_hdf5(const char *filename);
 
 /* Simple utility function / Math */
 

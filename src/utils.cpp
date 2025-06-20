@@ -5,35 +5,35 @@
 
 /* HDF5 imports*/
 
+auto get_dataset_info = [](hid_t file_id, const char *name)
+{
+    dataset_info info;
+    info.id = H5Dopen2(file_id, name, H5P_DEFAULT);
+    hid_t space = H5Dget_space(info.id);
+
+    int ndims = H5Sget_simple_extent_ndims(space);
+    hsize_t shape[2] = {1, 1}; // default shape
+
+    if (ndims == 1)
+    {
+        H5Sget_simple_extent_dims(space, &shape[0], NULL);
+        shape[1] = 1;
+    }
+    else if (ndims == 2)
+    {
+        H5Sget_simple_extent_dims(space, shape, NULL);
+    }
+
+    info.shape[0] = shape[0];
+    info.shape[1] = shape[1];
+
+    return info;
+};
+
 template <typename T>
 MatrixData<T> load_matrices_from_hdf5(const char *filename)
 {
     hid_t file_id = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
-
-    auto get_dataset_info = [](hid_t file_id, const char *name)
-    {
-        dataset_info info;
-        info.id = H5Dopen2(file_id, name, H5P_DEFAULT);
-        hid_t space = H5Dget_space(info.id);
-
-        int ndims = H5Sget_simple_extent_ndims(space);
-        hsize_t shape[2] = {1, 1}; // default shape
-
-        if (ndims == 1)
-        {
-            H5Sget_simple_extent_dims(space, &shape[0], NULL);
-            shape[1] = 1;
-        }
-        else if (ndims == 2)
-        {
-            H5Sget_simple_extent_dims(space, shape, NULL);
-        }
-
-        info.shape[0] = shape[0];
-        info.shape[1] = shape[1];
-
-        return info;
-    };
 
     dataset_info Ainfo = get_dataset_info(file_id, "A");
     dataset_info Binfo = get_dataset_info(file_id, "B");
@@ -69,6 +69,40 @@ MatrixData<T> load_matrices_from_hdf5(const char *filename)
 // Instantiation
 template MatrixData<float> load_matrices_from_hdf5<float>(const char *filename);
 template MatrixData<double> load_matrices_from_hdf5<double>(const char *filename);
+
+template <typename T>
+TestData<T> load_test_from_hdf5(const char *filename)
+{
+    hid_t file_id = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+
+    dataset_info uinfo = get_dataset_info(file_id, "u");
+    dataset_info yinfo = get_dataset_info(file_id, "y");
+    dataset_info minfo = get_dataset_info(file_id, "m");
+    dataset_info pinfo = get_dataset_info(file_id, "p");
+    dataset_info bufferinfo = get_dataset_info(file_id, "bf_size");
+
+    hsize_t buffer_size, m, p;
+
+    H5Dread(minfo.id, H5T_NATIVE_HSIZE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &m);
+    H5Dread(pinfo.id, H5T_NATIVE_HSIZE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &p);
+    H5Dread(bufferinfo.id, H5T_NATIVE_HSIZE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &buffer_size);
+
+    T *u = (T *)malloc(uinfo.shape[0] * uinfo.shape[1] * sizeof(T));
+    T *y = (T *)malloc(yinfo.shape[0] * yinfo.shape[1] * sizeof(T));
+
+    hid_t dtype = std::is_same<T, float>::value ? H5T_NATIVE_FLOAT : H5T_NATIVE_DOUBLE;
+
+    H5Dread(uinfo.id, dtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, u);
+    H5Dread(yinfo.id, dtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, y);
+
+    H5Fclose(file_id);
+
+    return TestData<T>{u, y, m, p, buffer_size};
+}
+
+// Instantiation
+template TestData<float> load_test_from_hdf5<float>(const char *filename);
+template TestData<double> load_test_from_hdf5<double>(const char *filename);
 
 /* Simple utility functions*/
 

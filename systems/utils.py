@@ -148,7 +148,8 @@ def save_system(
             )
     elif format == "h5":
         print("Saving system in HDF5 format ...")
-        print("A", Ab)
+        print("Ab", Ab)
+        print("A", A)
         print("B", B)
         print("C", C)
         print("D", D)
@@ -175,4 +176,5 @@ def save_system(
                 x = B @ u[:, i] + A @ x
             hf.create_dataset("u", data=u.T)
             hf.create_dataset("y", data=y.T)
+            hf.create_dataset("bf_size", data=test_input_length)
         hf.close()

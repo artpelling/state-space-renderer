@@ -18,7 +18,7 @@ $(srcdir)/benchmark/build/src/libbenchmark.a: $(srcdir)/benchmark/build
 # STATE SPACE RENDERER
 BUILT_SOURCES = $(srcdir)/benchmark/build/src/libbenchmark.a 
 
-bin_PROGRAMS = test_system 
+bin_PROGRAMS = test_system test_solver
 # test_solver test_renderer solver_benchmark system_benchmark blas_benchmark xgemv_benchmark
 
 LDADD = -lblas -lhdf5_serial
@@ -33,8 +33,8 @@ endif
 test_system_SOURCES = tests/test_system.cpp src/state_space_system.cpp src/utils.cpp
 test_system_DEPENDENCIES = system_file
 
-# test_solver_SOURCES = tests/test_solver.cpp src/state_space_system.cpp src/solver.cpp src/utils.cpp
-# test_solver_DEPENDENCIES = system_file
+test_solver_SOURCES = tests/test_solver.cpp src/state_space_system.cpp src/solver.cpp src/utils.cpp
+test_solver_DEPENDENCIES = system_file
 
 # test_renderer_SOURCES = tests/test_renderer.cpp src/state_space_system.cpp src/renderer.cpp src/solver.cpp src/utils.cpp
 # test_renderer_DEPENDENCIES = system_file
@@ -92,13 +92,20 @@ bench-json: solver_benchmark
 	. $(VENVBIN) && python $(srcdir)/parse_json.py
 
 tests: test_system
-#	./test_system systems/n4p3m5d16doublegeneral.h5 General
-#	./test_system systems/n4p3m5d16singlegeneral.h5 General
+	./test_system systems/n4p3m5d16doublegeneral.h5 General
+	./test_system systems/n4p3m5d16singlegeneral.h5 General
+	./test_solver systems/n4p3m5d16doublegeneral.h5 General
+#	./test_solver systems/n4p3m5d16singlegeneral.h5 General
 #	./test_system systems/n4p3m5d16doubletriangular.h5 Triangular
+#	./test_solver systems/n4p3m5d16doubletriangular.h5 Triangular
 #	./test_system systems/n4p3m5d16doubletridiagonal.h5 Tridiagonal
-	./test_system systems/n4p3m5d16doublediagonal.h5 Diagonal
+#	./test_solver systems/n4p3m5d16doubletridiagonal.h5 Tridiagonal
+#	./test_system systems/n4p3m5d16doublediagonal.h5 Diagonal
+#	./test_solver systems/n4p3m5d16doublediagonal.h5 Diagonal
 #	./test_system systems/n4p3m5d16doublefullhessenberg.h5 FullHessenberg
+#	./test_solver systems/n4p3m5d16doublefullhessenberg.h5 FullHessenberg
 #	./test_system systems/n4p3m5d16doublemixedhessenberg.h5 MixedHessenberg
+#	./test_solver systems/n4p3m5d16doublemixedhessenberg.h5 MixedHessenberg
 
 
 
