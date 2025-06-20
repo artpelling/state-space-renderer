@@ -18,8 +18,8 @@ $(srcdir)/benchmark/build/src/libbenchmark.a: $(srcdir)/benchmark/build
 # STATE SPACE RENDERER
 BUILT_SOURCES = $(srcdir)/benchmark/build/src/libbenchmark.a 
 
-bin_PROGRAMS = test_system test_solver
-# test_solver test_renderer solver_benchmark system_benchmark blas_benchmark xgemv_benchmark
+bin_PROGRAMS = test_system test_solver test_renderer
+# solver_benchmark system_benchmark blas_benchmark xgemv_benchmark
 
 LDADD = -lblas -lhdf5_serial
 
@@ -36,9 +36,9 @@ test_system_DEPENDENCIES = system_file
 test_solver_SOURCES = tests/test_solver.cpp src/state_space_system.cpp src/solver.cpp src/utils.cpp
 test_solver_DEPENDENCIES = system_file
 
-# test_renderer_SOURCES = tests/test_renderer.cpp src/state_space_system.cpp src/renderer.cpp src/solver.cpp src/utils.cpp
-# test_renderer_DEPENDENCIES = system_file
-# test_renderer_LDADD = $(LDADD) -ljack
+test_renderer_SOURCES = tests/test_renderer.cpp src/state_space_system.cpp src/renderer.cpp src/solver.cpp src/utils.cpp
+test_renderer_DEPENDENCIES = system_file
+test_renderer_LDADD = $(LDADD) -ljack
 
 
 # solver_benchmark_SOURCES = src/solver_benchmark.cpp src/state_space_system.cpp src/solver.cpp src/utils.cpp
