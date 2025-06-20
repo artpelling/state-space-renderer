@@ -4,7 +4,6 @@
 #include <type_traits>
 
 #include <benchmark/benchmark.h>
-#include "../cnpy/cnpy.h"
 #include "state_space_system.h"
 #include "solver.h"
 #include "utils.h"
