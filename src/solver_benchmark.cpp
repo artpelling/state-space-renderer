@@ -4,7 +4,6 @@
 #include <type_traits>
 
 #include <benchmark/benchmark.h>
-#include "../cnpy/cnpy.h"
 #include "state_space_system.h"
 #include "solver.h"
 #include "utils.h"
@@ -71,24 +70,21 @@ void BM_Solver(benchmark::State &state)
         break;
     }
 
-    std::string inputfile = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(buffer_size) + type_string + struct_string + ".npz";
+    std::string inputfile = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(buffer_size) + type_string + struct_string + ".h5";
     std::string path = "systems/benchmark/" + inputfile;
 
-    cnpy::NpyArray A_npy = cnpy::npz_load(path, "A");
-    cnpy::NpyArray B_npy = cnpy::npz_load(path, "B");
-    cnpy::NpyArray C_npy = cnpy::npz_load(path, "C");
-    cnpy::NpyArray D_npy = cnpy::npz_load(path, "D");
-    cnpy::NpyArray input = cnpy::npz_load(path, "input");
+    MatrixData<T> matdata = load_matrices_from_hdf5<T>(path);
+    TestData<T> testdata = load_test_from_hdf5<T>(path);
 
     std::vector<T> output(p * buffer_size);
 
-    StateSpaceSystem<T> system(A_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
+    StateSpaceSystem<T> system(matdata.A, matdata.B, matdata.C, matdata.D, n, m, p, matstruct);
     Solver solver(system);
     solver.set_buffer_size(buffer_size);
 
     for (auto _ : state)
     {
-        solver.process(input.data<T>(), output.data());
+        solver.process(testdata.u, testdata.y);
     }
 }
 // BENCHMARK(BM_Solver<NativeSolver<float>>)->ArgsProduct({{10, 100, 1000}, {2}, {5}, {128}, {0, 1, 2, 3, 4, 5}}); // All combinations of set up
