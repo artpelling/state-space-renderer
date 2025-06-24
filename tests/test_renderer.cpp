@@ -3,6 +3,16 @@
 #include "../src/utils.h"
 #include "../src/renderer.h"
 
+#include <signal.h>
+#include <unistd.h>
+
+volatile sig_atomic_t keep_running = 1;
+
+void handle_sigint(int)
+{
+    keep_running = 0;
+}
+
 int main(int argc, char const *argv[])
 {
     const char *filename = argv[1];
@@ -20,7 +30,20 @@ int main(int argc, char const *argv[])
     sol solver(system);
     JackRenderer<T> renderer(solver, m, p);
 
+    // Set up SIGINT handler
+    signal(SIGINT, handle_sigint);
+
     // Atomic flag to indicate when rendering is done
     renderer.render();
+
+    std::cout << "Press Ctrl+C to stop..." << std::endl;
+
+    while (keep_running)
+    {
+        pause(); // sleep until a signal is received
+    }
+
+    std::cout << "Exiting..." << std::endl;
+
     return 0;
 }
