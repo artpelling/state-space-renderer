@@ -28,7 +28,7 @@ int main(int argc, char const *argv[])
 
     StateSpaceSystem<T> system(matdata.A, matdata.B, matdata.C, matdata.D, n, m, p, matstruct);
     sol solver(system);
-    JackRenderer<T> renderer(solver, m, p);
+    PipewireRenderer<T> renderer(solver, m, p);
 
     // Set up SIGINT handler
     signal(SIGINT, handle_sigint);

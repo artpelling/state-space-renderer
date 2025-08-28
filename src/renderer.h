@@ -2,6 +2,8 @@
 #define RENDERER_H_
 
 #include "solver.h"
+#include <jack/jack.h>
+#include <pipewire/pipewire.h>
 
 template <typename T>
 class Renderer
@@ -14,7 +16,44 @@ public:
     virtual void render() = 0;
 };
 
-#include <jack/jack.h>
+// PIPEWIRE RENDERER //
+
+template <typename T>
+class PipewireRenderer : public Renderer<T>
+{
+private:
+    /// Variables
+    T *u, *y = nullptr;
+
+    // HOLD raw POD data
+    uint8_t params_buffer_[1024] = {};
+
+    /// @brief Number of input channels
+    int n_inputs_;
+    /// @brief Number of output channels
+    int n_outputs_;
+
+    /// @brief The main loop of the Pipewire.
+    struct pw_main_loop *loop_ = nullptr;
+
+    /// @brief Stream to queue and dequeue buffers
+    struct pw_stream *stream_ = nullptr;
+
+    /// @brief Parser of global server configurations
+    struct pw_context *context_ = nullptr;
+
+    /// @brief Representation of the global server properties.
+    struct pw_core *core_ = nullptr;
+
+    static void callback_process(void *data); // callback
+
+public:
+    PipewireRenderer(Solver<T> &solver, int n_inputs, int n_outputs);
+    ~PipewireRenderer();
+    void render() override;
+};
+
+// JACK RENDERER //
 
 /// @brief Jack Renderer.
 template <typename T>

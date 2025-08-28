@@ -35,6 +35,14 @@ AC_LANG([C++])
 AC_PROG_CC
 PKG_PROG_PKG_CONFIG
 PKG_CHECK_MODULES([HDF5], [hdf5 >= 1.8])
+PKG_CHECK_MODULES([PIPEWIRE], [libpipewire-0.3 >= 0.3],
+  [have_pipewire=yes],
+  [AC_MSG_ERROR([PipeWire 0.3 not found. Please install libpipewire-0.3-dev])])
+
+# Export variables to Makefiles
+AC_SUBST([PIPEWIRE_CFLAGS])
+AC_SUBST([PIPEWIRE_LIBS])
+
 AC_PROG_CXX
 
 AC_CHECK_HEADERS(cblas.h)
@@ -48,6 +56,8 @@ AC_CONFIG_FILES([Makefile])
 AM_PATH_PYTHON([3])
 AM_CONDITIONAL([HAVE_PYTHON], [test "$PYTHON" != :])
 #AC_CONFIG_LINKS([systems/create_system.py:systems/create_system.py])
+
+
 
 # Generate the output
 AC_OUTPUT

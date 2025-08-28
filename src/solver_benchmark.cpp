@@ -73,8 +73,8 @@ void BM_Solver(benchmark::State &state)
     std::string inputfile = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(buffer_size) + type_string + struct_string + ".h5";
     std::string path = "systems/benchmark/" + inputfile;
 
-    MatrixData<T> matdata = load_matrices_from_hdf5<T>(path);
-    TestData<T> testdata = load_test_from_hdf5<T>(path);
+    MatrixData<T> matdata = load_matrices_from_hdf5<T>(path.c_str());
+    TestData<T> testdata = load_test_from_hdf5<T>(path.c_str());
 
     std::vector<T> output(p * buffer_size);
 

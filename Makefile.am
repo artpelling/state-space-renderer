@@ -36,8 +36,9 @@ test_solver_SOURCES = tests/test_solver.cpp src/state_space_system.cpp src/solve
 test_solver_DEPENDENCIES = system_file
 
 test_renderer_SOURCES = tests/test_renderer.cpp src/state_space_system.cpp src/renderer.cpp src/solver.cpp src/utils.cpp
+test_renderer_CPPFLAGS = $(AM_CPPFLAGS) $(PIPEWIRE_CFLAGS)
 test_renderer_DEPENDENCIES = system_file
-test_renderer_LDADD = $(LDADD) -ljack
+test_renderer_LDADD = $(LDADD) $(PIPEWIRE_LIBS) -ljack
 
 solver_benchmark_SOURCES = src/solver_benchmark.cpp src/state_space_system.cpp src/solver.cpp src/utils.cpp
 solver_benchmark_CPPFLAGS = $(AM_CPPFLAGS) -isystem $(srcdir)/benchmark/include
