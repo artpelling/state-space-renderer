@@ -3,6 +3,8 @@
 
 #include "solver.h"
 
+/// @brief Base renderer class
+/// @tparam T Typename of class (double/float)
 template <typename T>
 class Renderer
 {
@@ -10,6 +12,8 @@ protected:
     Solver<T> &solver_;
 
 public:
+    /// @brief Initialization with a solver.
+    /// @param solver Solver of the renderer.
     Renderer(Solver<T> &solver) : solver_(solver) {};
     virtual void render() = 0;
 };
@@ -17,6 +21,7 @@ public:
 #include <jack/jack.h>
 
 /// @brief Jack Renderer.
+/// @tparam T Typename of class (double/float)
 template <typename T>
 class JackRenderer : public Renderer<T>
 {
@@ -45,7 +50,7 @@ private:
     jack_default_audio_sample_t **out_;
 
     ///
-    /// \brief process
+    /// \brief Process step in Jack format. Wraps up data of the actual process for Jack.
     /// \param nframes
     /// \return
     ///
@@ -63,7 +68,12 @@ private:
     static int callback_buffer_size(jack_nframes_t x, void *object);
 
 public:
+    /// @brief Initialization with a solver.
+    /// @param solver Solver of the Renderer.
+    /// @param n_inputs Number of input channels (m).
+    /// @param n_outputs Number of output channels (p).
     JackRenderer(Solver<T> &solver, int n_inputs, int n_outputs);
+    /// @brief Runs the renderer.
     void render();
 };
 
