@@ -16,13 +16,12 @@ protected:
 public:
     /// @brief Typename of class
     typedef T value_type;
-    /// @brief Initialization with system
+    /// @brief Initialization with a state space system.
     /// @param system State space system.
-    /// @param buffer_size Number of dataframe
     Solver(StateSpaceSystem<T> &system) : system_(system) {};
     /// @brief Solve state space system
-    /// @param input Input
-    /// @param output Output
+    /// @param input Input of system. Given as a pointer.
+    /// @param output Output of system. Given as a pointer.
     void virtual process(T *input, T *output) = 0;
     int set_buffer_size(const int &buffer_size);
 };
@@ -35,8 +34,13 @@ private:
     T *x, *x1, *y;
 
 public:
+    /// @brief Initialization with a state space system.
+    /// @param system State space system.
     NativeSolver(StateSpaceSystem<T> &system);
     ~NativeSolver();
+    /// @brief Solve state space system
+    /// @param input Input of system. Given as a pointer.
+    /// @param output Output of system. Given as a pointer.
     void process(T *input, T *output);
 };
 
@@ -52,12 +56,14 @@ private:
     T one = 1;
 
 public:
+    /// @brief Initialization with a state space system
+    /// @param system State space system
     XGEMVSolver(StateSpaceSystem<T> &system);
     ~XGEMVSolver();
     void process(T *input, T *output);
 };
 
-/// @brief CBLAS_XGEMV-based solver.
+/// @brief CBLAS_XGEMV-based solver. Uses a simple n/m ratio to choose row-major vs column-major BLAS calls for Bu.
 template <typename T>
 class XGEMVSolverV1 : public Solver<T>
 {
@@ -69,12 +75,14 @@ private:
     T one = 1;
 
 public:
+    /// @brief Initialization with a state space system
+    /// @param system State space system
     XGEMVSolverV1(StateSpaceSystem<T> &system);
     ~XGEMVSolverV1();
     void process(T *input, T *output);
 };
 
-/// @brief CBLAS_XGEMV-based solver.
+/// @brief CBLAS_XGEMV-based solver. Uses a log-scaled heuristic of the n/m ratio to choose row-major vs column-major BLAS calls for Bu.
 template <typename T>
 class XGEMVSolverV2 : public Solver<T>
 {
@@ -86,6 +94,8 @@ private:
     T one = 1;
 
 public:
+    /// @brief Initialization with a state space system
+    /// @param system State space system
     XGEMVSolverV2(StateSpaceSystem<T> &system);
     ~XGEMVSolverV2();
     void process(T *input, T *output);
