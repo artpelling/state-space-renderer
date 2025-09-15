@@ -6,6 +6,7 @@
 #include <functional>
 
 /// @brief Base solver.
+/// @tparam T Typename of class (double/float)
 template <typename T>
 class Solver
 {
@@ -27,6 +28,7 @@ public:
 };
 
 /// @brief CPP-based solver.
+/// @tparam T Typename of class (double/float)
 template <typename T>
 class NativeSolver : public Solver<T>
 {
@@ -44,7 +46,8 @@ public:
     void process(T *input, T *output);
 };
 
-/// @brief CBLAS_XGEMV-based solver.
+/// @brief CBLAS_XGEMV-based (matrix-vector multiplication) solver.
+/// @tparam T Typename of class (double/float)
 template <typename T>
 class XGEMVSolver : public Solver<T>
 {
@@ -63,7 +66,8 @@ public:
     void process(T *input, T *output);
 };
 
-/// @brief CBLAS_XGEMV-based solver. Uses a simple n/m ratio to choose row-major vs column-major BLAS calls for Bu.
+/// @brief CBLAS_XGEMV-based (matrix-vector multiplication) solver. Uses a simple n/m ratio to choose row-major vs column-major BLAS calls for Bu.
+/// @tparam T Typename of class (double/float)
 template <typename T>
 class XGEMVSolverV1 : public Solver<T>
 {
@@ -82,7 +86,8 @@ public:
     void process(T *input, T *output);
 };
 
-/// @brief CBLAS_XGEMV-based solver. Uses a log-scaled heuristic of the n/m ratio to choose row-major vs column-major BLAS calls for Bu.
+/// @brief CBLAS_XGEMV-based (matrix-vector multiplication) solver. Uses a log-scaled heuristic of the n/m ratio to choose row-major vs column-major BLAS calls for Bu.
+/// @tparam T Typename of class (double/float)
 template <typename T>
 class XGEMVSolverV2 : public Solver<T>
 {
@@ -101,7 +106,7 @@ public:
     void process(T *input, T *output);
 };
 
-/// @brief CBLAS_XGEMM-based solver.
+/// @brief CBLAS_XGEMM-based (matrix-matrix multiplication) solver.
 template <typename T>
 class XGEMMSolver : public Solver<T>
 {
@@ -109,6 +114,8 @@ private:
     T *X;
 
 public:
+    /// @brief Initialization with a state space system
+    /// @param system State space system
     XGEMMSolver(StateSpaceSystem<T> &system);
     ~XGEMMSolver();
     void process(T *input, T *output);
