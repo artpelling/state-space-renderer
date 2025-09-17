@@ -82,7 +82,7 @@ void BM_CnpyInitialization(benchmark::State &state)
     std::string inputfile = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(dataframes) + type_string + struct_string + ".npz";
     std::string path = "systems/benchmark/" + inputfile;
 
-    MatrixData<T> matdata = load_matrices_from_hdf5<T>(path);
+    MatrixData<T> matdata = load_matrices_from_hdf5<T>(path.c_str());
 
     for (auto _ : state)
     {
