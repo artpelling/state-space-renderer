@@ -2,15 +2,66 @@
 #define UTILS_H_
 
 #include <cblas.h>
-#include "../cnpy/cnpy.h"
+#include "hdf5.h"
 
 #define UNDERLINE "\033[4m"
 #define CLOSEUNDERLINE "\033[0m"
 
+/* HDF5 Routines */
+
+/// @brief HDF5 backend dataset info structure
+/// Used to construct MatrixData structure
+struct dataset_info
+{
+    hid_t id;
+    hsize_t shape[2];
+};
+
+/// @brief Matrix dataset for storing state space in HDF5 format
+/// Contains pointers to matrices A, B, C, D and their dimensions n, m, p
+/// @note Matrices are stored in col-major order, default of HDF5
+/// @tparam T data type of matrices
+template <typename T>
+struct MatrixData
+{
+    T *A;
+    T *B;
+    T *C;
+    T *D;
+    hsize_t n, m, p;
+};
+
+/// @brief Input/output sets for storing solution to a state space in HDF5 format
+/// Contains pointers to input and output data and their dimensions
+/// @note Vectors are stored in col-major order, default of HDF5
+/// @tparam T data type of matrices
+template <typename T>
+struct TestData
+{
+    T *u;
+    T *y;
+    hsize_t m, p, buffer_size;
+};
+
+/// @brief Import HDF5 state space system to a MatrixData structure
+/// @param filename Name of the HDF5 file to load
+/// @return MatrixData containing matrices A, B, C, D and their dimensions n, m, p
+/// @note Datas are stored in column-major order, default of HDF5
+/// @tparam T data type of matrices
+template <typename T>
+MatrixData<T> load_matrices_from_hdf5(const char *filename);
+
+/// @brief Import HDF5 state space system to a TestData structure
+/// @param filename Name of the HDF5 file to load
+/// @return TestData containing vector series of input and output and their dimensions buffer size
+/// @note Datas are stored in column-major order, default of HDF5
+/// @tparam T data type of matrices
+template <typename T>
+TestData<T> load_test_from_hdf5(const char *filename);
+
+/* Simple utility function / Math */
+
 typedef CBLAS_ORDER CBLAS_LAYOUT; /* this for backward compatibility */
-/// @brief Prints Cnpy matrix.
-/// @param matrix
-void print_data(cnpy::NpyArray matrix);
 
 /// @brief Prints a pointer data
 /// @tparam T data type

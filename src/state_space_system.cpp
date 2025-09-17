@@ -44,13 +44,37 @@ StateSpaceSystem<T>::StateSpaceSystem()
 }
 
 template <typename T>
-StateSpaceSystem<T>::StateSpaceSystem(int n, int m, int p)
+StateSpaceSystem<T>::StateSpaceSystem(int n, int m, int p, MatrixStructure A_type)
 {
     this->n_ = n;
     this->m_ = m;
     this->p_ = p;
 
-    this->A_ = (T *)calloc(this->n_ * this->n_, sizeof(T));
+    A_type_ = A_type;
+    int lda;
+    switch (A_type_)
+    {
+    case General:
+    case Triangular:
+        lda = this->n_;
+        break;
+    case Diagonal:
+        lda = 1;
+        break;
+    case Tridiagonal:
+        lda = 3;
+        break;
+    case FullHessenberg:
+        lda = 1 + this->n_;
+        break;
+    case MixedHessenberg:
+        lda = 2 + this->n_;
+        break;
+    default:
+        throw std::invalid_argument("Not valid matrix structure!");
+        break;
+    }
+    this->A_ = (T *)calloc(lda * this->n_, sizeof(T));
     this->B_ = (T *)calloc(this->n_ * this->m_, sizeof(T));
     this->C_ = (T *)calloc(this->p_ * this->n_, sizeof(T));
     this->D_ = (T *)calloc(this->p_ * this->m_, sizeof(T));

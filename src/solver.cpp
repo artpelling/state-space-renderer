@@ -1,6 +1,7 @@
 #include <cstring>
 #include "solver.h"
 #include "utils.h"
+#include <math.h>
 
 template <typename T>
 int Solver<T>::set_buffer_size(const int &buffer_size)
@@ -141,8 +142,82 @@ XGEMVSolver<T>::XGEMVSolver(StateSpaceSystem<T> &system) : Solver<T>(system)
         break;
 
     default:
-        x1 = (T *)calloc(n, sizeof(T));
+        throw std::invalid_argument("Not valid matrix structure!");
         break;
+    }
+
+    switch (this->system_.matrix_struct())
+    {
+    case General:
+        Ax = [this, n]()
+        {
+            XGEMV(CblasColMajor, CblasNoTrans, n, n, one, this->system_.A(), n, x, 1, zero, x1, 1); // x1 = Ax
+        };
+        break;
+
+    case Triangular:
+        Ax = [this, n]()
+        {
+            XTRMV(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, n, this->system_.A(), n, x, 1); // x = Ax
+        };
+        break;
+
+    case Diagonal:
+        Ax = [this, n]()
+        {
+            XGBMV(CblasColMajor, CblasNoTrans, n, n, 0, 0, one, this->system_.A(), 1, x, 1, zero, x1, 1); // x1 = Ax
+        };
+        break;
+
+    case Tridiagonal:
+        Ax = [this, n]()
+        {
+            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, 1, one, this->system_.A(), 3, x, 1, zero, x1, 1); // x1 = Ax
+        };
+        break;
+
+    case FullHessenberg:
+        Ax = [this, n]()
+        {
+            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, n - 1, one, this->system_.A(), n + 1, x, 1, zero, x1, 1); // x1 = Ax
+        };
+        break;
+
+    case MixedHessenberg:
+        Ax = [this, n]()
+        {
+            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, 0, one, this->system_.A() + n * n, 2, x, 1, zero, x1, 1); // x1 = A_lowerband*x
+            XTRMV(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, n, this->system_.A(), n, x, 1);          // x = A_triangular*x
+            XAXPY(n, one, x, 1, x1, 1);                                                                           // x1 = x1 + x
+        };
+        break;
+
+    default:
+        throw std::invalid_argument("Not valid matrix structure!");
+    }
+
+    switch (this->system_.matrix_struct())
+    {
+    case General:
+    case Diagonal:
+    case Tridiagonal:
+    case FullHessenberg:
+    case MixedHessenberg:
+        Bu = [this, n, m](T *input, int i)
+        {
+            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1);
+        };
+        break;
+
+    case Triangular:
+        Bu = [this, n, m](T *input, int i)
+        {
+            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x, 1); // x = x + Bu
+        };
+        break;
+
+    default:
+        throw std::invalid_argument("Not valid matrix structure!");
     }
 }
 
@@ -182,56 +257,12 @@ void XGEMVSolver<T>::process(T *input, T *output)
     {
         XGEMV(CblasColMajor, CblasNoTrans, p, m, one, this->system_.D(), p, input + i * m, 1, zero, output + i * p, 1); // y = Du
         XGEMV(CblasColMajor, CblasNoTrans, p, n, one, this->system_.C(), p, x, 1, one, output + i * p, 1);              // y = y + Cx
-        switch (this->system_.matrix_struct())
+        Ax();
+        Bu(input, i);
+
+        if (this->system_.matrix_struct() != Triangular)
         {
-        case General:
-            XGEMV(CblasColMajor, CblasNoTrans, n, n, one, this->system_.A(), n, x, 1, zero, x1, 1);            // x1 = Ax
-            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
-
             std::swap(x, x1);
-            break;
-
-        case Triangular:
-            XTRMV(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, n, this->system_.A(), n, x, 1);      // x = Ax
-            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x, 1); // x = x + Bu
-            break;
-
-        case Diagonal:
-            XGBMV(CblasColMajor, CblasNoTrans, n, n, 0, 0, one, this->system_.A(), 1, x, 1, zero, x1, 1);      // x1 = Ax
-            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
-
-            std::swap(x, x1);
-            break;
-
-        case Tridiagonal:
-            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, 1, one, this->system_.A(), 3, x, 1, zero, x1, 1);      // x1 = Ax
-            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
-
-            std::swap(x, x1);
-            break;
-
-        case FullHessenberg:
-            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, n - 1, one, this->system_.A(), n + 1, x, 1, zero, x1, 1); // x1 = Ax
-            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1);    // x1 = x1 + Bu
-
-            std::swap(x, x1);
-            break;
-
-        case MixedHessenberg:
-            XGBMV(CblasColMajor, CblasNoTrans, n, n, 1, 0, one, this->system_.A() + n * n, 2, x, 1, zero, x1, 1); // x1 = A_lowerband*x
-            XTRMV(CblasColMajor, CblasUpper, CblasNoTrans, CblasNonUnit, n, this->system_.A(), n, x, 1);          // x = A_triangular*x
-            XAXPY(n, one, x, 1, x1, 1);                                                                           // x1 = x1 + x
-            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1);    // x1 = x1 + Bu
-
-            std::swap(x, x1);
-            break;
-
-        default:
-            XGEMV(CblasColMajor, CblasNoTrans, n, n, one, this->system_.A(), n, x, 1, zero, x1, 1);            // x1 = Ax
-            XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1); // x1 = x1 + Bu
-
-            std::swap(x, x1);
-            break;
         }
     }
     switch (this->system_.matrix_struct())
@@ -248,7 +279,363 @@ void XGEMVSolver<T>::process(T *input, T *output)
         break;
 
     default:
+        throw std::invalid_argument("Not valid matrix structure!");
+        break;
+    }
+}
+
+/* CBLAS_XGEMV-based solver */
+template <typename T>
+XGEMVSolverV1<T>::XGEMVSolverV1(StateSpaceSystem<T> &system) : Solver<T>(system)
+{
+    int n = this->system_.shape().n;
+    int m = this->system_.shape().m;
+    int p = this->system_.shape().p;
+
+    x = (T *)calloc(n, sizeof(T));
+    switch (this->system_.matrix_struct())
+    {
+    case General:
+    case Diagonal:
+    case Tridiagonal:
+    case FullHessenberg:
+    case MixedHessenberg:
+        x1 = (T *)calloc(n, sizeof(T));
+        break;
+
+    case Triangular:
+        break;
+
+    default:
+        x1 = (T *)calloc(n, sizeof(T));
+        break;
+    }
+
+    switch (this->system_.matrix_struct())
+    {
+    case General:
+        Ax = [this, n]()
+        {
+            XGEMV(CblasRowMajor, CblasNoTrans, n, n, one, this->system_.A(), n, x, 1, zero, x1, 1); // x1 = Ax
+        };
+        break;
+
+    case Triangular:
+        Ax = [this, n]()
+        {
+            XTRMV(CblasRowMajor, CblasUpper, CblasNoTrans, CblasNonUnit, n, this->system_.A(), n, x, 1); // x = Ax
+        };
+        break;
+
+    case Diagonal:
+        Ax = [this, n]()
+        {
+            XGBMV(CblasRowMajor, CblasNoTrans, n, n, 0, 0, one, this->system_.A(), 1, x, 1, zero, x1, 1); // x1 = Ax
+        };
+        break;
+
+    case Tridiagonal:
+        Ax = [this, n]()
+        {
+            XGBMV(CblasRowMajor, CblasNoTrans, n, n, 1, 1, one, this->system_.A(), 3, x, 1, zero, x1, 1); // x1 = Ax
+        };
+        break;
+
+    case FullHessenberg:
+        Ax = [this, n]()
+        {
+            XGBMV(CblasRowMajor, CblasNoTrans, n, n, 1, n - 1, one, this->system_.A(), n + 1, x, 1, zero, x1, 1); // x1 = Ax
+        };
+        break;
+
+    case MixedHessenberg:
+        Ax = [this, n]()
+        {
+            XGBMV(CblasRowMajor, CblasNoTrans, n, n, 1, 0, one, this->system_.A() + n * n, 2, x, 1, zero, x1, 1); // x1 = A_lowerband*x
+            XTRMV(CblasRowMajor, CblasUpper, CblasNoTrans, CblasNonUnit, n, this->system_.A(), n, x, 1);          // x = A_triangular*x
+            XAXPY(n, one, x, 1, x1, 1);                                                                           // x1 = x1 + x
+        };
+        break;
+
+    default:
+        throw std::invalid_argument("Not valid matrix structure!");
+    }
+
+    switch (this->system_.matrix_struct())
+    {
+    case General:
+    case Diagonal:
+    case Tridiagonal:
+    case FullHessenberg:
+    case MixedHessenberg:
+        Bu = [this, n, m](T *input, int i)
+        {
+            if (T(n) / T(m) < 1)
+            {
+                XGEMV(CblasRowMajor, CblasNoTrans, n, m, one, this->system_.B(), m, input + i * m, 1, one, x1, 1);
+            }
+            else
+            {
+                XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1);
+            }
+        };
+        break;
+
+    case Triangular:
+        Bu = [this, n, m](T *input, int i)
+        {
+            if (T(n) / T(m) < 1)
+            {
+                XGEMV(CblasRowMajor, CblasNoTrans, n, m, one, this->system_.B(), m, input + i * m, 1, one, x, 1); // x = x + Bu
+            }
+            else
+            {
+                XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x, 1); // x = x + Bu
+            }
+        };
+        break;
+
+    default:
+        throw std::invalid_argument("Not valid matrix structure!");
+    }
+}
+
+template <typename T>
+XGEMVSolverV1<T>::~XGEMVSolverV1()
+{
+    free(x);
+    switch (this->system_.matrix_struct())
+    {
+    case General:
+    case Diagonal:
+    case Tridiagonal:
+    case FullHessenberg:
+    case MixedHessenberg:
+        free(x1);
+        break;
+
+    case Triangular:
+        break;
+
+    default:
+        free(x1);
+        break;
+    }
+}
+
+template <typename T>
+void XGEMVSolverV1<T>::process(T *input, T *output)
+{
+    int n = this->system_.shape().n;
+    int m = this->system_.shape().m;
+    int p = this->system_.shape().p;
+
+    for (int i = 0; i < this->buffer_size_; i++)
+    {
+        XGEMV(CblasColMajor, CblasNoTrans, p, m, one, this->system_.D(), p, input + i * m, 1, zero, output + i * p, 1); // y = Du
+        XGEMV(CblasColMajor, CblasNoTrans, p, n, one, this->system_.C(), p, x, 1, one, output + i * p, 1);              // y = y + Cx
+        Ax();
+        Bu(input, i);
+
+        if (this->system_.matrix_struct() != Triangular)
+        {
+            std::swap(x, x1);
+        }
+    }
+    switch (this->system_.matrix_struct())
+    {
+    case General:
+    case Diagonal:
+    case Tridiagonal:
+    case FullHessenberg:
+    case MixedHessenberg:
         std::swap(x, x1);
+        break;
+
+    case Triangular:
+        break;
+
+    default:
+        throw std::invalid_argument("Not valid matrix structure!");
+        break;
+    }
+}
+
+/* CBLAS_XGEMV-based solver */
+template <typename T>
+XGEMVSolverV2<T>::XGEMVSolverV2(StateSpaceSystem<T> &system) : Solver<T>(system)
+{
+    int n = this->system_.shape().n;
+    int m = this->system_.shape().m;
+    int p = this->system_.shape().p;
+
+    x = (T *)calloc(n, sizeof(T));
+    switch (this->system_.matrix_struct())
+    {
+    case General:
+    case Diagonal:
+    case Tridiagonal:
+    case FullHessenberg:
+    case MixedHessenberg:
+        x1 = (T *)calloc(n, sizeof(T));
+        break;
+
+    case Triangular:
+        break;
+
+    default:
+        x1 = (T *)calloc(n, sizeof(T));
+        break;
+    }
+
+    switch (this->system_.matrix_struct())
+    {
+    case General:
+        Ax = [this, n]()
+        {
+            XGEMV(CblasRowMajor, CblasNoTrans, n, n, one, this->system_.A(), n, x, 1, zero, x1, 1); // x1 = Ax
+        };
+        break;
+
+    case Triangular:
+        Ax = [this, n]()
+        {
+            XTRMV(CblasRowMajor, CblasUpper, CblasNoTrans, CblasNonUnit, n, this->system_.A(), n, x, 1); // x = Ax
+        };
+        break;
+
+    case Diagonal:
+        Ax = [this, n]()
+        {
+            XGBMV(CblasRowMajor, CblasNoTrans, n, n, 0, 0, one, this->system_.A(), 1, x, 1, zero, x1, 1); // x1 = Ax
+        };
+        break;
+
+    case Tridiagonal:
+        Ax = [this, n]()
+        {
+            XGBMV(CblasRowMajor, CblasNoTrans, n, n, 1, 1, one, this->system_.A(), 3, x, 1, zero, x1, 1); // x1 = Ax
+        };
+        break;
+
+    case FullHessenberg:
+        Ax = [this, n]()
+        {
+            XGBMV(CblasRowMajor, CblasNoTrans, n, n, 1, n - 1, one, this->system_.A(), n + 1, x, 1, zero, x1, 1); // x1 = Ax
+        };
+        break;
+
+    case MixedHessenberg:
+        Ax = [this, n]()
+        {
+            XGBMV(CblasRowMajor, CblasNoTrans, n, n, 1, 0, one, this->system_.A() + n * n, 2, x, 1, zero, x1, 1); // x1 = A_lowerband*x
+            XTRMV(CblasRowMajor, CblasUpper, CblasNoTrans, CblasNonUnit, n, this->system_.A(), n, x, 1);          // x = A_triangular*x
+            XAXPY(n, one, x, 1, x1, 1);                                                                           // x1 = x1 + x
+        };
+        break;
+
+    default:
+        throw std::invalid_argument("Not valid matrix structure!");
+    }
+
+    switch (this->system_.matrix_struct())
+    {
+    case General:
+    case Diagonal:
+    case Tridiagonal:
+    case FullHessenberg:
+    case MixedHessenberg:
+        Bu = [this, n, m](T *input, int i)
+        {
+            if (T(n) / T(m) < 10 * T(log10(double(n) / double(m))))
+            {
+                XGEMV(CblasRowMajor, CblasNoTrans, n, m, one, this->system_.B(), m, input + i * m, 1, one, x1, 1);
+            }
+            else
+            {
+                XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x1, 1);
+            }
+        };
+        break;
+
+    case Triangular:
+        Bu = [this, n, m](T *input, int i)
+        {
+            if (T(n) / T(m) < 10 * T(log10(double(n) / double(m))))
+            {
+                XGEMV(CblasRowMajor, CblasNoTrans, n, m, one, this->system_.B(), m, input + i * m, 1, one, x, 1); // x = x + Bu
+            }
+            else
+            {
+                XGEMV(CblasColMajor, CblasNoTrans, n, m, one, this->system_.B(), n, input + i * m, 1, one, x, 1); // x = x + Bu
+            }
+        };
+        break;
+
+    default:
+        throw std::invalid_argument("Not valid matrix structure!");
+    }
+}
+
+template <typename T>
+XGEMVSolverV2<T>::~XGEMVSolverV2()
+{
+    free(x);
+    switch (this->system_.matrix_struct())
+    {
+    case General:
+    case Diagonal:
+    case Tridiagonal:
+    case FullHessenberg:
+    case MixedHessenberg:
+        free(x1);
+        break;
+
+    case Triangular:
+        break;
+
+    default:
+        free(x1);
+        break;
+    }
+}
+
+template <typename T>
+void XGEMVSolverV2<T>::process(T *input, T *output)
+{
+    int n = this->system_.shape().n;
+    int m = this->system_.shape().m;
+    int p = this->system_.shape().p;
+    T zero = 0;
+    T one = 1;
+
+    for (int i = 0; i < this->buffer_size_; i++)
+    {
+        XGEMV(CblasColMajor, CblasNoTrans, p, m, one, this->system_.D(), p, input + i * m, 1, zero, output + i * p, 1); // y = Du
+        XGEMV(CblasColMajor, CblasNoTrans, p, n, one, this->system_.C(), p, x, 1, one, output + i * p, 1);              // y = y + Cx
+        Ax();
+        Bu(input, i);
+
+        if (this->system_.matrix_struct() != Triangular)
+        {
+            std::swap(x, x1);
+        }
+    }
+    switch (this->system_.matrix_struct())
+    {
+    case General:
+    case Diagonal:
+    case Tridiagonal:
+    case FullHessenberg:
+    case MixedHessenberg:
+        std::swap(x, x1);
+        break;
+
+    case Triangular:
+        break;
+
+    default:
+        throw std::invalid_argument("Not valid matrix structure!");
         break;
     }
 }
@@ -278,7 +665,7 @@ void XGEMMSolver<T>::process(T *input, T *output)
     T one = 1;
 
     // X = BU
-    XGEMM(CblasColMajor, CblasNoTrans, CblasNoTrans, n, this->buffer_size_, m, one, this->system_.B(), n, input, m, zero, X + n, n);
+    XGEMM(CblasColMajor, CblasNoTrans, CblasNoTrans, n, this->buffer_size_, m, one, this->system_.B(), n, input, m, zero, X + n, n); // Error because not yet row major
 
     // x1 = Ax+BU
     for (int i = 1; i < this->buffer_size_; i++)
@@ -329,6 +716,12 @@ template class NativeSolver<float>;
 
 template class XGEMVSolver<double>;
 template class XGEMVSolver<float>;
+
+template class XGEMVSolverV1<double>;
+template class XGEMVSolverV1<float>;
+
+template class XGEMVSolverV2<double>;
+template class XGEMVSolverV2<float>;
 
 template class XGEMMSolver<double>;
 template class XGEMMSolver<float>;

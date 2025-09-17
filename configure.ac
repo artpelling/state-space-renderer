@@ -33,6 +33,8 @@ AM_CONDITIONAL([ON_X86_64], [test x$on_x86 = xyes])
 # Check for C++ compiler
 AC_LANG([C++])
 AC_PROG_CC
+PKG_PROG_PKG_CONFIG
+PKG_CHECK_MODULES([HDF5], [hdf5 >= 1.8])
 AC_PROG_CXX
 
 AC_CHECK_HEADERS(cblas.h)

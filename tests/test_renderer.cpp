@@ -1,34 +1,49 @@
-#include "../cnpy/cnpy.h"
 #include "../src/state_space_system.h"
 #include "../src/solver.h"
 #include "../src/utils.h"
 #include "../src/renderer.h"
 
+#include <signal.h>
+#include <unistd.h>
+
+volatile sig_atomic_t keep_running = 1;
+
+void handle_sigint(int)
+{
+    keep_running = 0;
+}
+
 int main(int argc, char const *argv[])
 {
-    std::string filename = argv[1];
-    cnpy::NpyArray A_npy = cnpy::npz_load(filename, "A");
-    cnpy::NpyArray B_npy = cnpy::npz_load(filename, "B");
-    cnpy::NpyArray C_npy = cnpy::npz_load(filename, "C");
-    cnpy::NpyArray D_npy = cnpy::npz_load(filename, "D");
-    cnpy::NpyArray input = cnpy::npz_load(filename, "input");
-
-    auto buffer_size = input.shape[1];
-    auto n = A_npy.shape[0], m = B_npy.shape[1], p = C_npy.shape[0];
+    const char *filename = argv[1];
     using T = double;
     using sol = XGEMVSolver<T>;
+    MatrixData<T> matdata = load_matrices_from_hdf5<T>(filename);
+    auto n = matdata.n, m = matdata.m, p = matdata.p;
 
-    std::cout << "buffer_size: " << buffer_size << std::endl;
     std::cout << "n: " << n << std::endl;
     std::cout << "m: " << m << std::endl;
     std::cout << "p: " << p << std::endl;
     MatrixStructure matstruct = string_to_matstruct(argv[2]);
 
-    StateSpaceSystem<T> system(A_npy.data<T>(), B_npy.data<T>(), C_npy.data<T>(), D_npy.data<T>(), A_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
+    StateSpaceSystem<T> system(matdata.A, matdata.B, matdata.C, matdata.D, n, m, p, matstruct);
     sol solver(system);
     JackRenderer<T> renderer(solver, m, p);
 
+    // Set up SIGINT handler
+    signal(SIGINT, handle_sigint);
+
     // Atomic flag to indicate when rendering is done
     renderer.render();
+
+    std::cout << "Press Ctrl+C to stop..." << std::endl;
+
+    while (keep_running)
+    {
+        pause(); // sleep until a signal is received
+    }
+
+    std::cout << "Exiting..." << std::endl;
+
     return 0;
 }

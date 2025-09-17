@@ -1,20 +1,110 @@
 #include <cblas.h>
 #include <cstring>
-#include "../cnpy/cnpy.h"
 #include "solver.h"
 #include "utils.h"
 
-void print_data(cnpy::NpyArray matrix)
+/* HDF5 imports*/
+
+auto get_dataset_info = [](hid_t file_id, const char *name)
 {
-    for (size_t i = 0; i < matrix.shape[0]; i++)
+    dataset_info info;
+    info.id = H5Dopen2(file_id, name, H5P_DEFAULT);
+    hid_t space = H5Dget_space(info.id);
+
+    int ndims = H5Sget_simple_extent_ndims(space);
+    hsize_t shape[2] = {1, 1}; // default shape
+
+    if (ndims == 1)
     {
-        for (size_t j = 0; j < matrix.shape[1]; j++)
-        {
-            std::cout << " " << matrix.data<double>()[i + matrix.shape[0] * j] << " ";
-        }
-        std::cout << std::endl;
+        H5Sget_simple_extent_dims(space, &shape[0], NULL);
+        shape[1] = 1;
     }
+    else if (ndims == 2)
+    {
+        H5Sget_simple_extent_dims(space, shape, NULL);
+    }
+
+    info.shape[0] = shape[0];
+    info.shape[1] = shape[1];
+
+    return info;
+};
+
+template <typename T>
+MatrixData<T> load_matrices_from_hdf5(const char *filename)
+{
+    hid_t file_id = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+
+    dataset_info Ainfo = get_dataset_info(file_id, "A");
+    dataset_info Binfo = get_dataset_info(file_id, "B");
+    dataset_info Cinfo = get_dataset_info(file_id, "C");
+    dataset_info Dinfo = get_dataset_info(file_id, "D");
+    dataset_info ninfo = get_dataset_info(file_id, "n");
+    dataset_info minfo = get_dataset_info(file_id, "m");
+    dataset_info pinfo = get_dataset_info(file_id, "p");
+
+    hsize_t n, m, p;
+
+    H5Dread(ninfo.id, H5T_NATIVE_HSIZE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &n);
+    H5Dread(minfo.id, H5T_NATIVE_HSIZE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &m);
+    H5Dread(pinfo.id, H5T_NATIVE_HSIZE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &p);
+
+    T *A = (T *)malloc(Ainfo.shape[0] * Ainfo.shape[1] * sizeof(T));
+    T *B = (T *)malloc(Binfo.shape[0] * Binfo.shape[1] * sizeof(T));
+    T *C = (T *)malloc(Cinfo.shape[0] * Cinfo.shape[1] * sizeof(T));
+    T *D = (T *)malloc(Dinfo.shape[0] * Dinfo.shape[1] * sizeof(T));
+
+    hid_t dtype = std::is_same<T, float>::value ? H5T_NATIVE_FLOAT : H5T_NATIVE_DOUBLE;
+
+    H5Dread(Ainfo.id, dtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, A);
+    H5Dread(Binfo.id, dtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, B);
+    H5Dread(Cinfo.id, dtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, C);
+    H5Dread(Dinfo.id, dtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, D);
+
+    H5Fclose(file_id);
+
+    return MatrixData<T>{A, B, C, D, n, m, p};
 }
+
+// Instantiation
+template MatrixData<float> load_matrices_from_hdf5<float>(const char *filename);
+template MatrixData<double> load_matrices_from_hdf5<double>(const char *filename);
+
+template <typename T>
+TestData<T> load_test_from_hdf5(const char *filename)
+{
+    hid_t file_id = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+
+    dataset_info uinfo = get_dataset_info(file_id, "u");
+    dataset_info yinfo = get_dataset_info(file_id, "y");
+    dataset_info minfo = get_dataset_info(file_id, "m");
+    dataset_info pinfo = get_dataset_info(file_id, "p");
+    dataset_info bufferinfo = get_dataset_info(file_id, "bf_size");
+
+    hsize_t buffer_size, m, p;
+
+    H5Dread(minfo.id, H5T_NATIVE_HSIZE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &m);
+    H5Dread(pinfo.id, H5T_NATIVE_HSIZE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &p);
+    H5Dread(bufferinfo.id, H5T_NATIVE_HSIZE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &buffer_size);
+
+    T *u = (T *)malloc(uinfo.shape[0] * uinfo.shape[1] * sizeof(T));
+    T *y = (T *)malloc(yinfo.shape[0] * yinfo.shape[1] * sizeof(T));
+
+    hid_t dtype = std::is_same<T, float>::value ? H5T_NATIVE_FLOAT : H5T_NATIVE_DOUBLE;
+
+    H5Dread(uinfo.id, dtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, u);
+    H5Dread(yinfo.id, dtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, y);
+
+    H5Fclose(file_id);
+
+    return TestData<T>{u, y, m, p, buffer_size};
+}
+
+// Instantiation
+template TestData<float> load_test_from_hdf5<float>(const char *filename);
+template TestData<double> load_test_from_hdf5<double>(const char *filename);
+
+/* Simple utility functions*/
 
 template <typename T>
 void print_data(T *data, int n, int m)

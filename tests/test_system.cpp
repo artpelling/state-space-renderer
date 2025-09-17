@@ -1,6 +1,6 @@
-#include "../cnpy/cnpy.h"
 #include "../src/state_space_system.h"
 #include "../src/utils.h"
+#include "hdf5.h"
 
 template <typename T>
 class NoProcess : public StateSpaceSystem<T>
@@ -10,43 +10,47 @@ public:
     {
     }
 
-    NoProcess(int n, int m, int p) : StateSpaceSystem<T>(n, m, p)
+    NoProcess(int n, int m, int p, MatrixStructure matstruct) : StateSpaceSystem<T>(n, m, p, matstruct)
     {
     }
 
-    NoProcess(T *A, T *B, T *C, T *D, int n, int m, int p, MatrixStructure General) : StateSpaceSystem<T>(A, B, C, D, n, m, p, General)
+    NoProcess(T *A, T *B, T *C, T *D, int n, int m, int p, MatrixStructure matstruct) : StateSpaceSystem<T>(A, B, C, D, n, m, p, matstruct)
     {
     }
 };
 
 int main(int argc, char const *argv[])
 {
-    std::string filename = argv[1];
-    cnpy::NpyArray A_npy = cnpy::npz_load(filename, "A");
-    cnpy::NpyArray B_npy = cnpy::npz_load(filename, "B");
-    cnpy::NpyArray C_npy = cnpy::npz_load(filename, "C");
-    cnpy::NpyArray D_npy = cnpy::npz_load(filename, "D");
-
+    const char *filename = argv[1];
     MatrixStructure matstruct = string_to_matstruct(argv[2]);
+    MatrixData<double> matdata1 = load_matrices_from_hdf5<double>(filename);
+    MatrixData<float> matdata2 = load_matrices_from_hdf5<float>(filename);
 
-    auto n = A_npy.shape[0], m = B_npy.shape[1], p = C_npy.shape[0];
-
-    /* Default state space */
+    // /* Default state space */
 
     std::cout << "- STL double zero states - " << std::endl;
-    NoProcess<double> zero_state_double(2, 2, 1);
+    NoProcess<double> zero_state_double(2, 2, 1, General);
     zero_state_double.info();
 
     std::cout << "- STL float zero states - " << std::endl;
-    NoProcess<float> zero_state_float(4, 4, 3);
+    NoProcess<float> zero_state_float(4, 4, 3, General);
     zero_state_float.info();
 
-    std::cout << "- STL double Cnpy import - " << std::endl;
-    NoProcess<double> nonempty_state_double(A_npy.data<double>(), B_npy.data<double>(), C_npy.data<double>(), D_npy.data<double>(), B_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
+    std::cout << "- STL double HDF5 import - " << std::endl;
+    NoProcess<double> nonempty_state_double(matdata1.A, matdata1.B, matdata1.C, matdata1.D, matdata1.n, matdata1.m, matdata1.p, matstruct);
     nonempty_state_double.info();
 
+    free(matdata1.A);
+    free(matdata1.B);
+    free(matdata1.C);
+    free(matdata1.D);
+
     std::cout << "- STL float Cnpy import" << std::endl;
-    // Note that you have to be careful when casting datatypes using cnpy, since float in python is internally casted as double. As you can see here, the value does not coincide correctly.
-    NoProcess<float> nonempty_state_float(A_npy.data<float>(), B_npy.data<float>(), C_npy.data<float>(), D_npy.data<float>(), B_npy.shape[0], B_npy.shape[1], C_npy.shape[0], matstruct);
+    NoProcess<float> nonempty_state_float(matdata2.A, matdata2.B, matdata2.C, matdata2.D, matdata2.n, matdata2.m, matdata2.p, matstruct);
     nonempty_state_float.info();
+
+    free(matdata2.A);
+    free(matdata2.B);
+    free(matdata2.C);
+    free(matdata2.D);
 }
