@@ -27,7 +27,7 @@ void BM_Solver(benchmark::State &state)
     using T = typename Solver::value_type;
 
     // Type evaluation
-    const char *type_string;
+    std::string type_string;
     if (std ::integral_constant<bool, std::is_same<float, typename std::remove_cv<T>::type>::value>::value)
     {
         type_string = "single";
@@ -38,7 +38,7 @@ void BM_Solver(benchmark::State &state)
     }
 
     // Structure evaluation
-    const char *struct_string;
+    std::string struct_string;
     switch (matstruct)
     {
     case General:
@@ -70,11 +70,11 @@ void BM_Solver(benchmark::State &state)
         break;
     }
 
-    const char *inputfile = "n" + std::to_chars(n) + "p" + std::to_chars(p) + "m" + std::to_chars(m) + "d" + std::to_chars(buffer_size) + type_string + struct_string + ".h5";
-    const char *path = "systems/benchmark/" + inputfile;
+    std::string inputfile = "n" + std::to_string(n) + "p" + std::to_string(p) + "m" + std::to_string(m) + "d" + std::to_string(buffer_size) + type_string + struct_string + ".h5";
+    std::string path = "systems/benchmark/" + inputfile;
 
-    MatrixData<T> matdata = load_matrices_from_hdf5<T>(path);
-    TestData<T> testdata = load_test_from_hdf5<T>(path);
+    MatrixData<T> matdata = load_matrices_from_hdf5<T>(path.c_str());
+    TestData<T> testdata = load_test_from_hdf5<T>(path.c_str());
 
     std::vector<T> output(p * buffer_size);
 
