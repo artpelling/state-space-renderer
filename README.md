@@ -4,7 +4,7 @@
 
 Current benchmarks can be found [here](https://artpelling.github.io/state-space-renderer/benchmarks/)
 
-# Installation
+# Installation for Linux
 
 ## Dependencies
 
@@ -38,6 +38,12 @@ Current benchmarks can be found [here](https://artpelling.github.io/state-space-
 
   ```shell
       sudo apt-get install libblas-dev
+  ```
+
+- JACK Pipewire Support
+
+  ```shell
+      sudo apt-get install pipewire-jack
   ```
 
 ## Compilation
