@@ -18,7 +18,7 @@ jobs:
           submodules: recursive
 
       - name: Install dependencies
-        run: sudo apt-get install libblas-dev libhdf5-dev
+        run: sudo apt-get install libblas-dev libhdf5-dev libjack-dev
 
       - name: Cache Benchmark library
         uses: actions/cache@v4
