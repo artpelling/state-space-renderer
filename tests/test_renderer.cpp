@@ -24,9 +24,8 @@ int main(int argc, char const *argv[])
     std::cout << "n: " << n << std::endl;
     std::cout << "m: " << m << std::endl;
     std::cout << "p: " << p << std::endl;
-    MatrixStructure matstruct = string_to_matstruct(argv[2]);
 
-    StateSpaceSystem<T> system(matdata.A, matdata.B, matdata.C, matdata.D, n, m, p, matstruct);
+    StateSpaceSystem<T> system(matdata.A, matdata.B, matdata.C, matdata.D, n, m, p, matdata.matstruct);
     sol solver(system);
     JackRenderer<T> renderer(solver, m, p);
 
