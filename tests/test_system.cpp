@@ -22,7 +22,6 @@ public:
 int main(int argc, char const *argv[])
 {
     const char *filename = argv[1];
-    MatrixStructure matstruct = string_to_matstruct(argv[2]);
     MatrixData<double> matdata1 = load_matrices_from_hdf5<double>(filename);
     MatrixData<float> matdata2 = load_matrices_from_hdf5<float>(filename);
 
@@ -37,7 +36,7 @@ int main(int argc, char const *argv[])
     zero_state_float.info();
 
     std::cout << "- STL double HDF5 import - " << std::endl;
-    NoProcess<double> nonempty_state_double(matdata1.A, matdata1.B, matdata1.C, matdata1.D, matdata1.n, matdata1.m, matdata1.p, matstruct);
+    NoProcess<double> nonempty_state_double(matdata1.A, matdata1.B, matdata1.C, matdata1.D, matdata1.n, matdata1.m, matdata1.p, matdata1.matstruct);
     nonempty_state_double.info();
 
     free(matdata1.A);
@@ -46,7 +45,7 @@ int main(int argc, char const *argv[])
     free(matdata1.D);
 
     std::cout << "- STL float Cnpy import" << std::endl;
-    NoProcess<float> nonempty_state_float(matdata2.A, matdata2.B, matdata2.C, matdata2.D, matdata2.n, matdata2.m, matdata2.p, matstruct);
+    NoProcess<float> nonempty_state_float(matdata2.A, matdata2.B, matdata2.C, matdata2.D, matdata2.n, matdata2.m, matdata2.p, matdata2.matstruct);
     nonempty_state_float.info();
 
     free(matdata2.A);

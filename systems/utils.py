@@ -51,6 +51,7 @@ def save_system(
     assert C.shape == (p, n)
     D = np.zeros((C.shape[0], B.shape[1]), dtype=dtype) if D is None else D
     assert D.shape == (p, m)
+    structure_int = 0
     if structure != "general":
         if structure == "triangular":
             print("Applying Schur transformation ...")
@@ -60,6 +61,7 @@ def save_system(
             #####
             A = Ap
             A = A - np.diag(np.diag(A, k=-1), k=-1)
+            structure_int = 1
         elif structure == "diagonal":
             print("Applying diagonal transformation ...")
             lam, T = spla.eig(A)
@@ -67,6 +69,7 @@ def save_system(
             Ab = lam.astype(dtype)
             #####
             A = np.diag(lam)
+            structure_int = 2
         elif structure == "tridiagonal":
             print("Applying diagonal transformation ...")
             lam, T = spla.eig(A)
@@ -78,6 +81,7 @@ def save_system(
             Ab[2, :-1] = np.diag(lam, k=-1)
             ######
             A = lam
+            structure_int = 3
         elif structure == "fullhessenberg":
             print("Applying Schur transformation ...")
             Ap, T = spla.schur(A, output="real" if real else "complex")
@@ -88,6 +92,7 @@ def save_system(
             Ab[n, :-1] = np.diag(Ap, k=-1)
             #######
             A = Ap
+            structure_int = 4
         elif structure == "mixedhessenberg":
             print("Applying Schur transformation ...")
             Ap, T = spla.schur(A, output="real" if real else "complex")
@@ -101,6 +106,7 @@ def save_system(
             print(Ab)
             #######
             A = Ap
+            structure_int = 5
         print(f"Condition number of transformation: {np.linalg.cond(T)}")
         B, *_, svs = spla.lstsq(T, B)
         print(f"Singular values: {svs}")
@@ -161,6 +167,7 @@ def save_system(
         hf.create_dataset("n", data=n)
         hf.create_dataset("m", data=m)
         hf.create_dataset("p", data=p)
+        hf.create_dataset("structure", data=structure_int)
 
         if test_input:
             u = np.random.randn(m, test_input_length)

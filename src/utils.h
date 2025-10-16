@@ -7,6 +7,25 @@
 #define UNDERLINE "\033[4m"
 #define CLOSEUNDERLINE "\033[0m"
 
+/* Matrix Structure Enumerator */
+
+/// @brief Matrix structure
+enum MatrixStructure
+{
+    /// @brief General matrix
+    General = 0,
+    /// @brief Triangular matrix
+    Triangular = 1,
+    /// @brief Diagonal matrix
+    Diagonal = 2,
+    /// @brief Tridiagonal matrix
+    Tridiagonal = 3,
+    /// @brief Hessenberg matrix with banded storage
+    FullHessenberg = 4,
+    /// @brief Hessenberg matrix with mix of banded and triangular matrix storage
+    MixedHessenberg = 5
+};
+
 /* HDF5 Routines */
 
 /// @brief HDF5 backend dataset info structure
@@ -29,6 +48,7 @@ struct MatrixData
     T *C;
     T *D;
     hsize_t n, m, p;
+    MatrixStructure matstruct;
 };
 
 /// @brief Input/output sets for storing solution to a state space in HDF5 format
