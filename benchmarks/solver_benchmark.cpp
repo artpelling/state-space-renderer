@@ -4,9 +4,9 @@
 #include <type_traits>
 
 #include <benchmark/benchmark.h>
-#include "state_space_system.h"
-#include "solver.h"
-#include "utils.h"
+#include "../src/state_space_system.h"
+#include "../src/solver.h"
+#include "../src/utils.h"
 
 MatrixStructure StructureIdx(int m)
 {

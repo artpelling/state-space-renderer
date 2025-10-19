@@ -67,7 +67,7 @@ mkdir build && cd build
 make
 ```
 
-## Structure
+## Data
 
 We have constructed the following templated base classes to process state space systems:
 
@@ -91,3 +91,41 @@ graph TD;
     `StateSpaceRenderer`-->`Solver`;
     `Solver`-->`Renderer`;
 ```
+
+## State Space System HDF5 import support
+
+Using `utils.h::load_matrices_from_hdf5`, one can import state-space system setups from HDF5 files to a `MatrixData` class which stores the shape, matrices and structure of the class.
+
+```mermaid
+classDiagram
+MatrixData <|-- HDF5 : load_matrices_from_hdf5()
+HDF5 : int structure
+HDF5 : int n
+HDF5 : int m
+HDF5 : int p
+HDF5 : T A
+HDF5 : T B
+HDF5 : T C
+HDF5 : T D
+MatrixData : MatrixStructure matstruct
+MatrixData : hsize_t n
+MatrixData : hsize_t m
+MatrixData : hsize_t p
+MatrixData : T *A
+MatrixData : T *B
+MatrixData : T *C
+MatrixData : T *D
+```
+
+Note that by default this library uses a column-major order storage to perform computation. However, HDF5 only admits an row-major order storage. To solve this, we use a simple transpose of the matrix. An example of this can be seen in `save_system` from `utils.py`.
+
+For the structure storage we use the following enumeration:
+
+- General = 0,
+- Triangular = 1,
+- Diagonal = 2,
+- Tridiagonal = 3,
+- FullHessenberg = 4,
+- MixedHessenberg = 5.
+
+Please store the enumeration corresponding to the structure in the HDF5 file to keep the correct matrix structure when importing.

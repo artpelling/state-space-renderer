@@ -42,12 +42,17 @@ MatrixData<T> load_matrices_from_hdf5(const char *filename)
     dataset_info ninfo = get_dataset_info(file_id, "n");
     dataset_info minfo = get_dataset_info(file_id, "m");
     dataset_info pinfo = get_dataset_info(file_id, "p");
+    dataset_info structure_info = get_dataset_info(file_id, "structure");
 
     hsize_t n, m, p;
 
     H5Dread(ninfo.id, H5T_NATIVE_HSIZE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &n);
     H5Dread(minfo.id, H5T_NATIVE_HSIZE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &m);
     H5Dread(pinfo.id, H5T_NATIVE_HSIZE, H5S_ALL, H5S_ALL, H5P_DEFAULT, &p);
+
+    int structure_val;
+
+    H5Dread(structure_info.id, H5T_NATIVE_INT, H5S_ALL, H5S_ALL, H5P_DEFAULT, &structure_val);
 
     T *A = (T *)malloc(Ainfo.shape[0] * Ainfo.shape[1] * sizeof(T));
     T *B = (T *)malloc(Binfo.shape[0] * Binfo.shape[1] * sizeof(T));
@@ -63,7 +68,7 @@ MatrixData<T> load_matrices_from_hdf5(const char *filename)
 
     H5Fclose(file_id);
 
-    return MatrixData<T>{A, B, C, D, n, m, p};
+    return MatrixData<T>{A, B, C, D, n, m, p, static_cast<MatrixStructure>(structure_val)};
 }
 
 // Instantiation

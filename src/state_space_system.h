@@ -14,25 +14,6 @@ struct system_shape
     int n, m, p;
 };
 
-/* Matrix Structure Enumerator */
-
-/// @brief Matrix structure
-enum MatrixStructure
-{
-    /// @brief General matrix
-    General = 0,
-    /// @brief Triangular matrix
-    Triangular = 1,
-    /// @brief Diagonal matrix
-    Diagonal = 2,
-    /// @brief Tridiagonal matrix
-    Tridiagonal = 3,
-    /// @brief Hessenberg matrix with banded storage
-    FullHessenberg = 4,
-    /// @brief Hessenberg matrix with mix of banded and triangular matrix storage
-    MixedHessenberg = 5
-};
-
 /// @brief Utility for deducing matrix structures with string. Useful for passing arguments in main.
 /// @param matstruct_str String of matrix structure.
 /// @return MatrixStructure object.

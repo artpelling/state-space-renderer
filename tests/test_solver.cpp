@@ -5,7 +5,6 @@
 int main(int argc, char const *argv[])
 {
     const char *filename = argv[1];
-    MatrixStructure matstruct = string_to_matstruct(argv[2]);
     MatrixData<double> matdata = load_matrices_from_hdf5<double>(filename);
     TestData<double> testdata = load_test_from_hdf5<double>(filename);
 
@@ -25,7 +24,7 @@ int main(int argc, char const *argv[])
 
     output = (double *)calloc(p * buffer_size, sizeof(double)); // allocate
     dtout = testdata.y;
-    StateSpaceSystem<double> system(matdata.A, matdata.B, matdata.C, matdata.D, n, m, p, matstruct);
+    StateSpaceSystem<double> system(matdata.A, matdata.B, matdata.C, matdata.D, n, m, p, matdata.matstruct);
 
     NativeSolver<double> dnat_solver(system);
     XGEMVSolver<double> dgemv_solver(system);

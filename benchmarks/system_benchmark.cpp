@@ -1,8 +1,7 @@
 #include <benchmark/benchmark.h>
 #include <string>
 
-#include "../cnpy/cnpy.h"
-#include "state_space_system.h"
+#include "../src/state_space_system.h"
 
 MatrixStructure StructureIdx(int m)
 {
