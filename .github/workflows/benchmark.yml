@@ -31,7 +31,7 @@ jobs:
           autoreconf -vif
           mkdir build && cd build
           ../configure
-          make
+          make ssm-jackclient
 
       - name: Tests
         run: cd build && make tests

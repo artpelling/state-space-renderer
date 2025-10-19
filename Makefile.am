@@ -3,7 +3,7 @@ AUTOMAKE_OPTIONS = subdir-objects
 .PHONY: bench bench-json
 
 # STATE SPACE RENDERER
-bin_PROGRAMS = test_system test_solver test_renderer solver_benchmark system_benchmark blas_benchmark xgemv_benchmark
+bin_PROGRAMS = ssm-jackclient test_system test_solver solver_benchmark system_benchmark blas_benchmark xgemv_benchmark
 
 LDADD = -lblas -lhdf5_serial
 
@@ -14,6 +14,8 @@ AM_CPPFLAGS += -I/Library/Developer/CommandLineTools/SDKs/MacOSX14.2.sdk/System/
 AM_LDFLAGS += -framework Accelerate
 endif
 
+ssm_jackclient_SOURCES =  src/ssm_jackclient.cpp src/state_space_system.cpp src/renderer.cpp src/solver.cpp src/utils.cpp
+ssm_jackclient_LDADD = $(LDADD) -ljack
 
 # TESTS
 test_system_SOURCES = tests/test_system.cpp src/state_space_system.cpp src/utils.cpp
@@ -21,10 +23,6 @@ test_system_DEPENDENCIES = system_file
 
 test_solver_SOURCES = tests/test_solver.cpp src/state_space_system.cpp src/solver.cpp src/utils.cpp
 test_solver_DEPENDENCIES = system_file
-
-test_renderer_SOURCES = tests/test_renderer.cpp src/state_space_system.cpp src/renderer.cpp src/solver.cpp src/utils.cpp
-test_renderer_DEPENDENCIES = system_file
-test_renderer_LDADD = $(LDADD) -ljack
 
 check: test_system test_solver
 	./test_system systems/n4p3m5d16doublegeneral.h5 General

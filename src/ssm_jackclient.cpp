@@ -1,7 +1,7 @@
-#include "../src/state_space_system.h"
-#include "../src/solver.h"
-#include "../src/utils.h"
-#include "../src/renderer.h"
+#include "state_space_system.h"
+#include "solver.h"
+#include "utils.h"
+#include "renderer.h"
 
 #include <signal.h>
 #include <unistd.h>
