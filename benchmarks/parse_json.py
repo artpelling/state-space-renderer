@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 
-benchfile = Path(__file__).parent / "build/benchmark_result.json"
+benchfile = Path(__file__).parent.parent / "build/benchmark_result.json"
 with open(benchfile, 'r') as f:
     data = json.load(f)
 

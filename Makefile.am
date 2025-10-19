@@ -107,7 +107,7 @@ bench: solver_benchmark
 
 bench-json: solver_benchmark
 	./solver_benchmark --benchmark_time_unit=ms --benchmark_format=json | tee benchmark_result.json
-	. $(VENVBIN) && python $(srcdir)/parse_json.py
+	. $(VENVBIN) && python $(srcdir)/benchmarks/parse_json.py
 
 # CLEAN
 clean-system:
