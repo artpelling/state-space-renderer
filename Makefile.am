@@ -3,8 +3,6 @@ AUTOMAKE_OPTIONS = subdir-objects
 .PHONY: bench bench-json
 
 # STATE SPACE RENDERER
-# BUILT_SOURCES = $(srcdir)/benchmark/build/src/libbenchmark.a 
-
 bin_PROGRAMS = test_system test_solver test_renderer solver_benchmark system_benchmark blas_benchmark xgemv_benchmark
 
 LDADD = -lblas -lhdf5_serial
@@ -47,13 +45,16 @@ check: test_system test_solver
 
 # BENCHMARKS
 benchmarks_includedir = $(srcdir)/benchmarks/include
+
+BUILT_SOURCES = $(benchmarks_includedir)/benchmark/build/src/libbenchmark.a
+
 $(benchmarks_includedir)/benchmark/.git:
 	cd $(benchmark_includedir) && git submodule update --init --remote benchmark
 
-$(benchmarks_includedir)/benchmarks/include/benchmark/build: $(benchmarks_includedir)/benchmark/.git
+$(benchmarks_includedir)/benchmark/build: $(benchmarks_includedir)/benchmark/.git
 	mkdir -p $(benchmarks_includedir)/benchmark/build
 
-$(benchmarks_includedir)/benchmarks/include/benchmark/build/src/libbenchmark.a: $(benchmarks_includedir)/benchmark/build
+$(benchmarks_includedir)/benchmark/build/src/libbenchmark.a: $(benchmarks_includedir)/benchmark/build
 	cd $(benchmarks_includedir)/benchmark/build && \
 	cmake -DCMAKE_BUILD_TYPE=Release -DBENCHMARK_DOWNLOAD_DEPENDENCIES=on ../ && \
 	make -j
