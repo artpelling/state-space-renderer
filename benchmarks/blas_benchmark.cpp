@@ -1,6 +1,6 @@
 #include <benchmark/benchmark.h>
 #include <cblas.h>
-#include "utils.h"
+#include "../src/utils.h"
 
 CBLAS_ORDER OrderIdx(int m)
 {

@@ -1,5 +1,5 @@
 [submodule "benchmark"]
-	path = benchmark
+	path = benchmarks/include/benchmark
 	url = git@github.com:google/benchmark.git
 [submodule "h5cpp"]
 	path = h5cpp

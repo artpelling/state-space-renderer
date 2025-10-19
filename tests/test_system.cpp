@@ -44,7 +44,7 @@ int main(int argc, char const *argv[])
     free(matdata1.C);
     free(matdata1.D);
 
-    std::cout << "- STL float Cnpy import" << std::endl;
+    std::cout << "- STL float HDF5 import" << std::endl;
     NoProcess<float> nonempty_state_float(matdata2.A, matdata2.B, matdata2.C, matdata2.D, matdata2.n, matdata2.m, matdata2.p, matdata2.matstruct);
     nonempty_state_float.info();
 
